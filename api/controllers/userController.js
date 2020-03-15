@@ -1,5 +1,5 @@
 'use strict'
-const db = require('../db')
+// const db = require('../db')
 var usersRef = db.collection('users')
 var OD = require('./openDotaController')
 
@@ -26,10 +26,6 @@ exports.updateUser = function (req, res) {
     .catch(err => {
       console.log('Error getting documents', err);
     });
-}
-
-exports.getUserBySteamID = (req, res) => {
-
 }
 
 exports.getAllUsers = function (req, res) {

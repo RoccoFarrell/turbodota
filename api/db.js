@@ -1,13 +1,18 @@
-var admin = require("firebase-admin");
+const admin = require("firebase-admin");
 
-var serviceAccount = require("./serviceAccountKey.json");
+let serviceAccount = {}
+if(process.env.NODE_ENV === 'production') {
+  serviceAccount = process.env.GOOGLE_SERVICE_KEY
+} else {
+  serviceAccount = require("./serviceAccountKey.json");
+}
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: "https://turbodoto.firebaseio.com"
 });
 
-var db = admin.firestore();
+const db = admin.firestore();
 
 const settings = { timestampsInSnapshots: true }
 
