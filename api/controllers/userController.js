@@ -42,7 +42,7 @@ exports.getAllUsers = function (req, res) {
 
         userArr.push(userData)
       });
-      console.log(userArr)
+      // console.log(userArr)
       res.send({ "users": userArr })
     })
     .catch(err => {

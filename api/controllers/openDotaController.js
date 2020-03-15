@@ -5,7 +5,7 @@ var usersRef = db.collection('users')
 
 async function processPlayerInfo(incoming_steamId, matchStats, userStats) {
 
-  console.log(userStats)
+  // console.log(userStats)
   console.log("match stats length: ", matchStats.length)
   console.log("processing player info for: ", incoming_steamId)
 
@@ -22,7 +22,7 @@ async function processPlayerInfo(incoming_steamId, matchStats, userStats) {
   let avgObj = {'kills': (totals.kills / matchStats.length).toFixed(2), 'deaths': (totals.deaths / matchStats.length).toFixed(2), 'assists': (totals.assists / matchStats.length).toFixed(2)}
 
   //all this DB stuff is broken
-  
+
   // usersRef.where('steamID', '==', incoming_steamId).get()
   // .then(snapshot => {
   //   // console.log(snapshot)
@@ -76,14 +76,14 @@ async function processPlayerInfo(incoming_steamId, matchStats, userStats) {
 }
 
 exports.searchUser = async function (req, res) {
-  console.log(req.query)
+  // console.log(req.query)
   let userStats = await fetch('https://api.opendota.com/api/search?q=' + req.query.searchString, {
     method: 'get',
     headers: { 'Content-Type': 'application/json' },
   })
   .then(data => data.json())
   .then((json) => {
-    console.log('search results: ', json)
+    // console.log('search results: ', json)
     res.send(json)
   });
 }
