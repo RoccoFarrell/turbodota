@@ -1,5 +1,5 @@
 'use strict'
-// const db = require('../db')
+const db = require('../db')
 var usersRef = db.collection('users')
 var OD = require('./openDotaController')
 
