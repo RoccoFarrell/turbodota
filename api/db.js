@@ -2,7 +2,7 @@ const admin = require("firebase-admin");
 
 let serviceAccount = {}
 if(process.env.NODE_ENV === 'production') {
-  serviceAccount = process.env.GOOGLE_SERVICE_KEY
+  serviceAccount = JSON.parse(process.env.GOOGLE_SERVICE_KEY)
 } else {
   serviceAccount = require("./serviceAccountKey.json");
 }
