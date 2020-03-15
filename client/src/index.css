@@ -1,0 +1,10 @@
+body {
+  margin: 0;
+  font-family: 'K2D' !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: 'K2D';
+}
