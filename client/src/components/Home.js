@@ -6,6 +6,18 @@ import logo from '../assets/turbologo.png';
 import { useHistory } from "react-router-dom";
 import TurbodotaContext from './TurbodotaContext'
 import UserData from './UserData';
+import {
+  Container,
+  Divider,
+  Dropdown,
+  Grid,
+  Header,
+  Image,
+  List,
+  Menu,
+  Segment,
+  Card,
+} from 'semantic-ui-react'
 
 function Home() {
   const [searchText, setSearchText] = useState('')
@@ -118,20 +130,33 @@ function Home() {
           alignItems='center'
         >
           {searchResults.map(player => (
-            <Pane
-              key={player.account_id}
-              width='85%'
-              elevation={2}
-              background='white'
-              padding={majorScale(1)}
-              margin={majorScale(1)}
-              onClick={() => {
-                console.log(player.account_id)
-                handleUserSelect(player)
-              }}
-            >
-              {player.personaname}
+            <Pane>
+              <Card>
+                <Card.Content>
+                  <Image 
+                    src={player.avatarfull}
+                    floated='right'
+                    size='mini'
+                  />
+                  <Card.Header>{player.personaname}</Card.Header>
+                  {/* <Card.Description>{player}</Card.Description> */}
+
+                </Card.Content>
+              </Card>
             </Pane>
+        //       key={player.account_id}
+        //       width='85%'
+        //       elevation={2}
+        //       background='white'
+        //       padding={majorScale(1)}
+        //       margin={majorScale(1)}
+        //       onClick={() => {
+        //         console.log(player.account_id)
+        //         handleUserSelect(player)
+        //       }}
+        //     >
+        //       <Image src={player.avatarfull}/>{player.personaname}
+        //     </Pane>
           ))}
         </Pane>
       : 
