@@ -22,6 +22,6 @@ module.exports = function (app) {
   app.route('/api/users/')
     .get(user.getAllUsers)
 
-  app.route('/api/opendota/:steamID')
+  app.route('/api/players/:steamID')
     .get(od.fetchUserByID)
 }

@@ -123,6 +123,6 @@ exports.fetchUserByID = async function (req, res) {
 
     //console.log(returnObj.userStats, returnObj.averages)
 
-    res.send(matchStats)
+    res.send(returnObj)
 }
 
