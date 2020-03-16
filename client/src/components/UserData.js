@@ -34,12 +34,13 @@ function UserData() {
     return (
         <Pane
         width='100%'
+        padding={majorScale(5)}
         >
-            <h1>USER DATA: {selectedUser.account_id}</h1>
             {userData.userStats ? (
                 <Pane
                 width='100%'
                 >
+                    <h1>USER DATA: {selectedUser.account_id}</h1>
                     <Pane>
                         <Pane>MMR: {userData.userStats.mmr_estimate.estimate}</Pane>
                         <Pane>Kills: {userData.totals.kills}</Pane>
