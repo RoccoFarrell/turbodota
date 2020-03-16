@@ -4,6 +4,10 @@ import { useHistory } from "react-router-dom";
 import axios from 'axios'
 import TurbodotaContext from './TurbodotaContext'
 import SingleMatch from './SingleMatch'
+import {
+    Card,
+    Button
+} from 'semantic-ui-react'
 
 function UserData() {
 
@@ -48,13 +52,13 @@ function UserData() {
                         <Pane>Assists: {userData.totals.assists}</Pane>
                         <Pane>Games: {userData.totals.games}</Pane>
                     </Pane>
-                    <Pane>
+                    <Card.Group itemsPerRow={1}>
                         {userData.matchStats.map((match) => (
                             <SingleMatch 
                             key = {match.match_id}
                             matchData={match}/>
                         ))}
-                    </Pane>
+                    </Card.Group>
                 </Pane>
             )
             :

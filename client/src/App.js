@@ -8,6 +8,8 @@ import TurbodotaProvider from './components/TurbodotaProvider'
 
 import logo from './assets/squareLogo.png';
 
+import 'dota2-minimap-hero-sprites/assets/stylesheets/dota2minimapheroes.css';
+
 export default function App() {
   return (
     <TurbodotaProvider>

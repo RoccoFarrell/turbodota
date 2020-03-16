@@ -10,6 +10,8 @@ const path = require('path')
 const cors = require('cors')
 const environment = process.env.NODE_ENV || 'development'
 
+const apicache =require('apicache')
+
 console.log('Running in env ' + environment)
 // console.log(process.env)
 
@@ -18,17 +20,30 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 app.use(cors())
 
+//Log requests to console
+app.use('*', (req, res, next) => {
+  apicache.getPerformance()
+  console.log('Request Received: ' + '\nTime:', Date.now())
+  next()
+})
+
+//implement cache
+let cache = apicache.middleware
+
+//only in dev env
+console.log('Caching API calls')
+if(process.env.NODE_ENV === 'development'){
+  apicache.options({ debug: true })
+  app.use(cache('10 minutes'))
+}
+
 const routes = require('./api/routes/appRoutes')
 routes(app)
 
 // Serve static files from the React app
 app.use(express.static(path.join(__dirname, 'client/build')))
 
-//Log requests to console
-app.use('*', (req, res, next) => {
-    console.log('Request Received: ' + '\nTime:', Date.now())
-    next()
-  })
+
 
 //Serve non-API requests to static dir
 app.get('*', (req, res) => {

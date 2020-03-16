@@ -22,6 +22,9 @@ module.exports = function (app) {
   app.route('/api/users/')
     .get(user.getAllUsers)
 
+  app.route('/api/heroes')
+    .get(od.fetchHeroes)
+
   app.route('/api/players/:steamID')
     .get(od.fetchUserByID)
 }

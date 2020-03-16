@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import {
   Container,
   Divider,
@@ -18,16 +18,22 @@ import {
     useHistory
   } from "react-router-dom";
 import Home from './Home'
-import TurbodotaProvider from './TurbodotaProvider'
+import TurbodotaContext from './TurbodotaContext'
 
 import logo from '../assets/squareLogo.png';
 
 
 function FixedMenuLayout() {
+    
+    const {selectedUser, setSelectedUser}= useContext(TurbodotaContext);
+    
     let history = useHistory()
 
     const pushRoute = (route) => {
-      history.push("/" + route )
+        if(route === ''){
+            setSelectedUser({})
+        }
+        history.push("/" + route )
     }
 
     let TestComponent = () => {
@@ -46,7 +52,7 @@ function FixedMenuLayout() {
                 <Image size='mini' src={logo} style={{ marginRight: '1.5em' }} />
                     Turbodota
                 </Menu.Item>
-                <Menu.Item as='a' onClick={() => {pushRoute('home')}}>
+                <Menu.Item as='a' onClick={() => {pushRoute('')}}>
                 Home    
                 </Menu.Item>
                 <Menu.Item as='a' onClick={() => {pushRoute('search')}}>
@@ -83,7 +89,7 @@ function FixedMenuLayout() {
                 renders the first one that matches the current URL. */}
             <Container fluid style={{ paddingTop: '4.25em'}}>
                 <Switch>
-                    <Route path="/home">
+                    <Route path="/">
                         <Home />
                     </Route>
                     <Route path="/search">

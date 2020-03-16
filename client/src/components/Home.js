@@ -6,6 +6,8 @@ import logo from '../assets/turbologo.png';
 import { useHistory } from "react-router-dom";
 import TurbodotaContext from './TurbodotaContext'
 import UserData from './UserData';
+import SearchResults from './SearchResults'
+
 import {
   Container,
   Divider,
@@ -20,11 +22,10 @@ import {
 } from 'semantic-ui-react'
 
 function Home() {
-  const [searchText, setSearchText] = useState('')
+  const [searchText, setSearchText] = useState('MeP Dog Petter')
   const [searchResults, setSearchResults] = useState([])
   let history = useHistory()
   const {selectedUser, setSelectedUser}= useContext(TurbodotaContext);
-
 
   const processSearch = async (inputText) => {
     setSearchText(inputText)
@@ -43,6 +44,9 @@ function Home() {
           let content = res.data;
           console.log(content[0]);
           setSearchResults(content)
+        })
+        .catch(e => {
+          console.log(e)
         })
         
       } catch(e) {console.error(e)}
@@ -88,7 +92,7 @@ function Home() {
           fontFamily='inherit'
           padding={majorScale(1)}
         >
-            TurboDota.io
+            TurboDota
         </Heading>
         <Text
           fontSize={25}
@@ -121,48 +125,10 @@ function Home() {
         console.log("BUSTED")
       }
       { searchResults.length !== 0 ? 
-        <Pane
-          width='100%'
-          margin={majorScale(1)}
-          display='flex'
-          flexDirection='column'
-          justifyContent='flex-start'
-          alignItems='center'
-        >
-          {searchResults.map(player => (
-              <Card
-                width='100%'
-                key={player.account_id}
-                onClick={() => {
-                  handleUserSelect(player)
-                }}
-              >
-                <Card.Content>
-                  <Image 
-                    src={player.avatarfull}
-                    floated='left'
-                    size='mini'
-                  />
-                  <Card.Header>{player.personaname}</Card.Header>
-                  {/* <Card.Description>{player}</Card.Description> */}
-
-                </Card.Content>
-              </Card>
-        //       
-        //       width='85%'
-        //       elevation={2}
-        //       background='white'
-        //       padding={majorScale(1)}
-        //       margin={majorScale(1)}
-        //       onClick={() => {
-        //         console.log(player.account_id)
-        //         handleUserSelect(player)
-        //       }}
-        //     >
-        //       <Image src={player.avatarfull}/>{player.personaname}
-        //     </Pane>
-          ))}
-        </Pane>
+        <SearchResults
+          searchResults = { searchResults }
+          handleUserSelect = { handleUserSelect }
+        />
       : 
         <Text
           size={500}

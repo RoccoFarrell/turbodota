@@ -75,6 +75,20 @@ async function processPlayerInfo(incoming_steamId, matchStats, userStats) {
   return ({"averages": avgObj, "totals": totals})
 }
 
+exports.fetchHeroes = async function (req, res) {
+  // console.log(req.query)
+  let userStats = await fetch('https://api.opendota.com/api/heroes', {
+    method: 'get',
+    headers: { 'Content-Type': 'application/json' },
+  })
+  .then(data => data.json())
+  .then((json) => {
+    // console.log('search results: ', json)
+    res.send(json)
+  });
+}
+
+
 exports.searchUser = async function (req, res) {
   // console.log(req.query)
   let userStats = await fetch('https://api.opendota.com/api/search?q=' + req.query.searchString, {
