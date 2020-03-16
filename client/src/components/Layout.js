@@ -18,6 +18,7 @@ import {
     useHistory
   } from "react-router-dom";
 import Home from './Home'
+import Changelog from './Changelog'
 import TurbodotaContext from './TurbodotaContext'
 
 import logo from '../assets/squareLogo.png';
@@ -58,6 +59,9 @@ function FixedMenuLayout() {
                 <Menu.Item as='a' onClick={() => {pushRoute('search')}}>
                 Search
                 </Menu.Item>
+                <Menu.Item as='a' onClick={() => {pushRoute('changelog')}}>
+                    Changelog
+                </Menu.Item>
 
                 <Dropdown item simple text='Dropdown'>
                 <Dropdown.Menu>
@@ -89,11 +93,14 @@ function FixedMenuLayout() {
                 renders the first one that matches the current URL. */}
             <Container fluid style={{ paddingTop: '4.25em'}}>
                 <Switch>
-                    <Route path="/">
-                        <Home />
+                    <Route path="/changelog">
+                        <Changelog />
                     </Route>
                     <Route path="/search">
                         <TestComponent />
+                    </Route>
+                    <Route path="/">
+                        <Home />
                     </Route>
                 </Switch>
             </Container>
