@@ -32,7 +32,7 @@ function Home() {
 
   const handleUserSelect = (player) => {
     setSelectedUser(player)
-    history.push("/searchResults")
+    // history.push("/searchResults")
   }
 
   useEffect(() => {
@@ -130,12 +130,17 @@ function Home() {
           alignItems='center'
         >
           {searchResults.map(player => (
-            <Pane>
-              <Card>
+              <Card
+                width='100%'
+                key={player.account_id}
+                onClick={() => {
+                  handleUserSelect(player)
+                }}
+              >
                 <Card.Content>
                   <Image 
                     src={player.avatarfull}
-                    floated='right'
+                    floated='left'
                     size='mini'
                   />
                   <Card.Header>{player.personaname}</Card.Header>
@@ -143,8 +148,7 @@ function Home() {
 
                 </Card.Content>
               </Card>
-            </Pane>
-        //       key={player.account_id}
+        //       
         //       width='85%'
         //       elevation={2}
         //       background='white'
