@@ -22,7 +22,7 @@ import {
 } from 'semantic-ui-react'
 
 function Home() {
-  const [searchText, setSearchText] = useState('MeP Dog Petter')
+  const [searchText, setSearchText] = useState('DINO IS HERE TO RAWR')
   const [searchResults, setSearchResults] = useState([])
   let history = useHistory()
   const {selectedUser, setSelectedUser}= useContext(TurbodotaContext);

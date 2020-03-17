@@ -140,3 +140,16 @@ exports.fetchUserByID = async function (req, res) {
     res.send(returnObj)
 }
 
+exports.fetchMatchByID = async function (req, res) {
+  console.log("Requested")
+  let matchStats = await fetch('https://api.opendota.com/api/matches/' + req.params.matchID, {
+      method: 'get',
+      headers: { 'Content-Type': 'application/json' },
+  })
+  .then(data => data.json())
+  .then((json) => {
+    return json
+  });
+
+  res.send(matchStats)
+}

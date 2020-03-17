@@ -27,4 +27,7 @@ module.exports = function (app) {
 
   app.route('/api/players/:steamID')
     .get(od.fetchUserByID)
+
+  app.route('/api/matches/:matchID')
+    .get(od.fetchMatchByID)
 }

@@ -16,20 +16,15 @@ function UserData() {
     const [userData, setUserData] = useState({});
 
     useEffect(() => {
-        console.log(selectedUser)
-      }, [selectedUser])
-
-
-    useEffect(() => {
         async function searchUser(){
             try {
-            axios.get(`/api/players/${selectedUser.account_id}`)
-            .then(res => {
-                let content = res.data;
-                console.log(content);
-                setUserData(content)
-            })
-            
+                axios.get(`/api/players/${selectedUser.account_id}`)
+                .then(res => {
+                    let content = res.data;
+                    content.matchStats = content.matchStats.slice(0,1)
+                    setUserData(content)
+                })
+                
             } catch(e) {console.error(e)}
         }
         if (selectedUser.account_id !== undefined) searchUser()
