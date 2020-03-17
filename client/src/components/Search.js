@@ -2,27 +2,16 @@ import React, { useState, useEffect, useContext } from 'react';
 import '../App.css';
 import axios from 'axios'
 import { Pane, Text, Heading, SearchInput, ThemeProvider, defaultTheme, majorScale } from 'evergreen-ui'
+import { Button } from 'semantic-ui-react'
+
 import logo from '../assets/turbologo.png';
 import { useHistory } from "react-router-dom";
 import TurbodotaContext from './TurbodotaContext'
 import UserData from './UserData';
 import SearchResults from './SearchResults'
 
-import {
-  Container,
-  Divider,
-  Dropdown,
-  Grid,
-  Header,
-  Image,
-  List,
-  Menu,
-  Segment,
-  Card,
-} from 'semantic-ui-react'
-
 function Home() {
-  const [searchText, setSearchText] = useState('DINO IS HERE TO RAWR')
+  const [searchText, setSearchText] = useState('')
   const [searchResults, setSearchResults] = useState([])
   let history = useHistory()
   const {selectedUser, setSelectedUser}= useContext(TurbodotaContext);
@@ -33,7 +22,8 @@ function Home() {
 
   const handleUserSelect = (player) => {
     setSelectedUser(player)
-    // history.push("/searchResults")
+    setSearchResults([])
+    history.push("/users/" + player.account_id)
   }
 
   useEffect(() => {
@@ -42,7 +32,6 @@ function Home() {
         axios.get(`/api/search?searchString=${searchText}`)
         .then(res => {
           let content = res.data;
-          console.log(content[0]);
           setSearchResults(content)
         })
         .catch(e => {
@@ -53,7 +42,6 @@ function Home() {
     }
 
     if(searchText !== ''){
-      console.log('effect text: ', searchText)
       searchUser()
     }
   }, [searchText])
@@ -70,6 +58,7 @@ function Home() {
       background='tint2'
       flexDirection='column'
       overflow='auto'
+      paddingY={majorScale(4)}
     >
       <Pane>
         <img 
@@ -104,6 +93,9 @@ function Home() {
       <Pane
         width='90%'
         margin={majorScale(2)}
+        display='flex'
+        alignItems='center'
+        justifyContent='center'
       >
         <SearchInput 
           placeholder="Search by name or steam ID" 
@@ -116,15 +108,25 @@ function Home() {
             //e.preventDefault()
             if(e.key === 'Enter') processSearch(e.target.value)
           }}
-          //value={searchText}
+          // value={searchText}
+          // onChange={e => {
+          //   console.log(e.target.value)
+          // }}
         />
+        {/* <Button
+          onClick={e => {
+            processSearch(searchText)
+          }}
+        >
+          Search
+        </Button> */}
       </Pane>
-      { selectedUser ? 
+      {/* { selectedUser ? 
         <UserData/>
       :
-        console.log("BUSTED")
-      }
-      { searchResults.length !== 0 ? 
+        ''
+      } */}
+      { searchResults.length > 0 ? 
         <SearchResults
           searchResults = { searchResults }
           handleUserSelect = { handleUserSelect }

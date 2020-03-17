@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Pane, Text, Heading, SearchInput, ThemeProvider, defaultTheme, majorScale } from 'evergreen-ui'
-import { useHistory } from "react-router-dom";
 import axios from 'axios'
 import TurbodotaContext from './TurbodotaContext'
 import {
     Card,
-    Button
+    Button,
+    Container,
+    Label,
+    Header
 } from 'semantic-ui-react'
 
 function SingleMatch(props) {
@@ -13,12 +14,13 @@ function SingleMatch(props) {
 
     const [matchData, setMatchData] = useState({});
     const [selectedMatch, setSelectedMatch] = useState('');
+    const [heroDamage, setHeroDamage] = useState({})
 
     const matchOverview = props.matchData
 
-    useEffect(() => {
-        console.log(selectedMatch)
-      }, [selectedMatch])
+    // useEffect(() => {
+    //     console.log(selectedMatch)
+    //   }, [selectedMatch])
 
     useEffect(() => {
         async function getMatchData(){
@@ -26,7 +28,9 @@ function SingleMatch(props) {
                 axios.get(`/api/matches/${matchOverview.match_id}`)
                 .then(res => {
                     let content = res.data;
-                    calculateHeroDamage(matchOverview, content)
+                    // console.log(matchOverview, content)
+                    let returnDmg = calculateHeroDamage(matchOverview, content)
+                    setHeroDamage(returnDmg)
                     setMatchData(content)
                 })
             
@@ -36,27 +40,29 @@ function SingleMatch(props) {
     }, [])
 
     function calculateHeroDamage (matchOverview, matchData) {
-
-        console.log(matchData)
         let playerData = matchData.players.filter(player => player.player_slot === matchOverview.player_slot)
         let damageArray = {}
-        let damageTargets = playerData[0].damage_targets
-        Object.keys(damageTargets).forEach(damageSource => {
-            Object.keys(damageTargets[damageSource]).forEach(heroTarget => {
-                if (Object.keys(damageArray).includes(heroTarget.toString())) {
-                    damageArray[heroTarget] += damageTargets[damageSource][heroTarget]
-                }
-                else {
-                    damageArray[heroTarget] = damageTargets[damageSource][heroTarget]
-                }
+        let returnObject = {}
+        // console.log(playerData)
+        if(!!playerData[0].damage_targets){
+            let damageTargets = playerData[0].damage_targets
+            Object.keys(damageTargets).forEach(damageSource => {
+                Object.keys(damageTargets[damageSource]).forEach(heroTarget => {
+                    if (Object.keys(damageArray).includes(heroTarget.toString())) {
+                        damageArray[heroTarget] += damageTargets[damageSource][heroTarget]
+                    }
+                    else {
+                        damageArray[heroTarget] = damageTargets[damageSource][heroTarget]
+                    }
+                })
             })
-        })
 
-        let returnObject = {
-            perHeroDamange: damageArray
+            returnObject = {
+                'perHeroDamage': damageArray
+            }
+        } else {
+            returnObject = {}
         }
-
-        console.log(returnObject.perHeroDamange)
         return returnObject
     }
 
@@ -84,6 +90,10 @@ function SingleMatch(props) {
         return heroesList.filter(hero => hero.id === hero_id)[0].localized_name
     }
     
+    const dateString = (timestamp) => {
+        let string = new Date(timestamp * 1000)
+        return string.toLocaleDateString()
+    }
     return (
         <Card style={{ flexDirection: 'row', padding: '8px',}}>
             <Card.Content style={{ 
@@ -112,11 +122,39 @@ function SingleMatch(props) {
                 </Card.Description>
             </Card.Content>
             <Card.Content style={{ border: '0px'}}>
-                Kills: {matchOverview.kills}
-                Deaths: {matchOverview.deaths}
-                Assists: {matchOverview.assists}
+                <Container style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-begin', flexDirection: 'row', width: '100%', height: '100%'}}>
+                    <Container fluid>
+                        <h4>Match Stats</h4>
+                        <p>Kills: {matchOverview.kills}</p>
+                        <p>Deaths: {matchOverview.deaths}</p>
+                        <p>Assists: {matchOverview.assists}</p>
+                    </Container>
+                     
+                    <Container fluid>
+                        <h4>Damage to Heroes</h4>
+                        { !!heroDamage.perHeroDamage ? 
+                        Object.keys(heroDamage.perHeroDamage).map(damageKey => (
+                            <div
+                                key={damageKey}
+                            >
+                                <Container fluid style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-begin', flexDirection: 'row', width: '100%', height: '100%'}}>
+                                    <div style={{ marginLeft: '.5em'}}>
+                                        {heroIcon(heroesList.filter(hero => hero.name === damageKey)[0].id)}
+                                    </div>
+                                    {heroDamage.perHeroDamage[damageKey]}
+                                </Container>
+                            </div>
+                        ))
+                        :
+                            <Header as='h4' style={{ color: 'firebrick'}}>
+                                Run the Baddie Calc to get Advanced Stats!
+                            </Header>
+                        }
+                    </Container>
+                </Container>
             </Card.Content>
             <Card.Content style={{ border: '0px', flexGrow: 0}}>
+                <Card.Meta>Date: {dateString(matchOverview.start_time)}</Card.Meta>
                 <Card.Meta>Match ID: {matchOverview.match_id}</Card.Meta>
                 <Card.Meta>Player Slot: {matchOverview.player_slot}</Card.Meta>
                 <div className='ui two buttons'>

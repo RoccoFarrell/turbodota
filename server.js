@@ -23,7 +23,7 @@ app.use(cors())
 //Log requests to console
 app.use('*', (req, res, next) => {
   apicache.getPerformance()
-  console.log('Request Received: ' + '\nTime:', Date.now())
+  console.log('Request Received: '+ req.url + '\nTime:', Date.now())
   next()
 })
 
@@ -42,8 +42,6 @@ routes(app)
 
 // Serve static files from the React app
 app.use(express.static(path.join(__dirname, 'client/build')))
-
-
 
 //Serve non-API requests to static dir
 app.get('*', (req, res) => {

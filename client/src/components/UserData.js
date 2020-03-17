@@ -1,33 +1,47 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Pane, Text, Heading, SearchInput, ThemeProvider, defaultTheme, majorScale } from 'evergreen-ui'
-import { useHistory } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import axios from 'axios'
 import TurbodotaContext from './TurbodotaContext'
 import SingleMatch from './SingleMatch'
 import {
     Card,
-    Button
+    Button,
+    Icon,
+    Image,
+    Header
 } from 'semantic-ui-react'
 
 function UserData() {
-
-
     const {selectedUser, setSelectedUser} = useContext(TurbodotaContext);
     const [userData, setUserData] = useState({});
 
+    let location = useLocation()
+    async function searchUser(id){
+        try {
+            axios.get(`/api/players/${id}`)
+            .then(res => {
+                let content = res.data;
+                content.matchStats = content.matchStats.slice(0,9)
+                console.log(content)
+                setUserData(content)
+            })
+        } catch(e) {console.error(e)}
+    }
+
+    //in the event you just navigate directly to /users/:id
+    // needs to be fixed \/ \/ \/ 
+
+    // useEffect(() => {
+    //     console.log(location.pathname.indexOf('/users/'))
+    //     if(!!location.pathname && location.pathname.indexOf('/users/') > -1){
+    //         console.log('searching for ' + location.pathname.split('/users/')[1])
+    //         searchUser(location.pathname.split('/users/')[1])
+    //     }
+    // }, [])
+
     useEffect(() => {
-        async function searchUser(){
-            try {
-                axios.get(`/api/players/${selectedUser.account_id}`)
-                .then(res => {
-                    let content = res.data;
-                    content.matchStats = content.matchStats.slice(0,1)
-                    setUserData(content)
-                })
-                
-            } catch(e) {console.error(e)}
-        }
-        if (selectedUser.account_id !== undefined) searchUser()
+        if (selectedUser.account_id !== undefined) searchUser(selectedUser.account_id)
     }, [selectedUser])
 
     return (
@@ -39,14 +53,28 @@ function UserData() {
                 <Pane
                 width='100%'
                 >
-                    <h1>USER DATA: {selectedUser.account_id}</h1>
-                    <Pane>
-                        <Pane>MMR: {userData.userStats.mmr_estimate.estimate}</Pane>
-                        <Pane>Kills: {userData.totals.kills}</Pane>
-                        <Pane>Deaths: {userData.totals.deaths}</Pane>
-                        <Pane>Assists: {userData.totals.assists}</Pane>
-                        <Pane>Games: {userData.totals.games}</Pane>
-                    </Pane>
+                    <Card style={{ width: '20%', marginLeft: '0.5em'}}>
+                        <Image width='200px' src={selectedUser.avatarfull} wrapped ui={false} />
+                        <Card.Content>
+                            <Card.Header>ID: {selectedUser.account_id}</Card.Header>
+                            <Card.Meta>
+                                <span className='date'>MMR Estimate: {userData.userStats.mmr_estimate.estimate}</span>
+                            </Card.Meta>
+                            <Card.Description>
+                                <p>Kills: {userData.totals.kills}</p>
+                                <p>Deaths: {userData.totals.deaths}</p>
+                                <p>Assists: {userData.totals.assists}</p>
+                                <p>Games: {userData.totals.games}</p>
+                            </Card.Description>
+                            </Card.Content>
+                            <Card.Content extra>
+                            <a>
+                                <Icon name='save' />
+                                {userData.matchStats.length} Matches
+                            </a>
+                        </Card.Content>
+                    </Card>
+                    <Header as='h2'>Last 10 Games</Header>
                     <Card.Group itemsPerRow={1}>
                         {userData.matchStats.map((match) => (
                             <SingleMatch 

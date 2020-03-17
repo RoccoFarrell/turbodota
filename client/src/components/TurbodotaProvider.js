@@ -12,7 +12,6 @@ export default function Page({children}){
         axios.get(`/api/heroes`)
         .then(res => {
           let content = res.data;
-          console.log(content)
           setHeroesList(content)
         })
         .catch(e => {

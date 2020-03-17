@@ -17,8 +17,9 @@ import {
     Link,
     useHistory
   } from "react-router-dom";
-import Home from './Home'
+import Search from './Search'
 import Changelog from './Changelog'
+import UserData from './UserData'
 import TurbodotaContext from './TurbodotaContext'
 
 import logo from '../assets/squareLogo.png';
@@ -96,11 +97,9 @@ function FixedMenuLayout() {
                     <Route path="/changelog">
                         <Changelog />
                     </Route>
-                    <Route path="/search">
-                        <TestComponent />
-                    </Route>
+                    <Route path="/users/:id" component={UserData} />
                     <Route path="/">
-                        <Home />
+                        <Search />
                     </Route>
                 </Switch>
             </Container>
