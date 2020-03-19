@@ -10,7 +10,7 @@ const path = require('path')
 const cors = require('cors')
 const environment = process.env.NODE_ENV || 'development'
 
-const apicache =require('apicache')
+const apicache = require('apicache')
 
 console.log('Running in env ' + environment)
 // console.log(process.env)
@@ -22,19 +22,20 @@ app.use(cors())
 
 //Log requests to console
 app.use('*', (req, res, next) => {
-  apicache.getPerformance()
-  console.log('Request Received: '+ req.url + '\nTime:', Date.now())
+  // apicache.getPerformance()
+  console.log('Request Received: '+ req.baseUrl + '\nTime:', Date.now())
   next()
 })
 
-//implement cache
-let cache = apicache.middleware
-
 //only in dev env
-console.log('Caching API calls')
-if(process.env.NODE_ENV === 'development'){
+console.log('Env: ' + environment)
+if(environment === 'development'){
+  console.log('Caching API calls')
+  //implement cache
+  let cache = apicache.middleware
+  apicache.getPerformance
   apicache.options({ debug: true })
-  app.use(cache('10 minutes'))
+  app.use(cache('5 minutes'))
 }
 
 const routes = require('./api/routes/appRoutes')

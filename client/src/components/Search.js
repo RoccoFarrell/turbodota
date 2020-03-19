@@ -11,18 +11,17 @@ import UserData from './UserData';
 import SearchResults from './SearchResults'
 
 function Home() {
-  const [searchText, setSearchText] = useState('')
+  const [searchText, setSearchText] = useState('MeP Dubby')
   const [searchResults, setSearchResults] = useState([])
   let history = useHistory()
-  const {selectedUser, setSelectedUser}= useContext(TurbodotaContext);
+  const { setUserID } = useContext(TurbodotaContext);
 
   const processSearch = async (inputText) => {
     setSearchText(inputText)
   }
 
   const handleUserSelect = (player) => {
-    setSelectedUser(player)
-    setSearchResults([])
+    setUserID('')
     history.push("/users/" + player.account_id)
   }
 

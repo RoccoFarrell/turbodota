@@ -13,50 +13,36 @@ import {
 } from 'semantic-ui-react'
 
 function UserData() {
-    const {selectedUser, setSelectedUser} = useContext(TurbodotaContext);
-    const [userData, setUserData] = useState({});
+    const {selectedUser, setSelectedUser, userID, setUserID} = useContext(TurbodotaContext);
 
+    const userData = selectedUser
     let location = useLocation()
-    async function searchUser(id){
-        try {
-            axios.get(`/api/players/${id}`)
-            .then(res => {
-                let content = res.data;
-                content.matchStats = content.matchStats.slice(0,9)
-                console.log(content)
-                setUserData(content)
-            })
-        } catch(e) {console.error(e)}
-    }
-
-    //in the event you just navigate directly to /users/:id
-    // needs to be fixed \/ \/ \/ 
-
-    // useEffect(() => {
-    //     console.log(location.pathname.indexOf('/users/'))
-    //     if(!!location.pathname && location.pathname.indexOf('/users/') > -1){
-    //         console.log('searching for ' + location.pathname.split('/users/')[1])
-    //         searchUser(location.pathname.split('/users/')[1])
-    //     }
-    // }, [])
 
     useEffect(() => {
-        if (selectedUser.account_id !== undefined) searchUser(selectedUser.account_id)
-    }, [selectedUser])
+        if (userID === undefined || userID === ''){
+            console.log('userID is undefined')
+            console.log('userID: ', userID, 'userData: ', userData, 'selectedUser: ', selectedUser)
+            setUserID(location.pathname.split('/users/')[1])
+        } else {
+            console.log('userID: ', userID, 'userData: ', userData, 'selectedUser: ', selectedUser)
+        }
+    }, [])
+
+    // useEffect(() => {}, [selectedUser])
 
     return (
         <Pane
         width='100%'
         padding={majorScale(5)}
         >
-            {userData.userStats ? (
+            { !!userData.userStats ? (
                 <Pane
                 width='100%'
                 >
                     <Card style={{ width: '20%', marginLeft: '0.5em'}}>
-                        <Image width='200px' src={selectedUser.avatarfull} wrapped ui={false} />
+                        <Image width='200px' src={userData.userStats.profile.avatarfull} wrapped ui={false} />
                         <Card.Content>
-                            <Card.Header>ID: {selectedUser.account_id}</Card.Header>
+                            <Card.Header>ID: {userData.userStats.profile.account_id}</Card.Header>
                             <Card.Meta>
                                 <span className='date'>MMR Estimate: {userData.userStats.mmr_estimate.estimate}</span>
                             </Card.Meta>
