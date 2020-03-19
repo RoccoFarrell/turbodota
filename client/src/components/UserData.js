@@ -9,6 +9,7 @@ import {
     Image,
     Header
 } from 'semantic-ui-react'
+import './UserData.css';
 
 function UserData() {
     const {selectedUser, setSelectedUser, userID, setUserID} = useContext(TurbodotaContext);
@@ -27,15 +28,15 @@ function UserData() {
     }, [])
 
     return (
-        <Container style={{ width: '100%', padding: '20px' }}>
+        <Container id="container">
             { !!userData.userStats ? (
-                <Container style={{ width: '100%' }}>
-                    <Card style={{ width: '20%', marginLeft: '0.5em'}}>
-                        <Image width='200px' src={userData.userStats.profile.avatarfull} wrapped ui={false} />
+                <Container id="results">
+                    <Card id="playerCard">
+                        <Image src={userData.userStats.profile.avatarfull} wrapped ui={false} />
                         <Card.Content>
                             <Card.Header>ID: {userData.userStats.profile.account_id}</Card.Header>
                             <Card.Meta>
-                                <span className='date'>MMR Estimate: {userData.userStats.mmr_estimate.estimate}</span>
+                                <span>MMR Estimate: {userData.userStats.mmr_estimate.estimate}</span>
                             </Card.Meta>
                             <Card.Description>
                                 <p>Kills: {userData.totals.kills}</p>

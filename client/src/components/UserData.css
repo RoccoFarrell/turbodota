@@ -1,0 +1,13 @@
+#playerCard {
+    width: 20%;
+    margin-left: 0.5em;
+}
+
+#results {
+    width: 100%;
+}
+
+#container {
+    width: 100%;
+    padding: 20px;
+}
