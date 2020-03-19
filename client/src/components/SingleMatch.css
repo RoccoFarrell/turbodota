@@ -1,0 +1,57 @@
+#matchCard {
+    flex-direction: row;
+    padding: 8px;
+}
+
+#heroContainer {
+    width: 160px;
+    flex-grow: 0; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center;
+}
+
+#heroName {
+    font-size: 14px;
+}
+
+#winLoss {
+    font-size: 20px;
+    font-style: bold;
+}
+
+#statsContainer {
+    border: 0px;
+}
+
+#statsContainer2 {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-begin;
+    flex-direction: row;
+    width: 100%;
+    height: 100%;
+}
+
+#heroDamageContainer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-begin;
+    flex-direction: row;
+    width: 100%;
+    height: 100%;
+}
+
+#heroDamageDiv {
+    margin-left: .5em;
+}
+
+#reqCalc {
+    color: firebrick;
+}
+
+#matchInfoContainer {
+    border: 0px;
+    flex-grow: 0;
+}

@@ -3,6 +3,7 @@ import {
   Card,
   Image
 } from 'semantic-ui-react'
+import './SearchResults.css';
 
 export default function SearchResults(props) {
 
@@ -21,13 +22,12 @@ export default function SearchResults(props) {
   } 
 
   return (
-    <Card.Group 
+    <Card.Group id="cardGroup"
       itemsPerRow={4}
-      style={{ margin: '1em', width: '90%'}}
     >
       {!!searchResults ? 
       searchResults.filter(result => result.last_match_time !== undefined).map(player => (
-        <Card
+        <Card id="card"
           width='100%'
           key={player.account_id}
           onClick={() => {

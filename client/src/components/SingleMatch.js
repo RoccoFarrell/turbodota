@@ -8,6 +8,7 @@ import {
     Label,
     Header
 } from 'semantic-ui-react'
+import './SingleMatch.css'
 
 function SingleMatch(props) {
     const { heroesList }= useContext(TurbodotaContext);
@@ -18,17 +19,12 @@ function SingleMatch(props) {
 
     const matchOverview = props.matchData
 
-    // useEffect(() => {
-    //     console.log(selectedMatch)
-    //   }, [selectedMatch])
-
     useEffect(() => {
         async function getMatchData(){
             try {
                 axios.get(`/api/matches/${matchOverview.match_id}`)
                 .then(res => {
                     let content = res.data;
-                    // console.log(matchOverview, content)
                     let returnDmg = calculateHeroDamage(matchOverview, content)
                     setHeroDamage(returnDmg)
                     setMatchData(content)
@@ -43,7 +39,6 @@ function SingleMatch(props) {
         let playerData = matchData.players.filter(player => player.player_slot === matchOverview.player_slot)
         let damageArray = {}
         let returnObject = {}
-        // console.log(playerData)
         if(!!playerData[0].damage_targets){
             let damageTargets = playerData[0].damage_targets
             Object.keys(damageTargets).forEach(damageSource => {
@@ -94,35 +89,21 @@ function SingleMatch(props) {
         let string = new Date(timestamp * 1000)
         return string.toLocaleDateString()
     }
+
+
     return (
-        <Card style={{ flexDirection: 'row', padding: '8px',}}>
-            <Card.Content style={{ 
-                width: '160px', 
-                flexGrow: 0, 
-                display:'flex', 
-                flexDirection: 'column', 
-                alignItems: 'center', 
-                justifyContent: 'center'
-            }}>
+        <Card id="matchCard">
+            <Card.Content id="heroContainer">
                 <Card.Header>{heroIcon(matchOverview.hero_id)}</Card.Header>
-                <Card.Header
-                    style={{fontSize: '14px'}}
-                >
+                <Card.Header id="heroName">
                     {heroName(matchOverview.hero_id)}
                 </Card.Header>
-                
-                <Card.Description
-                    style={{ 
-                        color: winOrLoss(matchOverview.player_slot, matchOverview.radiant_win) ? 'green' : 'red',
-                        fontSize: '20px',
-                        fontStyle: 'bold'
-                    }}
-                >
+                <Card.Description id="winLoss" style={{ color: winOrLoss(matchOverview.player_slot, matchOverview.radiant_win) ? 'green' : 'red' }}>
                     {winOrLoss(matchOverview.player_slot, matchOverview.radiant_win) ? 'Win' : 'Loss'}
                 </Card.Description>
             </Card.Content>
-            <Card.Content style={{ border: '0px'}}>
-                <Container style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-begin', flexDirection: 'row', width: '100%', height: '100%'}}>
+            <Card.Content id="statsContainer">
+                <Container id="statsContainer2">
                     <Container fluid>
                         <h4>Match Stats</h4>
                         <p>Kills: {matchOverview.kills}</p>
@@ -137,8 +118,8 @@ function SingleMatch(props) {
                             <div
                                 key={damageKey}
                             >
-                                <Container fluid style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-begin', flexDirection: 'row', width: '100%', height: '100%'}}>
-                                    <div style={{ marginLeft: '.5em'}}>
+                                <Container id="heroDamageContainer" fluid>
+                                    <div id="heroDamageDiv">
                                         {heroIcon(heroesList.filter(hero => hero.name === damageKey)[0].id)}
                                     </div>
                                     {heroDamage.perHeroDamage[damageKey]}
@@ -146,18 +127,18 @@ function SingleMatch(props) {
                             </div>
                         ))
                         :
-                            <Header as='h4' style={{ color: 'firebrick'}}>
+                            <Header as='h4' id="reqCalc">
                                 Run the Baddie Calc to get Advanced Stats!
                             </Header>
                         }
                     </Container>
                 </Container>
             </Card.Content>
-            <Card.Content style={{ border: '0px', flexGrow: 0}}>
+            <Card.Content id="matchInfoContainer">
                 <Card.Meta>Date: {dateString(matchOverview.start_time)}</Card.Meta>
                 <Card.Meta>Match ID: {matchOverview.match_id}</Card.Meta>
                 <Card.Meta>Player Slot: {matchOverview.player_slot}</Card.Meta>
-                <div className='ui two buttons'>
+                <div>
                     <Button basic color='green'>
                         Baddie Calc
                     </Button>

@@ -7,7 +7,7 @@ import './Changelog.css';
 export default function Changelog() {
 
   return (
-    <Container className='changeLog'>
+    <Container id='changeLog'>
         <ul>
           <li>V0.04 - 03/19/2020 - Removed Evergreen and added CSS sheets to beautify Robbie's badness.</li>
           <li>V0.03 - 03/17/2020 - Added per-hero damage. Low MMR is close to being revealed.</li>

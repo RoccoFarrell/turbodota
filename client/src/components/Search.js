@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import '../App.css';
 import axios from 'axios'
 import { Container, Image, Input, Header } from 'semantic-ui-react'
+import './Search.css';
 
 import logo from '../assets/turbologo.png';
 import { useHistory } from "react-router-dom";
@@ -44,60 +45,19 @@ function Home() {
   }, [searchText])
 
   return (
-    <Container style={{
-      height:'100vh',
-      width:'100%',
-      display:"flex",
-      alignItems:"center",
-      justifyContent:"flexBegin",
-      border:"default",
-      background:'tint2',
-      flexDirection:'column',
-      overflow:'auto',
-      paddingY:'16px'
-    }}>
-      <Container style={{
-          display:"flex",
-          justifyContent:"center",
-          alignItems:"center",
-          width:"250px"
-      }}>
+    <Container id="container">
+      <Container id="imageContainer">
         <Image 
           src={logo} 
           alt='turbologo'
         />
       </Container>
-      <Container style={{
-        display:'flex',
-        alignItems:"center",
-        justifyContent:"center",
-        flexDirection:'column',
-        width:'100%',
-        margin:'12px'
-      }}>
-        <Header style={{
-          fontSize:"70px",
-          height:"75px",
-          fontFamily:'inherit',
-          padding:"4px"
-        }}>
-            TurboDota
-        </Header>
-        <Header style={{
-          fontSize:"25px",
-          fontFamily:"inherit"
-        }}>
-          The Tracker for Turbo
-        </Header>
+      <Container id="textContainer">
+        <Header id="title">TurboDota</Header>
+        <Header id="description">The Tracker for Turbo</Header>
       </Container>
-      <Container style={{ 
-        width:"90%",
-        display:'flex',
-        alignItems:'center',
-        justifyContent:'center',
-        margin:'8px'
-       }}>
-        <Input style={{ width:"100%" }}
+      <Container id="inputContainer">
+        <Input id="userInput"
           placeholder="Search by name or steam ID" 
           onKeyPress={e => {
             if(e.key === 'Enter') processSearch(e.target.value)
@@ -110,9 +70,7 @@ function Home() {
           handleUserSelect = { handleUserSelect }
         />
       : 
-        <Header
-          size='500px'
-        >
+        <Header size='500px'>
           Search a player or steam ID to get started!
         </Header>
       }
