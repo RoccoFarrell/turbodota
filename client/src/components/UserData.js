@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Pane, Text, Heading, SearchInput, ThemeProvider, defaultTheme, majorScale } from 'evergreen-ui'
 import { useLocation } from "react-router-dom";
-import axios from 'axios'
 import TurbodotaContext from './TurbodotaContext'
 import SingleMatch from './SingleMatch'
 import {
+    Container,
     Card,
-    Button,
     Icon,
     Image,
     Header
@@ -28,17 +26,10 @@ function UserData() {
         }
     }, [])
 
-    // useEffect(() => {}, [selectedUser])
-
     return (
-        <Pane
-        width='100%'
-        padding={majorScale(5)}
-        >
+        <Container style={{ width: '100%', padding: '20px' }}>
             { !!userData.userStats ? (
-                <Pane
-                width='100%'
-                >
+                <Container style={{ width: '100%' }}>
                     <Card style={{ width: '20%', marginLeft: '0.5em'}}>
                         <Image width='200px' src={userData.userStats.profile.avatarfull} wrapped ui={false} />
                         <Card.Content>
@@ -68,13 +59,13 @@ function UserData() {
                             matchData={match}/>
                         ))}
                     </Card.Group>
-                </Pane>
+                </Container>
             )
             :
                 ''
             }
             
-        </Pane>
+        </Container>
     )
 }
 

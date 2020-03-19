@@ -1,13 +1,11 @@
 import React, { useState, useEffect, useContext } from 'react';
 import '../App.css';
 import axios from 'axios'
-import { Pane, Text, Heading, SearchInput, ThemeProvider, defaultTheme, majorScale } from 'evergreen-ui'
-import { Button } from 'semantic-ui-react'
+import { Container, Image, Input, Header } from 'semantic-ui-react'
 
 import logo from '../assets/turbologo.png';
 import { useHistory } from "react-router-dom";
 import TurbodotaContext from './TurbodotaContext'
-import UserData from './UserData';
 import SearchResults from './SearchResults'
 
 function Home() {
@@ -46,98 +44,79 @@ function Home() {
   }, [searchText])
 
   return (
-    <Pane
-      height='100vh'
-      width='100%'
-      // margin={majorScale(2)}
-      display="flex"
-      alignItems="center"
-      justifyContent="flexBegin"
-      border="default"
-      background='tint2'
-      flexDirection='column'
-      overflow='auto'
-      paddingY={majorScale(4)}
-    >
-      <Pane>
-        <img 
+    <Container style={{
+      height:'100vh',
+      width:'100%',
+      display:"flex",
+      alignItems:"center",
+      justifyContent:"flexBegin",
+      border:"default",
+      background:'tint2',
+      flexDirection:'column',
+      overflow:'auto',
+      paddingY:'16px'
+    }}>
+      <Container style={{
+          display:"flex",
+          justifyContent:"center",
+          alignItems:"center",
+          width:"250px"
+      }}>
+        <Image 
           src={logo} 
           alt='turbologo'
-          width={250}
         />
-      </Pane>
-      <Pane
-        display='flex'
-        alignItems="center"
-        justifyContent="center"
-        flexDirection='column'
-        width='100%'
-        margin={majorScale(3)}
-      >
-        <Heading
-          fontSize={70}
-          height={75}
-          fontFamily='inherit'
-          padding={majorScale(1)}
-        >
+      </Container>
+      <Container style={{
+        display:'flex',
+        alignItems:"center",
+        justifyContent:"center",
+        flexDirection:'column',
+        width:'100%',
+        margin:'12px'
+      }}>
+        <Header style={{
+          fontSize:"70px",
+          height:"75px",
+          fontFamily:'inherit',
+          padding:"4px"
+        }}>
             TurboDota
-        </Heading>
-        <Text
-          fontSize={25}
-          fontFamily='inherit'
-        >
+        </Header>
+        <Header style={{
+          fontSize:"25px",
+          fontFamily:"inherit"
+        }}>
           The Tracker for Turbo
-        </Text>
-      </Pane>
-      <Pane
-        width='90%'
-        margin={majorScale(2)}
-        display='flex'
-        alignItems='center'
-        justifyContent='center'
-      >
-        <SearchInput 
+        </Header>
+      </Container>
+      <Container style={{ 
+        width:"90%",
+        display:'flex',
+        alignItems:'center',
+        justifyContent:'center',
+        margin:'8px'
+       }}>
+        <Input style={{ width:"100%" }}
           placeholder="Search by name or steam ID" 
-          width="100%" 
-          // onChange={event => {
-          //   processSearch(event.target.value)
-          // }}
           onKeyPress={e => {
-            // console.log(e.key)
-            //e.preventDefault()
             if(e.key === 'Enter') processSearch(e.target.value)
           }}
-          // value={searchText}
-          // onChange={e => {
-          //   console.log(e.target.value)
-          // }}
         />
-        {/* <Button
-          onClick={e => {
-            processSearch(searchText)
-          }}
-        >
-          Search
-        </Button> */}
-      </Pane>
-      {/* { selectedUser ? 
-        <UserData/>
-      :
-        ''
-      } */}
+      </Container>
       { searchResults.length > 0 ? 
         <SearchResults
           searchResults = { searchResults }
           handleUserSelect = { handleUserSelect }
         />
       : 
-        <Text
-          size={500}
+        <Header
+          size='500px'
         >
           Search a player or steam ID to get started!
-        </Text>
+        </Header>
       }
-    </Pane>
+    </Container>
   );
 }
 
