@@ -23,7 +23,7 @@ app.use(cors())
 //Log requests to console
 app.use('*', (req, res, next) => {
   // apicache.getPerformance()
-  console.log('Request Received: '+ req.baseUrl + '\nTime:', Date.now())
+  console.log('REQ:'+ req.baseUrl + ' | T: ' + Date.now())
   next()
 })
 

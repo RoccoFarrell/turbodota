@@ -9,6 +9,7 @@ export default function Changelog() {
   return (
     <Container id='changeLog'>
         <ul>
+          <li>V0.05 - 03/19/2020 - Fixed routing, and displayed best players by MMR. Guess who's last, it might shock you...</li>
           <li>V0.04 - 03/19/2020 - Removed Evergreen and added CSS sheets to beautify Robbie's badness.</li>
           <li>V0.03 - 03/17/2020 - Added per-hero damage. Low MMR is close to being revealed.</li>
           <li>V0.02 - 03/16/2020 - Added hero sprites. Robbie is still bad.</li>

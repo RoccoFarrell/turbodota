@@ -26,8 +26,11 @@ module.exports = function (app) {
     .get(od.fetchHeroes)
 
   app.route('/api/players/:steamID')
-    .get(od.fetchUserByID)
+    .get(od.getUserStatsfromOD)
 
   app.route('/api/matches/:matchID')
     .get(od.fetchMatchByID)
+
+  app.route('/api/queryFirebase')
+    .get(od.queryFirebase)
 }

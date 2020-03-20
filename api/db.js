@@ -9,7 +9,7 @@ if(process.env.NODE_ENV === 'production') {
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://turbodoto.firebaseio.com"
+  databaseURL: "https://turbodota-1f6de.firebaseio.com"
 });
 
 const db = admin.firestore();

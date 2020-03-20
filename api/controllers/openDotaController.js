@@ -1,93 +1,58 @@
 //const https = require('https')
 const fetch = require('node-fetch');
 const db = require('../db')
-var usersRef = db.collection('users')
+const admin = require("firebase-admin");
+const firebase = admin.app();
 
-async function processPlayerInfo(incoming_steamId, matchStats, userStats) {
-
-  // console.log(userStats)
-  console.log("match stats length: ", matchStats.length)
-  console.log("processing player info for: ", incoming_steamId)
-
+async function processPlayerInfo(matchStats) {
   let totals = {'kills': 0, 'deaths': 0, 'assists': 0}
   for(let i = 0; i < matchStats.length; i++) {
-    // console.log(match)
     totals.kills += matchStats[i].kills
     totals.deaths += matchStats[i].deaths
     totals.assists += matchStats[i].assists
   }
-  // console.log(totals)
-  // console.log(matchStats.length)
+
   totals.games =(matchStats.length)
   let avgObj = {'kills': (totals.kills / matchStats.length).toFixed(2), 'deaths': (totals.deaths / matchStats.length).toFixed(2), 'assists': (totals.assists / matchStats.length).toFixed(2)}
-
-  //all this DB stuff is broken
-
-  // usersRef.where('steamID', '==', incoming_steamId).get()
-  // .then(snapshot => {
-  //   // console.log(snapshot)
-  //   if(snapshot.size === 0){
-  //     console.log("userStats: ", userStats.profile)
-
-  //     let newUser = {
-  //       'firebaseid': null,
-  //       'usertype': 'steamid',
-  //       'averages': avgObj,
-  //       'totals': totals,
-  //       'steamid': incoming_steamId,
-  //       'personaname': userStats.profile.personaname
-  //     }
-
-  //     usersRef.doc(incoming_steamId).set(newUser)
-  //     .then(() => {
-  //       console.log("Document successfully written!")
-  //     })
-  //     .catch( err => {
-  //       console.log(err)
-  //       return res.status(500).send('Couldnt insert new found user into DB')
-  //     })
-
-  //   } else {
-  //     snapshot.forEach(userDoc => {
-
-  //       let userObj = userDoc.data()
-
-  //       userObj.username = userStats.profile.personname
-  //       userObj.averages = avgObj
-  //       userObj.totals = totals
-        
-  //       // console.log(userDoc.data())
-        
-  //       userDoc.ref.update(userObj).then(ref => {
-
-  //         // let userObj = req.body
-  //         // OD_userinfo = OD.fetchUserByID(req.params.uid)
-
-  //         console.log('Updated document with ID: ', ref);
-  //       });
-  //     });
-  //   }
-  // })
-  // .catch(err => {
-  //   console.log('Error getting documents', err);
-  // });
 
   return ({"averages": avgObj, "totals": totals})
 }
 
 exports.fetchHeroes = async function (req, res) {
   // console.log(req.query)
-  let userStats = await fetch('https://api.opendota.com/api/heroes', {
-    method: 'get',
-    headers: { 'Content-Type': 'application/json' },
-  })
-  .then(data => data.json())
-  .then((json) => {
-    // console.log('search results: ', json)
-    res.send(json)
-  });
-}
+  let heroesRef = db.collection('heroes')
 
+  heroesRef.get()
+  .then(snapshot => {
+    if(snapshot.empty){
+      console.log('no results in heroes')
+      let heroesList = fetch('https://api.opendota.com/api/heroes', {
+        method: 'get',
+        headers: { 'Content-Type': 'application/json' },
+      })
+      .then(data => data.json())
+      .then((json) => {
+        // console.log('search results: ', json[0])
+        let storeObj = {
+          'herolist': json,
+          'lastUpdated': Date.now()
+        }
+
+        heroesRef.add(storeObj).then(ref => {
+          console.log('Added document with ID: ', ref.id);
+        });
+        res.send(json)
+      });
+    } else {
+      console.log('[/heroes] Pulling cached heroes')
+      snapshot.forEach(doc => {
+        console.log('[/heroes] found cached heroes doc', doc.id)
+        let returnData = doc.data()
+        res.json(returnData['herolist'])
+      })
+    }
+  })
+}
 
 exports.searchUser = async function (req, res) {
   // console.log(req.query)
@@ -102,46 +67,98 @@ exports.searchUser = async function (req, res) {
   });
 }
 
-exports.fetchUserByID = async function (req, res) {
-    let matchStats = await fetch('https://api.opendota.com/api/players/' + req.params.steamID + '/matches?significant=0&game_mode=23', {
-        method: 'get',
-        headers: { 'Content-Type': 'application/json' },
+async function fetchMatchesForUser (userID) {
+  console.log('[fmfu] fetching matches for user ', userID)
+  return await fetch('https://api.opendota.com/api/players/' + userID + '/matches?significant=0&game_mode=23', {
+    method: 'get',
+    headers: { 'Content-Type': 'application/json' },
+  })
+  .then(data => data.json())
+  .then((json) => {
+    //console.log('matches data complete', json)
+    return json
+  })
+  .catch(e => {
+    console.error(e)
+  });
+}
+
+async function fetchUserData (userID) {
+  console.log('[fud] fetching user data for ', userID)
+  return await fetch('https://api.opendota.com/api/players/' + userID, {
+    method: 'get',
+    headers: { 'Content-Type': 'application/json' },
+  })
+  .then(data => data.json())
+  .then((json) => {
+    // console.log('user data complete', json)
+    return json
+  })
+  .catch(e => {
+    console.error(e)
+  });
+}
+
+exports.queryFirebase = async function (req, res) {
+  let usersRef = db.collection('users')
+  let returnObj = {
+    keys: [],
+    values: []
+  }
+  usersRef.where('profile.account_id','==', 65110965).get()
+    .then(snapshot => {
+      if(snapshot.empty){
+        res.send({'nothin': true})
+      } else {
+        snapshot.forEach(doc => {
+          console.log(doc.id)
+          returnObj.keys.push(doc.id)
+          returnObj.values.push(doc.data())
+        })
+        res.send(returnObj)
+      }
     })
-    .then(data => data.json())
-    .then((json) => {
-      return json
+}
+
+exports.getUserStatsfromOD = async function (req, res) {
+  let usersRef = db.collection('users')
+  let userID = req.params.steamID
+  let userStats = {}
+
+  let userExists = await usersRef.where('profile.account_id','==', parseInt(userID)).get()
+  .then(snapshot => {
+    if(snapshot.empty){
+      return false
+    } else {
+      // console.log('[gusfod] found userID: ' + userID)
+      snapshot.forEach(doc => {
+        let returnData = doc.data()
+        // console.log(doc.id, returnData)
+        userStats = returnData
+      })
+      return true
+    }
+  })
+  
+  console.log('[gusfod] user with id ' + userID + ' exists: ' + userExists)
+  if(userExists === false) {
+    console.log('[gusfod] pulling new user data from OD')
+    userStats = await fetchUserData(userID)
+    userStats.lastUpdated = Date.now()
+    usersRef.doc(userID).set(userStats).then(ref => {
+      console.log('[gusfod] Added userID ' + userID);
     });
+  }
 
-    let userStats = await fetch('https://api.opendota.com/api/players/' + req.params.steamID, {
-      method: 'get',
-      headers: { 'Content-Type': 'application/json' },
-    })
-    .then(data => data.json())
-    .then((json) => {
-      return json
-    });
+  let matchStats = await fetchMatchesForUser(req.params.steamID)
 
-    // after calculations, need to insert user into DB
-    let calcObj = await processPlayerInfo(req.params.steamID, matchStats, userStats)
+  let calcObj =  await processPlayerInfo(matchStats)
+  let returnObj = {"userStats": userStats, "matchStats": matchStats, "averages": calcObj.averages, "totals": calcObj.totals}
 
-    let headers = [
-      { text: 'Match ID', value: 'match_id' },
-      { text: 'Hero', value: 'hero_id' },
-      { text: 'Duration', value: 'duration' },
-      { text: 'Kills', value: 'kills' },
-      { text: 'Deaths', value: 'deaths' },
-      { text: 'Assists', value: 'assists' }
-    ]
-
-    let returnObj = {"userStats": userStats, "matchStats": matchStats, "averages": calcObj.averages, "totals": calcObj.totals, "headers":headers}
-
-    //console.log(returnObj.userStats, returnObj.averages)
-
-    res.send(returnObj)
+  res.send(returnObj)
 }
 
 exports.fetchMatchByID = async function (req, res) {
-  console.log("Requested")
   let matchStats = await fetch('https://api.opendota.com/api/matches/' + req.params.matchID, {
       method: 'get',
       headers: { 'Content-Type': 'application/json' },
