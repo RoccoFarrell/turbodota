@@ -159,14 +159,46 @@ exports.getUserStatsfromOD = async function (req, res) {
 }
 
 exports.fetchMatchByID = async function (req, res) {
-  let matchStats = await fetch('https://api.opendota.com/api/matches/' + req.params.matchID, {
+  let matchesRef = db.collection('matches')
+  let matchID = req.params.matchID
+  let matchStats = {}
+
+  let matchExists = await matchesRef.where('match_id','==', parseInt(matchID)).get()
+  .then(snapshot => {
+    if(snapshot.empty){
+      return false
+    } else {
+      // console.log('[fmbi] found matchID: ' + matchID)
+      snapshot.forEach(doc => {
+        let returnData = doc.data()
+        // console.log(doc.id, returnData)
+        matchStats = returnData
+      })
+      return true
+    }
+  })
+  
+  console.log('[fmbi] match with id ' + matchID + ' exists: ' + matchExists)
+
+  if(matchExists === false) {
+    console.log('[fmbi] pulling new match data from OD')
+    matchStats = await fetch('https://api.opendota.com/api/matches/' + req.params.matchID, {
       method: 'get',
       headers: { 'Content-Type': 'application/json' },
-  })
-  .then(data => data.json())
-  .then((json) => {
-    return json
-  });
+    })
+    .then(data => data.json())
+    .then((json) => {
+      // console.log(json)
+      return json
+    });
 
+    matchStats.lastUpdated = Date.now()
+
+    matchesRef.doc(matchID).set(matchStats).then(ref => {
+      console.log('[fmbi] Added matchID ' + matchID);
+    });
+  }
+
+  // calculate ALL the match stats right here bro
   res.send(matchStats)
 }

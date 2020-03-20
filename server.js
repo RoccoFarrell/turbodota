@@ -29,14 +29,14 @@ app.use('*', (req, res, next) => {
 
 //only in dev env
 console.log('Env: ' + environment)
-if(environment === 'development'){
-  console.log('Caching API calls')
-  //implement cache
-  let cache = apicache.middleware
-  apicache.getPerformance
-  apicache.options({ debug: true })
-  app.use(cache('5 minutes'))
-}
+// if(environment === 'development'){
+//   console.log('Caching API calls')
+//   //implement cache
+//   let cache = apicache.middleware
+//   apicache.getPerformance
+//   apicache.options({ debug: true })
+//   app.use(cache('5 minutes'))
+// }
 
 const routes = require('./api/routes/appRoutes')
 routes(app)
