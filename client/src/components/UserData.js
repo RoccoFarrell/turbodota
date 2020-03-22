@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useLocation } from "react-router-dom";
 import TurbodotaContext from './TurbodotaContext'
 import SingleMatch from './SingleMatch'
+import UserHeroTable from './UserHeroTable/UserHeroTable'
 import {
     Container,
     Card,
@@ -52,6 +53,10 @@ function UserData() {
                             </a>
                         </Card.Content>
                     </Card>
+                    <Header as='h2'>All Heroes Played</Header>
+                    <UserHeroTable
+                        heroStats = { userData.calculations.allHeroRecord }
+                    />
                     <Header as='h2'>Last 10 Games</Header>
                     <Card.Group itemsPerRow={1}>
                         {userData.matchStats.map((match) => (

@@ -5,18 +5,54 @@ const admin = require("firebase-admin");
 // const firebase = admin.app();
 const matchesRef = db.collection('matches')
 
+function winOrLoss (slot, win) {
+  if (slot > 127){
+      if (win === false){
+          return true
+      }
+      else return false
+  }
+  else {
+      if (win === false){
+          return false
+      }
+      else return true
+  }
+}
+
 async function processPlayerInfo(matchStats) {
   let totals = {'kills': 0, 'deaths': 0, 'assists': 0}
+
+  let allHeroesGames = {}
+
   for(let i = 0; i < matchStats.length; i++) {
     totals.kills += matchStats[i].kills
     totals.deaths += matchStats[i].deaths
     totals.assists += matchStats[i].assists
+
+    let heroID = matchStats[i].hero_id
+
+    if(allHeroesGames[heroID] === undefined){
+      allHeroesGames[heroID] = {
+        games: 0,
+        wins: 0,
+        losses: 0
+      }
+    }
+
+    allHeroesGames[heroID].games += 1
+
+    if(winOrLoss(matchStats[i].player_slot, matchStats[i].radiant_win) === true){
+      allHeroesGames[heroID].wins += 1
+    } else {
+      allHeroesGames[heroID].losses += 1
+    }
   }
 
   totals.games =(matchStats.length)
   let avgObj = {'kills': (totals.kills / matchStats.length).toFixed(2), 'deaths': (totals.deaths / matchStats.length).toFixed(2), 'assists': (totals.assists / matchStats.length).toFixed(2)}
 
-  return ({"averages": avgObj, "totals": totals})
+  return ({"averages": avgObj, "totals": totals, "allHeroRecord": allHeroesGames})
 }
 
 exports.fetchHeroes = async function (req, res) {
@@ -174,7 +210,7 @@ exports.getUserStatsfromOD = async function (req, res) {
   let matchStats = await fetchMatchesForUser(req.params.steamID)
 
   let calcObj =  await processPlayerInfo(matchStats)
-  let returnObj = {"userStats": userStats, "matchStats": matchStats, "averages": calcObj.averages, "totals": calcObj.totals}
+  let returnObj = {"userStats": userStats, "matchStats": matchStats, "averages": calcObj.averages, "totals": calcObj.totals, "calculations": calcObj}
 
   res.send(returnObj)
 }
