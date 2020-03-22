@@ -2,7 +2,8 @@
 const fetch = require('node-fetch');
 const db = require('../db')
 const admin = require("firebase-admin");
-const firebase = admin.app();
+// const firebase = admin.app();
+const matchesRef = db.collection('matches')
 
 async function processPlayerInfo(matchStats) {
   let totals = {'kills': 0, 'deaths': 0, 'assists': 0}
@@ -99,6 +100,26 @@ async function fetchUserData (userID) {
   });
 }
 
+async function processMatch (match) {
+  let matchID = match.match_id.toString()
+  console.log('[processMatch] processing for matchID: ' + matchID)
+
+  //set lastUpdated
+  match.lastUpdated = Date.now()
+
+  //set parsedFlag
+  if(match.players[0].damage_targets === null){
+    match.isMatchParsed = false
+  } else {
+    match.isMatchParsed =  true
+  }
+  
+  matchesRef.doc(matchID).set(match).then(ref => {
+    console.log('[processMatch] Processed and added matchID ' + matchID);
+    return true
+  });
+}
+
 exports.queryFirebase = async function (req, res) {
   let usersRef = db.collection('users')
   let returnObj = {
@@ -159,7 +180,6 @@ exports.getUserStatsfromOD = async function (req, res) {
 }
 
 exports.fetchMatchByID = async function (req, res) {
-  let matchesRef = db.collection('matches')
   let matchID = req.params.matchID
   let matchStats = {}
 
@@ -192,13 +212,64 @@ exports.fetchMatchByID = async function (req, res) {
       return json
     });
 
-    matchStats.lastUpdated = Date.now()
-
-    matchesRef.doc(matchID).set(matchStats).then(ref => {
-      console.log('[fmbi] Added matchID ' + matchID);
-    });
+    await processMatch(matchStats)
   }
 
   // calculate ALL the match stats right here bro
   res.send(matchStats)
+}
+
+async function updateMatchOnParse (jobID_obj, matchID){
+  let jobID = jobID_obj.job.jobId
+  let parseComplete = false 
+  let count = 0
+  console.log('[umop] parse with jobID ' + jobID)
+
+  async function wait(ms) {
+    return new Promise(resolve => {
+      setTimeout(resolve, ms);
+    });
+  }
+
+  while(parseComplete === false){
+    await wait(3000)
+
+    let parseDone = await fetch('https://api.opendota.com/api/request/' + jobID, {
+      method: 'get',
+      headers: { 'Content-Type': 'application/json' },
+    })
+    .then(data => data.json())
+    .then((json) => {
+      return json
+    });
+
+    if(parseDone === null) parseComplete = true
+  }
+
+  console.log('[umop] pulling new match data from OD')
+  matchStats = await fetch('https://api.opendota.com/api/matches/' + matchID, {
+    method: 'get',
+    headers: { 'Content-Type': 'application/json' },
+  })
+  .then(data => data.json())
+  .then((json) => {
+    return json
+  });
+
+  await processMatch(matchStats)
+}
+
+exports.parseMatchRequest = async function (req, res) {
+  let jobID = await fetch('https://api.opendota.com/api/request/' + req.params.matchID, {
+    method: 'post',
+    headers: { 'Content-Type': 'application/json' },
+  })
+  .then(data => data.json())
+  .then((json) => {
+    // console.log(json)
+    return json
+  });
+
+  res.send(jobID)
+  updateMatchOnParse(jobID, req.params.matchID)
 }

@@ -33,4 +33,7 @@ module.exports = function (app) {
 
   app.route('/api/queryFirebase')
     .get(od.queryFirebase)
+
+  app.route('/api/request/:matchID')
+    .post(od.parseMatchRequest)
 }

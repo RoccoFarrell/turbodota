@@ -17,6 +17,8 @@ function SingleMatch(props) {
     const [selectedMatch, setSelectedMatch] = useState('');
     const [heroDamage, setHeroDamage] = useState({})
 
+    const [parseLoading, setParseLoading] = useState(false)
+
     const matchOverview = props.matchData
 
     useEffect(() => {
@@ -90,6 +92,21 @@ function SingleMatch(props) {
         return string.toLocaleDateString()
     }
 
+    const handleRequestCalc = async (matchID) => {
+        setParseLoading(true)
+
+        try {
+            await axios.post(`/api/request/${matchID}`)
+            .then(res => {
+                console.log(res)
+                setMatchData({
+                    ...matchData,
+                    isMatchParsed: true
+                })
+                setParseLoading(false)
+            })
+        } catch(e) {console.error(e)}
+    }
 
     return (
         <Card id="matchCard">
@@ -139,9 +156,28 @@ function SingleMatch(props) {
                 <Card.Meta>Match ID: {matchOverview.match_id}</Card.Meta>
                 <Card.Meta>Player Slot: {matchOverview.player_slot}</Card.Meta>
                 <div>
-                    <Button basic color='green'>
-                        Baddie Calc
-                    </Button>
+                    { matchData.isMatchParsed ? (
+                        <Button
+                            basic
+                            color='green'
+                            disabled
+                        >
+                            Match Parsed
+                        </Button>
+                    ) 
+                    : 
+                    (
+                        <Button 
+                            basic 
+                            color='green'
+                            loading = { parseLoading }
+                            onClick={ (e) => {
+                                handleRequestCalc(matchOverview.match_id)
+                            }}>
+                            Baddie Calc
+                        </Button>
+                    )}
+
                 </div>
             </Card.Content>
         </Card>
