@@ -55,7 +55,7 @@ function UserHeroTable(props) {
 
     const heroIcon = (hero_id) => {
       let heroString = 'd2mh hero-' + hero_id
-      return <i className={heroString}/>
+      return <i style={{ zoom: .7, padding: '0px' }} className={heroString}/>
     }
   
     const heroName = (hero_id) => {
@@ -64,7 +64,7 @@ function UserHeroTable(props) {
     }
 
     return (
-      <Table sortable celled fixed>
+      <Table compact sortable celled fixed>
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell
