@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import {
   Container,
   Divider,
@@ -9,6 +9,11 @@ import {
   List,
   Menu,
   Segment,
+  Button,
+  Portal,
+  Form,
+  Checkbox,
+  Icon
 } from 'semantic-ui-react'
 import {
     BrowserRouter as Router,
@@ -28,6 +33,9 @@ import logo from '../assets/squareLogo.png';
 function FixedMenuLayout() {
     
     const {selectedUser, setSelectedUser}= useContext(TurbodotaContext);
+
+    const [likeCounter, setLikeCounter] = useState(0)
+    const [open, setOpen] = useState(false)
     
     let history = useHistory()
 
@@ -45,6 +53,12 @@ function FixedMenuLayout() {
             </Container>
         )
     }
+
+    const handleClose = () => {
+        console.log('closing')
+        setOpen(false)
+    }
+    const handleOpen = () => setOpen(true)
 
     return (
         <div>
@@ -107,6 +121,63 @@ function FixedMenuLayout() {
             {/* END MAIN CONTENT AREA */}
             
             <Segment inverted vertical style={{ padding: '5em 0em' }}>
+            
+            <Portal
+                onClose={handleClose} open={open}>
+                <Segment
+                style={{
+                    left: '60%',
+                    position: 'fixed',
+                    top: '50%',
+                    zIndex: 1000,
+                    padding: '2em',
+                    width: '400px'
+                }}
+                >
+                <Header><i aria-hidden="true" className="cogs icon"/> Make a Feature Request!</Header>
+                <Form>
+                    <Form.Field>
+                    <label>Idea Title</label>
+                    <input placeholder='Automatically ban heroes for me' />
+                    </Form.Field>
+                    <Form.Field>
+                    <label>Description</label>
+                    <input placeholder='Description' />
+                    </Form.Field>
+                    <Form.Field>
+                    <Checkbox label='Rocco and Martin can claim ownership of this idea' />
+                    </Form.Field>
+                    <Button positive type='submit'>Submit</Button>
+                    <Button
+                        negative
+                        onClick={handleClose}
+                    >
+                        Cancel
+                    </Button>
+                </Form>
+                </Segment>
+            </Portal>
+            <Button.Group
+                style={{ position: 'fixed', top: '95vh', right: '15px'}}
+            >
+                <Button
+                    onClick = {() => {
+                        let temp = likeCounter
+                        setLikeCounter(temp += 1)
+                    }}
+                >
+                    <i aria-hidden="true" className="heart icon"></i>
+                    { likeCounter > 0 ? likeCounter + (likeCounter === 1 ? ' Like' : ' Likes') : '0'}
+                </Button>
+                <Button.Or />
+                <Button 
+                    color='red'
+                    onClick={ open ? handleClose : handleOpen }
+                >
+                    <i aria-hidden="true" className="cogs icon"/>
+                    Feature Request
+                </Button>
+            </Button.Group>
 
             <Container textAlign='center'>
                 <Grid divided inverted stackable>

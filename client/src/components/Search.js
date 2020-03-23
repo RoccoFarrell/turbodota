@@ -78,7 +78,7 @@ function Home() {
   }, [searchText])
 
   return (
-    <Container id="container">
+    <Container id="container" style={{ height: 'fit-content'}}>
       <Container id="imageContainer">
         <Image 
           src={logo} 

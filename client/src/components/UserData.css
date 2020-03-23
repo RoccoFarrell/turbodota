@@ -2,6 +2,14 @@
     width: 20%;
     margin-left: 0.5em;
 }
+#playerCard2 {
+    width: 60%;
+    margin-left: 0.5em;
+}
+#playerCard3 {
+    width: 16.25%;
+    margin-left: 0.5em;
+}
 
 #results {
     width: 100%;
