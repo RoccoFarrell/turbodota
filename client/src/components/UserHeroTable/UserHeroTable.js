@@ -55,7 +55,7 @@ function UserHeroTable(props) {
 
     const heroIcon = (hero_id) => {
       let heroString = 'd2mh hero-' + hero_id
-      return <i style={{ zoom: .7, padding: '0px' }} className={heroString}/>
+      return <i style={{ zoom: .5, padding: '0px' }} className={heroString}/>
     }
   
     const heroName = (hero_id) => {

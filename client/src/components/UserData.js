@@ -8,7 +8,8 @@ import {
     Card,
     Icon,
     Image,
-    Header
+    Header,
+    Statistic
 } from 'semantic-ui-react'
 import './UserData.css';
 
@@ -48,16 +49,32 @@ function UserData() {
                                         <span>MMR Estimate: {userData.userStats.mmr_estimate.estimate}</span>
                                     </Card.Meta>
                                     <Card.Description>
-                                        <p>Kills: {userData.totals.kills}</p>
-                                        <p>Deaths: {userData.totals.deaths}</p>
-                                        <p>Assists: {userData.totals.assists}</p>
-                                        <p>Games: {userData.totals.games}</p>
+                                        <Container style = {{display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly'}}>
+                                            <Statistic > 
+                                                <Statistic.Label>Kills</Statistic.Label>
+                                                <Statistic.Value>{userData.totals.kills.toLocaleString()}</Statistic.Value>
+                                            </Statistic>
+                                            <Statistic> 
+                                                <Statistic.Label>Deaths</Statistic.Label>
+                                                <Statistic.Value>{userData.totals.deaths.toLocaleString()}</Statistic.Value>
+                                            </Statistic>
+                                        </Container>
+                                        <Container style = {{display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly'}}>
+                                            <Statistic> 
+                                                <Statistic.Label>Assists</Statistic.Label>
+                                                <Statistic.Value>{userData.totals.assists.toLocaleString()}</Statistic.Value>
+                                            </Statistic>
+                                            <Statistic> 
+                                                <Statistic.Label>Games</Statistic.Label>
+                                                <Statistic.Value>{userData.totals.games.toLocaleString()}</Statistic.Value>
+                                            </Statistic>
+                                        </Container>
                                     </Card.Description>
                                     </Card.Content>
                                     <Card.Content extra>
                                     <a>
                                         <Icon name='save' />
-                                        {userData.matchStats.length} Matches
+                                        {(userData.matchStats.length)+1} Matches
                                     </a>
                                 </Card.Content>
                             </Card>
@@ -76,7 +93,7 @@ function UserData() {
                                     <Card.Content extra>
                                     <a>
                                         <Icon name='save' />
-                                        {userData.matchStats.length} Matches
+                                        {(userData.matchStats.length)+1} Matches
                                     </a>
                                 </Card.Content>
                             </Card>
@@ -93,7 +110,7 @@ function UserData() {
                                     <Card.Content extra>
                                     <a>
                                         <Icon name='save' />
-                                        {userData.matchStats.length} Matches
+                                        {(userData.matchStats.length)+1} Matches
                                     </a>
                                 </Card.Content>
                             </Card>

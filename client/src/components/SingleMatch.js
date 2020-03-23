@@ -136,8 +136,8 @@ function SingleMatch(props) {
                                 key={damageKey}
                             >
                                 <Container id="heroDamageContainer" fluid>
-                                    <div id="heroDamageDiv">
-                                        {heroIcon(heroesList.filter(hero => hero.name === damageKey)[0].id)}
+                                    <div id="heroDamageDiv" style={{ zoom: .7, padding: '0px' }}>
+                                        {heroIcon(heroesList.filter(hero => hero.name === damageKey)[0].id)} 
                                     </div>
                                     {heroDamage.perHeroDamage[damageKey]}
                                 </Container>

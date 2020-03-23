@@ -64,16 +64,16 @@ function FixedMenuLayout() {
         <div>
             <Menu fixed='top' >
             <Container>
-                <Menu.Item as='a' header>
+                <Menu.Item header as='a' onClick={() => {pushRoute('')}}>
                 <Image size='mini' src={logo} style={{ marginRight: '1.5em' }} />
                     Turbodota
                 </Menu.Item>
                 <Menu.Item as='a' onClick={() => {pushRoute('')}}>
                 Home    
                 </Menu.Item>
-                <Menu.Item as='a' onClick={() => {pushRoute('search')}}>
+                {/* <Menu.Item as='a' onClick={() => {pushRoute('search')}}>
                 Search
-                </Menu.Item>
+                </Menu.Item> */}
                 <Menu.Item as='a' onClick={() => {pushRoute('changelog')}}>
                     Changelog
                 </Menu.Item>
