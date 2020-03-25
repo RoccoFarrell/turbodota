@@ -21,7 +21,7 @@ function winOrLoss (slot, win) {
 }
 
 async function processPlayerInfo(matchStats) {
-  let totals = {'kills': 0, 'deaths': 0, 'assists': 0}
+  let totals = {'kills': 0, 'deaths': 0, 'assists': 0, 'wins':0, 'losses':0}
 
   let allHeroesGames = {}
 
@@ -29,6 +29,12 @@ async function processPlayerInfo(matchStats) {
     totals.kills += matchStats[i].kills
     totals.deaths += matchStats[i].deaths
     totals.assists += matchStats[i].assists
+
+    if(winOrLoss(matchStats[i].player_slot, matchStats[i].radiant_win) === true){
+      totals.wins += 1
+    } else {
+      totals.losses += 1
+    }
 
     let heroID = matchStats[i].hero_id
 
@@ -48,6 +54,8 @@ async function processPlayerInfo(matchStats) {
       allHeroesGames[heroID].losses += 1
     }
   }
+
+
 
   totals.games =(matchStats.length)
   let avgObj = {'kills': (totals.kills / matchStats.length).toFixed(2), 'deaths': (totals.deaths / matchStats.length).toFixed(2), 'assists': (totals.assists / matchStats.length).toFixed(2)}

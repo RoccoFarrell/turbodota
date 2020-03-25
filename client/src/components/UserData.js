@@ -69,6 +69,16 @@ function UserData() {
                                                 <Statistic.Value>{userData.totals.games.toLocaleString()}</Statistic.Value>
                                             </Statistic>
                                         </Container>
+                                        <Container style = {{display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly'}}>
+                                            <Statistic> 
+                                                <Statistic.Label>Wins</Statistic.Label>
+                                                <Statistic.Value>{userData.totals.wins.toLocaleString()}</Statistic.Value>
+                                            </Statistic>
+                                            <Statistic> 
+                                                <Statistic.Label>Losses</Statistic.Label>
+                                                <Statistic.Value>{userData.totals.losses.toLocaleString()}</Statistic.Value>
+                                            </Statistic>
+                                        </Container>
                                     </Card.Description>
                                     </Card.Content>
                                     <Card.Content extra>
