@@ -59,8 +59,14 @@ function UserHeroTable(props) {
     }
   
     const heroName = (hero_id) => {
-      // console.log('hero_id: ' + hero_id)
-      return heroesList.filter(hero => hero.id == hero_id)[0].localized_name
+      console.log('hero_id: ' + hero_id)
+      // return heroesList.filter(hero => hero.id == hero_id)[0].localized_name
+      if(hero_id === 0 || hero_id === '0') {
+        return 'HeroZero'
+      } else {
+        return heroesList.filter(hero => hero.id == hero_id)[0].localized_name
+      }
+      
     }
 
     return (

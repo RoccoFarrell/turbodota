@@ -26,6 +26,9 @@ async function processPlayerInfo(matchStats) {
   let allHeroesGames = {}
 
   for(let i = 0; i < matchStats.length; i++) {
+
+    if(matchStats[i].hero_id === 0 || matchStats[i].hero_id === '0') i++
+
     totals.kills += matchStats[i].kills
     totals.deaths += matchStats[i].deaths
     totals.assists += matchStats[i].assists
@@ -54,8 +57,6 @@ async function processPlayerInfo(matchStats) {
       allHeroesGames[heroID].losses += 1
     }
   }
-
-
 
   totals.games =(matchStats.length)
   let avgObj = {'kills': (totals.kills / matchStats.length).toFixed(2), 'deaths': (totals.deaths / matchStats.length).toFixed(2), 'assists': (totals.assists / matchStats.length).toFixed(2)}

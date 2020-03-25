@@ -126,18 +126,20 @@ function UserData() {
                             </Card>
                         </Card.Group>
                     </div>
-                    <Header as='h2'>All Heroes Played</Header>
-                    <UserHeroTable
-                        heroStats = { userData.calculations.allHeroRecord }
-                    />
-                    <Header as='h2'>Last 10 Games</Header>
-                    <Card.Group itemsPerRow={1}>
-                        {userData.matchStats.map((match) => (
-                            <SingleMatch 
-                            key = {match.match_id}
-                            matchData={match}/>
-                        ))}
-                    </Card.Group>
+                    <div>
+                        <Header as='h2' style={{ marginTop: '1em' }}>All Heroes Played</Header>
+                        <UserHeroTable
+                            heroStats = { userData.calculations.allHeroRecord }
+                        />
+                        <Header as='h2'>Last 10 Games</Header>
+                        <Card.Group itemsPerRow={1}>
+                            {userData.matchStats.map((match) => (
+                                <SingleMatch 
+                                key = {match.match_id}
+                                matchData={match}/>
+                            ))}
+                        </Card.Group>
+                    </div>
                 </Container>
             )
             :
