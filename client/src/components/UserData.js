@@ -19,14 +19,10 @@ function UserData() {
     const userData = selectedUser
     let location = useLocation()
 
-    //03-23-20
-    //Need to change userData.calculations to actually return the calculated array right out of the api rather than calculating in UserHeroTable.js
-    console.log(userData.calculations)
-
     useEffect(() => {
         if (userID === undefined || userID === ''){
-            console.log('userID is undefined')
-            console.log('userID: ', userID, 'userData: ', userData, 'selectedUser: ', selectedUser)
+            // console.log('userID is undefined')
+            // console.log('userID: ', userID, 'userData: ', userData, 'selectedUser: ', selectedUser)
             setUserID(location.pathname.split('/users/')[1])
         } else {
             console.log('userID: ', userID, 'userData: ', userData, 'selectedUser: ', selectedUser)
