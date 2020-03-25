@@ -21,6 +21,7 @@ function Home() {
 
   const handleUserSelect = (player) => {
     setUserID('')
+    console.log(player)
     history.push("/users/" + player.account_id)
   }
 
@@ -29,6 +30,12 @@ function Home() {
       account_id: 65110965,
       personaname: "The Dog Petter",
       avatarfull: "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/6f/6f8292e77e9ae4384e0028668c7b7b0049bd1ee5_full.jpg",
+      last_match_time: "Test"
+    },
+    {
+      account_id: 423076846,
+      personaname: "Toph",
+      avatarfull: "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/fe/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg",
       last_match_time: "Test"
     },
     {
@@ -53,6 +60,18 @@ function Home() {
       account_id: 68024789,
       personaname: "MeP Dubby",
       avatarfull: "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/a3/a3321d3442c5091fdd560ac74bd69ca166fb102d_full.jpg",
+      last_match_time: "Test"
+    },
+    {
+      account_id: 67762413,
+      personaname: "Dubbya T",
+      avatarfull: "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/30/30f30ebab1ffcd2f8fca4c42c292ae5a517d8230_full.jpg",
+      last_match_time: "Test"
+    },
+    {
+      account_id: 113003047,
+      personaname: "Type 1 Diabetes",
+      avatarfull: "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/3e/3edcc029122084bb4478cf8d774b71a5f17e2402_full.jpg",
       last_match_time: "Test"
     }
   ]

@@ -27,13 +27,13 @@ export default function Page({children}){
   useEffect(() => {
     async function getUserByID(id) {
       if(id.length > 3 && (id !== '' || id !== undefined) ){
-        console.log(id)
+        // console.log(id)
         try {
           axios.get(`/api/players/${id}`)
           .then(res => {
             let content = res.data;
             content.matchStats = content.matchStats.slice(0,19)
-            console.log(content.matchStats)
+            // console.log(content.matchStats)
             setSelectedUser(content)
           })
           .catch(e => {
@@ -45,9 +45,9 @@ export default function Page({children}){
     getUserByID(userID)
   }, [userID])
 
-  useEffect(() => {
-    console.log('user id set: ', userID)
-  }, [userID])
+  // useEffect(() => {
+  //   console.log('user id set: ', userID)
+  // }, [userID])
 
   const value={selectedUser, setSelectedUser, userID, setUserID, heroesList}
 
