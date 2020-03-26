@@ -23,6 +23,7 @@ app.use(cors())
 //Log requests to console
 app.use('*', (req, res, next) => {
   // apicache.getPerformance()
+  // console.log(req)
   console.log('REQ:'+ req.baseUrl + ' | T: ' + Date.now())
   next()
 })
@@ -45,10 +46,13 @@ routes(app)
 app.use(express.static(path.join(__dirname, 'client/build')))
 
 //Serve non-API requests to static dir
-app.get('*', (req, res) => {
+if(environment !== 'development'){
+  app.get('*', (req, res) => {
+    console.log('received request not to API')
     res.sendFile(path.join(__dirname+'/client/build/index.html'));
   });
-  
+}
+
 app.listen(port)
 
 console.log('RESTful API online at ' + port)

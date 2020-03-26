@@ -343,7 +343,13 @@ async function updateMatchOnParse (jobID_obj, matchID){
     return json
   });
 
-  await processMatch(matchStats)
+  let processedMatchStats = await processMatch(matchStats)
+
+  //add to DB
+  matchesRef.doc(processedMatchStats.match_id.toString()).set(processedMatchStats).then(ref => {
+    console.log('[umop] Processed and added matchID ' + matchID);
+  });
+        
 }
 
 exports.parseMatchRequest = async function (req, res) {
