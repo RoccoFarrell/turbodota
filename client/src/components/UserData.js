@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useLocation } from "react-router-dom";
 import TurbodotaContext from './TurbodotaContext'
-import SingleMatch from './SingleMatch'
+import SingleMatch from './SingleMatch/SingleMatch'
 import UserHeroTable from './UserHeroTable/UserHeroTable'
 import {
     Container,
@@ -13,6 +13,7 @@ import {
     Tab
 } from 'semantic-ui-react'
 import './UserData.css';
+import UserMatchHistory from './UserMatchHistory/UserMatchHistory';
 
 function UserData() {
     const {selectedUser, setSelectedUser, userID, setUserID} = useContext(TurbodotaContext);
@@ -42,13 +43,9 @@ function UserData() {
                     <div>
                         <Header as='h2'>Last 10 Games</Header>
                         { !!userData.matchStats ? (
-                            <Card.Group centered itemsPerRow={1}>
-                            {userData.matchStats.map((match) => (
-                                <SingleMatch 
-                                key = {match.match_id}
-                                matchData={match}/>
-                            ))}
-                            </Card.Group>
+                            <UserMatchHistory
+                                matchStats = { userData.matchStats }
+                            />
                             )
                          : ''}
                     </div>

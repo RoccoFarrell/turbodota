@@ -32,7 +32,7 @@ export default function Page({children}){
           axios.get(`/api/players/${id}`)
           .then(res => {
             let content = res.data;
-            content.matchStats = content.matchStats.slice(0,19)
+            content.matchStats = content.matchStats
             // console.log(content.matchStats)
             setSelectedUser(content)
           })

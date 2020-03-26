@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios'
-import TurbodotaContext from './TurbodotaContext'
+import TurbodotaContext from '../TurbodotaContext'
 import {
     Card,
     Button,
