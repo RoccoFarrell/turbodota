@@ -20,7 +20,6 @@ function winOrLoss (slot, win) {
   }
 }
 
-
 async function processPlayerInfo(matchStats) {
   let totals = {'kills': 0, 'deaths': 0, 'assists': 0, 'wins':0, 'losses':0}
 
@@ -149,6 +148,31 @@ async function fetchUserData (userID) {
   });
 }
 
+function processMatchInfo(matchStats) { 
+  let keys = []
+  Object.keys(matchStats).forEach(key => {
+    keys.push(key)
+  })
+  // console.log(keys)
+
+  let aggregatedMatchStats = []
+
+  function calculateWardRank(player_slot) {
+    // matchStats.players.forEach(player => {
+    // })
+    return []
+  }
+
+  matchStats.players.forEach(player => {  
+    aggregatedMatchStats.push({
+      player_slot: player.player_slot,
+      ward_rank: calculateWardRank(player.player_slot)
+    })
+  })
+
+  return aggregatedMatchStats
+}
+
 async function processMatch (match) {
   let matchID = match.match_id.toString()
   console.log('[processMatch] processing for matchID: ' + matchID)
@@ -157,7 +181,7 @@ async function processMatch (match) {
   match.lastUpdated = Date.now()
 
   //calculate advanced stats
-  match.calculated = { 'test': true }
+  match.calculated = processMatchInfo(match)
 
   //set parsedFlag
   if(match.players[0].damage_targets === null){

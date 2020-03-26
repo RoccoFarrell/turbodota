@@ -14,6 +14,7 @@ import {
 } from 'semantic-ui-react'
 import './UserData.css';
 import UserMatchHistory from './UserMatchHistory/UserMatchHistory';
+import underConstruction from '../assets/construction.png';
 
 function UserData() {
     const {selectedUser, setSelectedUser, userID, setUserID} = useContext(TurbodotaContext);
@@ -132,9 +133,15 @@ function UserData() {
                                         <span>Calculating for MMR ~{userData.userStats.mmr_estimate.estimate}</span>
                                     </Card.Meta>
                                     <Card.Description>
-                                        {/* { Object.keys(userData.calculations.allHeroRecord).map(item => (
-                                            <p>{userData.calculations.allHeroRecord[item].games}</p>
-                                        ))} */}
+                                        <div className={'flexContainer'}>
+                                            <Image 
+                                                src={underConstruction} 
+                                                width={200}
+                                                alt='under construction'
+                                                id='constructionImg'
+                                            />
+                                            <h2>Under Construction ... Coming soon!</h2>
+                                        </div>
                                     </Card.Description>
                                     </Card.Content>
                                     <Card.Content extra>

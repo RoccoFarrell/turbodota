@@ -6,7 +6,9 @@ import {
     Button,
     Container,
     Label,
-    Header
+    Header,
+    Grid,
+    Icon
 } from 'semantic-ui-react'
 import './SingleMatch.css'
 
@@ -95,10 +97,9 @@ function SingleMatch(props) {
 
     const baddieCalcExpired = (timestamp) => {
         let date = new Date(timestamp * 1000)
-        console.log('date1: ', date)
         let daysAgo = new Date()
         daysAgo.setDate(daysAgo.getDate() - 7)
-        console.log('date2: ', daysAgo)
+
         if(date < daysAgo) return true 
         else return false
     }
@@ -139,23 +140,48 @@ function SingleMatch(props) {
         <Card id="matchCard">
             <Card.Content id="heroContainer">
                 <Card.Header>{heroIcon(matchOverview.hero_id)}</Card.Header>
-                <Card.Header id="heroName">
+                <Card.Header id='heroName' as='h3'>
                     {heroName(matchOverview.hero_id)}
                 </Card.Header>
                 <Card.Description id="winLoss" style={{ color: winOrLoss(matchOverview.player_slot, matchOverview.radiant_win) ? 'green' : 'red' }}>
-                    {winOrLoss(matchOverview.player_slot, matchOverview.radiant_win) ? 'Win' : 'Loss'}
+                    <strong>
+                        {winOrLoss(matchOverview.player_slot, matchOverview.radiant_win) ? 'Win' : 'Loss'}
+                    </strong>
                 </Card.Description>
             </Card.Content>
             <Card.Content id="statsContainer">
                 <Container id="statsContainer2">
-                    <Container fluid>
+                    <Container fluid style={{ flex: 1 }}>
                         <h4>Match Stats</h4>
-                        <p>Kills: {matchOverview.kills}</p>
-                        <p>Deaths: {matchOverview.deaths}</p>
-                        <p>Assists: {matchOverview.assists}</p>
+                        <Grid centered columns={2}>
+                            <Grid.Row centered column={2}>
+                                <Grid.Column>
+                                    Kills
+                                </Grid.Column>
+                                <Grid.Column>
+                                    <h3> {matchOverview.kills} </h3>
+                                </Grid.Column>
+                            </Grid.Row>
+                            <Grid.Row centered column={2}>
+                                <Grid.Column>
+                                Deaths
+                                </Grid.Column>
+                                <Grid.Column>
+                                    <h3> {matchOverview.deaths} </h3>
+                                </Grid.Column>
+                            </Grid.Row>
+                            <Grid.Row centered column={2}>
+                                <Grid.Column>
+                                Assists
+                                </Grid.Column>
+                                <Grid.Column>
+                                    <h3> {matchOverview.assists} </h3>
+                                </Grid.Column>
+                            </Grid.Row>
+                        </Grid>
                     </Container>
-                     
-                    <Container fluid>
+
+                    <Container fluid style={{ flex: 1 }}>
                         <h4>Damage to Heroes</h4>
                         { !!heroDamage.perHeroDamage ? 
                         Object.keys(heroDamage.perHeroDamage).map(damageKey => (
@@ -166,11 +192,36 @@ function SingleMatch(props) {
                                     <div id="heroDamageDiv" style={{ zoom: .7, padding: '0px' }}>
                                         {heroIcon(heroesList.filter(hero => hero.name === damageKey)[0].id)} 
                                     </div>
-                                    {heroDamage.perHeroDamage[damageKey]}
+                                    <p style={{ display: 'inline', marginLeft: '1em', fontSize: '18px'}}>{heroDamage.perHeroDamage[damageKey]}</p>
                                 </Container>
                             </div>
                         ))
                         : baddieText(matchOverview.start_time)}
+                    </Container>
+
+                    <Container fluid style={{ flex: 2 }}>
+                        <h4>Benchmarks</h4>
+                        { !!matchData && !!matchData.players ? (
+                            <Grid columns={2}>
+                                <Grid.Row>
+                                    <Icon color='yellow' name='bitcoin' /> 
+                                    GPM: <strong style={{ fontSize: '18px', marginLeft: '1em'}}> {matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].benchmarks.gold_per_min.raw}</strong>
+                                </Grid.Row>
+                                <Grid.Row>
+                                    <Icon color='blue' name='battery three quarters' /> 
+                                    XPM: <strong style={{ fontSize: '18px', marginLeft: '1em'}}> {matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].benchmarks.xp_per_min.raw}</strong>
+                                </Grid.Row>
+                                <Grid.Row>
+                                    <Icon color='green' name='star' /> 
+                                    LH/min: <strong style={{ fontSize: '18px', marginLeft: '1em'}}> {matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].benchmarks.last_hits_per_min.raw.toFixed(2)}</strong>
+                                </Grid.Row>
+                                <Grid.Row>
+                                    <Icon color='red' name='gavel' /> 
+                                    Stuns/min: <strong style={{ fontSize: '18px', marginLeft: '1em'}}> {matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].benchmarks.stuns_per_min.raw.toFixed(2)}</strong>
+                                </Grid.Row>
+                            </Grid>
+                        ) : '' }
+
                     </Container>
                 </Container>
             </Card.Content>
