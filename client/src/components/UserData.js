@@ -9,7 +9,8 @@ import {
     Icon,
     Image,
     Header,
-    Statistic
+    Statistic,
+    Tab
 } from 'semantic-ui-react'
 import './UserData.css';
 
@@ -23,11 +24,56 @@ function UserData() {
         if (userID === undefined || userID === ''){
             // console.log('userID is undefined')
             // console.log('userID: ', userID, 'userData: ', userData, 'selectedUser: ', selectedUser)
+            // console.log('userID: ', userID)
             setUserID(location.pathname.split('/users/')[1])
         } else {
             console.log('userID: ', userID, 'userData: ', userData, 'selectedUser: ', selectedUser)
         }
     }, [])
+
+    const panes = [
+        {
+          menuItem: 'Matches',
+          pane: {
+            key: 'pane1',
+            attached: false,
+            content: 
+                (
+                    <div>
+                        <Header as='h2'>Last 10 Games</Header>
+                        { !!userData.matchStats ? (
+                            <Card.Group centered itemsPerRow={1}>
+                            {userData.matchStats.map((match) => (
+                                <SingleMatch 
+                                key = {match.match_id}
+                                matchData={match}/>
+                            ))}
+                            </Card.Group>
+                            )
+                         : ''}
+                    </div>
+                ) 
+          }
+        },
+        {
+          menuItem: 'Heroes',
+          pane: {
+                key: 'pane2',
+                attached: false,
+                content: 
+                    (
+                        <div>
+                            <Header as='h2'>All Heroes Played</Header>
+                            { !!userData.calculations ? (
+                            <UserHeroTable
+                                heroStats = { userData.calculations.allHeroRecord }
+                            />
+                            ) : '' }
+                        </div>
+                    )
+          } 
+        }
+      ]
 
     return (
         <Container id="container">
@@ -44,40 +90,38 @@ function UserData() {
                                     <Card.Meta>
                                         <span>MMR Estimate: {userData.userStats.mmr_estimate.estimate}</span>
                                     </Card.Meta>
-                                    <Card.Description>
-                                        <Container style = {{display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly'}}>
-                                            <Statistic > 
-                                                <Statistic.Label>Kills</Statistic.Label>
+                                    <Card.Description style={{ marginTop: '2em'}}>
+                                        <Container style = {{display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'baseline'}}>
+                                            <Statistic size='mini' color='green'> 
                                                 <Statistic.Value>{userData.totals.kills.toLocaleString()}</Statistic.Value>
+                                                <Statistic.Label>Kills</Statistic.Label>
                                             </Statistic>
-                                            <Statistic> 
-                                                <Statistic.Label>Deaths</Statistic.Label>
+                                            <Statistic size='mini' color='red'> 
                                                 <Statistic.Value>{userData.totals.deaths.toLocaleString()}</Statistic.Value>
+                                                <Statistic.Label>Deaths</Statistic.Label>
                                             </Statistic>
-                                        </Container>
-                                        <Container style = {{display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly'}}>
-                                            <Statistic> 
-                                                <Statistic.Label>Assists</Statistic.Label>
+                                            <Statistic size='mini' color='grey'> 
                                                 <Statistic.Value>{userData.totals.assists.toLocaleString()}</Statistic.Value>
-                                            </Statistic>
-                                            <Statistic> 
-                                                <Statistic.Label>Games</Statistic.Label>
-                                                <Statistic.Value>{userData.totals.games.toLocaleString()}</Statistic.Value>
+                                                <Statistic.Label>Assists</Statistic.Label>
                                             </Statistic>
                                         </Container>
-                                        <Container style = {{display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly'}}>
-                                            <Statistic> 
-                                                <Statistic.Label>Wins</Statistic.Label>
-                                                <Statistic.Value>{userData.totals.wins.toLocaleString()}</Statistic.Value>
+                                        <Container style = {{display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'baseline'}}>
+                                            <Statistic size='mini' color='grey'> 
+                                                <Statistic.Value>{userData.totals.games.toLocaleString()}</Statistic.Value>
+                                                <Statistic.Label>Games</Statistic.Label>
                                             </Statistic>
-                                            <Statistic> 
-                                                <Statistic.Label>Losses</Statistic.Label>
+                                            <Statistic size='mini' color='green'> 
+                                                <Statistic.Value>{userData.totals.wins.toLocaleString()}</Statistic.Value>
+                                                <Statistic.Label>Wins</Statistic.Label>
+                                            </Statistic>
+                                            <Statistic size='mini' color='red'> 
                                                 <Statistic.Value>{userData.totals.losses.toLocaleString()}</Statistic.Value>
+                                                <Statistic.Label>Losses</Statistic.Label>
                                             </Statistic>
                                         </Container>
                                     </Card.Description>
-                                    </Card.Content>
-                                    <Card.Content extra>
+                                </Card.Content>
+                                <Card.Content extra>
                                     <a>
                                         <Icon name='save' />
                                         {(userData.matchStats.length)+1} Matches
@@ -122,19 +166,8 @@ function UserData() {
                             </Card>
                         </Card.Group>
                     </div>
-                    <div>
-                        <Header as='h2' style={{ marginTop: '1em' }}>All Heroes Played</Header>
-                        <UserHeroTable
-                            heroStats = { userData.calculations.allHeroRecord }
-                        />
-                        <Header as='h2'>Last 10 Games</Header>
-                        <Card.Group itemsPerRow={1}>
-                            {userData.matchStats.map((match) => (
-                                <SingleMatch 
-                                key = {match.match_id}
-                                matchData={match}/>
-                            ))}
-                        </Card.Group>
+                    <div className={'tabView'}>
+                        <Tab menu={{ secondary: true, pointing: true }} panes={panes} renderActiveOnly={false} />
                     </div>
                 </Container>
             )
