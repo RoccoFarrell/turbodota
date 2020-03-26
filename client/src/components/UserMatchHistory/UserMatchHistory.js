@@ -39,13 +39,9 @@ function UserMatchHistory(props) {
 
     useEffect(() => {
       let offsetIndex = (activePage - 1) * 10
-      console.log('activePage: ', activePage, 'offsetIndex: ', offsetIndex)
+      // console.log('activePage: ', activePage, 'offsetIndex: ', offsetIndex)
       setMatchSubset(matchStats.slice(offsetIndex, offsetIndex + 10))
     }, [activePage])
-
-    useEffect(() => {
-      console.log(matchSubset)
-    }, [matchSubset])
 
     return (
       <div>
@@ -67,9 +63,7 @@ function UserMatchHistory(props) {
                 lastItem={null}
                 // prevItem={showPreviousAndNextNav ? undefined : null}
                 // nextItem={showPreviousAndNextNav ? undefined : null}
-            >
-              <Pagination.Item style={{ margin: '2em'}}/>
-            </Pagination>
+            />
           </Grid.Column>
           <Grid.Column>
             <Card.Group centered itemsPerRow={1}>

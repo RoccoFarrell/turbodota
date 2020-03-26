@@ -27,6 +27,7 @@ function SingleMatch(props) {
                 axios.get(`/api/matches/${matchOverview.match_id}`)
                 .then(res => {
                     let content = res.data;
+                    console.log('matchData: ', content)
                     let returnDmg = calculateHeroDamage(matchOverview, content)
                     setHeroDamage(returnDmg)
                     setMatchData(content)
@@ -92,6 +93,32 @@ function SingleMatch(props) {
         return string.toLocaleDateString()
     }
 
+    const baddieCalcExpired = (timestamp) => {
+        let date = new Date(timestamp * 1000)
+        console.log('date1: ', date)
+        let daysAgo = new Date()
+        daysAgo.setDate(daysAgo.getDate() - 7)
+        console.log('date2: ', daysAgo)
+        if(date < daysAgo) return true 
+        else return false
+    }
+
+    const baddieText = (timestamp) => {
+        if(baddieCalcExpired(timestamp)){
+            return (
+                <Header as='h4' className={"reqCalc"}>
+                    Baddie Calc™ <strong>Expired</strong>
+                </Header>
+            )
+        } else {
+            return (
+                <Header as='h4' className={"reqCalc"}>
+                    Run the Baddie Calc™ to get Advanced Stats!
+                </Header>
+            )
+        }
+    }
+
     const handleRequestCalc = async (matchID) => {
         setParseLoading(true)
 
@@ -143,11 +170,7 @@ function SingleMatch(props) {
                                 </Container>
                             </div>
                         ))
-                        :
-                            <Header as='h4' id="reqCalc">
-                                Run the Baddie Calc to get Advanced Stats!
-                            </Header>
-                        }
+                        : baddieText(matchOverview.start_time)}
                     </Container>
                 </Container>
             </Card.Content>
@@ -171,10 +194,11 @@ function SingleMatch(props) {
                             basic 
                             color='green'
                             loading = { parseLoading }
+                            disabled = { baddieCalcExpired(matchOverview.start_time) }
                             onClick={ (e) => {
                                 handleRequestCalc(matchOverview.match_id)
                             }}>
-                            Baddie Calc
+                            { baddieCalcExpired(matchOverview.start_time) ? 'Expired' : 'Baddie Calc™'}
                         </Button>
                     )}
 
