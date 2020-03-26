@@ -148,7 +148,7 @@ async function fetchUserData (userID) {
   });
 }
 
-function processMatchInfo(matchStats) { 
+function calculateAdvancedMetrics(matchStats) { 
   let keys = []
   Object.keys(matchStats).forEach(key => {
     keys.push(key)
@@ -181,7 +181,7 @@ async function processMatch (match) {
   match.lastUpdated = Date.now()
 
   //calculate advanced stats
-  match.calculated = processMatchInfo(match)
+  match.calculated = calculateAdvancedMetrics(match)
 
   //set parsedFlag
   if(match.players[0].damage_targets === null){
