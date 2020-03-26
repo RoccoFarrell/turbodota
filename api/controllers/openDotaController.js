@@ -20,6 +20,7 @@ function winOrLoss (slot, win) {
   }
 }
 
+
 async function processPlayerInfo(matchStats) {
   let totals = {'kills': 0, 'deaths': 0, 'assists': 0, 'wins':0, 'losses':0}
 
@@ -27,12 +28,15 @@ async function processPlayerInfo(matchStats) {
 
   for(let i = 0; i < matchStats.length; i++) {
 
+    //check if hero slot is 0, indicating bad match data
     if(matchStats[i].hero_id === 0 || matchStats[i].hero_id === '0') i++
 
+    //sum all KDA
     totals.kills += matchStats[i].kills
     totals.deaths += matchStats[i].deaths
     totals.assists += matchStats[i].assists
 
+    //sum total wins
     if(winOrLoss(matchStats[i].player_slot, matchStats[i].radiant_win) === true){
       totals.wins += 1
     } else {
@@ -152,17 +156,17 @@ async function processMatch (match) {
   //set lastUpdated
   match.lastUpdated = Date.now()
 
+  //calculate advanced stats
+  match.calculated = { 'test': true }
+
   //set parsedFlag
   if(match.players[0].damage_targets === null){
     match.isMatchParsed = false
   } else {
     match.isMatchParsed =  true
   }
-  
-  matchesRef.doc(matchID).set(match).then(ref => {
-    console.log('[processMatch] Processed and added matchID ' + matchID);
-    return true
-  });
+
+  return match
 }
 
 exports.queryFirebase = async function (req, res) {
@@ -234,10 +238,15 @@ exports.fetchMatchByID = async function (req, res) {
       return false
     } else {
       // console.log('[fmbi] found matchID: ' + matchID)
-      snapshot.forEach(doc => {
+      snapshot.forEach(async (doc) => {
         let returnData = doc.data()
         // console.log(doc.id, returnData)
-        matchStats = returnData
+
+        //process match stats
+        let processedMatchStats = await processMatch(returnData)
+
+        //no add to db since already in db
+        matchStats = processedMatchStats
       })
       return true
     }
@@ -252,12 +261,21 @@ exports.fetchMatchByID = async function (req, res) {
       headers: { 'Content-Type': 'application/json' },
     })
     .then(data => data.json())
-    .then((json) => {
+    .then(async (json) => {
       // console.log(json)
-      return json
-    });
 
-    await processMatch(matchStats)
+      //process match stats
+      let processedMatchStats = await processMatch(json)
+      //console.log(processedMatchStats)
+      //console.log("matchid: ", processedMatchStats.match_id)
+
+      //add to DB
+      matchesRef.doc(processedMatchStats.match_id.toString()).set(processedMatchStats).then(ref => {
+        console.log('[processMatch] Processed and added matchID ' + matchID);
+      });
+      
+      return processedMatchStats
+    });
   }
 
   // calculate ALL the match stats right here bro
