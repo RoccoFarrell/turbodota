@@ -1,9 +1,10 @@
 'use strict'
 
 module.exports = function (app) {
-  var auth = require('../controllers/authController')
-  var od = require('../controllers/openDotaController')
-  var user = require('../controllers/userController')
+  const auth = require('../controllers/authController')
+  const od = require('../controllers/openDotaController')
+  const user = require('../controllers/userController')
+  const town = require('../controllers/townController')
 
   /*
   app.route('/').get(function (req, res) {
@@ -36,4 +37,7 @@ module.exports = function (app) {
 
   app.route('/api/request/:matchID')
     .post(od.parseMatchRequest)
+
+  app.route('/api/towns/:steamID')
+    .get(town.getTownForUser)
 }
