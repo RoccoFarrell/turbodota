@@ -77,6 +77,7 @@ exports.getTownForUser = async function (req, res) {
   townsRef.where('playerID','==', parseInt(playerID)).get()
   .then(async (snapshot) => {
     if(snapshot.empty){
+      console.log('[town] creating new town for ' + playerID)
       returnTown = await createNewTown(playerID)
       res.send(returnTown)
     } else {
