@@ -82,6 +82,7 @@ exports.getTownForUser = async function (req, res) {
     } else {
       snapshot.forEach(doc => {
         let returnData = doc.data()
+        console.log('[town] found existing town for '  + playerID)
         res.send(returnData)
       }) 
     }
