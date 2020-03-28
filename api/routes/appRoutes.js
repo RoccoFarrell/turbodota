@@ -5,6 +5,7 @@ module.exports = function (app) {
   const od = require('../controllers/openDotaController')
   const user = require('../controllers/userController')
   const town = require('../controllers/townController')
+  const match = require('../controllers/matchController')
 
   /*
   app.route('/').get(function (req, res) {
@@ -26,18 +27,25 @@ module.exports = function (app) {
   app.route('/api/heroes')
     .get(od.fetchHeroes)
 
+  app.route('/api/players/:steamID/matches')
+    .get(match.fetchMatchesForUser)
+
   app.route('/api/players/:steamID')
     .get(od.getUserStatsfromOD)
 
   app.route('/api/matches/:matchID')
-    .get(od.fetchMatchByID)
+    .get(match.fetchMatchByID)
 
   app.route('/api/queryFirebase')
     .get(od.queryFirebase)
 
   app.route('/api/request/:matchID')
-    .post(od.parseMatchRequest)
+    .post(match.parseMatchRequest)
 
   app.route('/api/towns/:steamID')
+    .post(town.completeQuest)
     .get(town.getTownForUser)
+    
+
+
 }

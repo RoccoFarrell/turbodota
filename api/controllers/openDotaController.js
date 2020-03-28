@@ -4,6 +4,7 @@ const db = require('../db')
 const admin = require("firebase-admin");
 // const firebase = admin.app();
 const matchesRef = db.collection('matches')
+const match = require('../controllers/matchController')
 
 function winOrLoss (slot, win) {
   if (slot > 127){
@@ -116,22 +117,6 @@ exports.searchUser = async function (req, res) {
   });
 }
 
-async function fetchMatchesForUser (userID) {
-  console.log('[fmfu] fetching matches for user ', userID)
-  return await fetch('https://api.opendota.com/api/players/' + userID + '/matches?significant=0&game_mode=23', {
-    method: 'get',
-    headers: { 'Content-Type': 'application/json' },
-  })
-  .then(data => data.json())
-  .then((json) => {
-    //console.log('matches data complete', json)
-    return json
-  })
-  .catch(e => {
-    console.error(e)
-  });
-}
-
 async function fetchUserData (userID) {
   console.log('[fud] fetching user data for ', userID)
   return await fetch('https://api.opendota.com/api/players/' + userID, {
@@ -146,51 +131,6 @@ async function fetchUserData (userID) {
   .catch(e => {
     console.error(e)
   });
-}
-
-function calculateAdvancedMetrics(matchStats) { 
-  let keys = []
-  Object.keys(matchStats).forEach(key => {
-    keys.push(key)
-  })
-  // console.log(keys)
-
-  let aggregatedMatchStats = []
-
-  function calculateWardRank(player_slot) {
-    // matchStats.players.forEach(player => {
-    // })
-    return []
-  }
-
-  matchStats.players.forEach(player => {  
-    aggregatedMatchStats.push({
-      player_slot: player.player_slot,
-      ward_rank: calculateWardRank(player.player_slot)
-    })
-  })
-
-  return aggregatedMatchStats
-}
-
-async function processMatch (match) {
-  let matchID = match.match_id.toString()
-  console.log('[processMatch] processing for matchID: ' + matchID)
-
-  //set lastUpdated
-  match.lastUpdated = Date.now()
-
-  //calculate advanced stats
-  match.calculated = calculateAdvancedMetrics(match)
-
-  //set parsedFlag
-  if(match.players[0].damage_targets === null){
-    match.isMatchParsed = false
-  } else {
-    match.isMatchParsed =  true
-  }
-
-  return match
 }
 
 exports.queryFirebase = async function (req, res) {
@@ -244,125 +184,10 @@ exports.getUserStatsfromOD = async function (req, res) {
     });
   }
 
-  let matchStats = await fetchMatchesForUser(req.params.steamID)
+  let matchStats = await match.fetchMatches(req.params.steamID)
 
   let calcObj =  await processPlayerInfo(matchStats)
   let returnObj = {"userStats": userStats, "matchStats": matchStats, "averages": calcObj.averages, "totals": calcObj.totals, "calculations": calcObj}
 
   res.send(returnObj)
-}
-
-exports.fetchMatchByID = async function (req, res) {
-  let matchID = req.params.matchID
-  let matchStats = {}
-
-  let matchExists = await matchesRef.where('match_id','==', parseInt(matchID)).get()
-  .then(snapshot => {
-    if(snapshot.empty){
-      return false
-    } else {
-      // console.log('[fmbi] found matchID: ' + matchID)
-      snapshot.forEach(async (doc) => {
-        let returnData = doc.data()
-        // console.log(doc.id, returnData)
-
-        //process match stats
-        let processedMatchStats = await processMatch(returnData)
-
-        //no add to db since already in db
-        matchStats = processedMatchStats
-      })
-      return true
-    }
-  })
-  
-  console.log('[fmbi] match with id ' + matchID + ' exists: ' + matchExists)
-
-  if(matchExists === false) {
-    console.log('[fmbi] pulling new match data from OD')
-    matchStats = await fetch('https://api.opendota.com/api/matches/' + req.params.matchID, {
-      method: 'get',
-      headers: { 'Content-Type': 'application/json' },
-    })
-    .then(data => data.json())
-    .then(async (json) => {
-      // console.log(json)
-
-      //process match stats
-      let processedMatchStats = await processMatch(json)
-      //console.log(processedMatchStats)
-      //console.log("matchid: ", processedMatchStats.match_id)
-
-      //add to DB
-      matchesRef.doc(processedMatchStats.match_id.toString()).set(processedMatchStats).then(ref => {
-        console.log('[processMatch] Processed and added matchID ' + matchID);
-      });
-      
-      return processedMatchStats
-    });
-  }
-
-  // calculate ALL the match stats right here bro
-  res.send(matchStats)
-}
-
-async function updateMatchOnParse (jobID_obj, matchID){
-  let jobID = jobID_obj.job.jobId
-  let parseComplete = false 
-  let count = 0
-  console.log('[umop] parse with jobID ' + jobID)
-
-  async function wait(ms) {
-    return new Promise(resolve => {
-      setTimeout(resolve, ms);
-    });
-  }
-
-  while(parseComplete === false){
-    await wait(3000)
-
-    let parseDone = await fetch('https://api.opendota.com/api/request/' + jobID, {
-      method: 'get',
-      headers: { 'Content-Type': 'application/json' },
-    })
-    .then(data => data.json())
-    .then((json) => {
-      return json
-    });
-
-    if(parseDone === null) parseComplete = true
-  }
-
-  console.log('[umop] pulling new match data from OD')
-  matchStats = await fetch('https://api.opendota.com/api/matches/' + matchID, {
-    method: 'get',
-    headers: { 'Content-Type': 'application/json' },
-  })
-  .then(data => data.json())
-  .then((json) => {
-    return json
-  });
-
-  let processedMatchStats = await processMatch(matchStats)
-
-  //add to DB
-  matchesRef.doc(processedMatchStats.match_id.toString()).set(processedMatchStats).then(ref => {
-    console.log('[umop] Processed and added matchID ' + matchID);
-  });
-        
-}
-
-exports.parseMatchRequest = async function (req, res) {
-  let jobID = await fetch('https://api.opendota.com/api/request/' + req.params.matchID, {
-    method: 'post',
-    headers: { 'Content-Type': 'application/json' },
-  })
-  .then(data => data.json())
-  .then((json) => {
-    // console.log(json)
-    return json
-  });
-
-  res.send(jobID)
-  updateMatchOnParse(jobID, req.params.matchID)
 }

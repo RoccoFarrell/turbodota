@@ -4,7 +4,17 @@
   justify-content: center;
   align-items: center;
   margin-top: 1em;
+  padding: 1em;
 }
+.flexColumn {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1em;
+  padding: 1em;
+}
+
 
 .questCard {
   margin-left: 1em!important;

@@ -16,6 +16,9 @@ import './TownHome.css';
 
 import Quests from './Quests/Quests'
 
+import goldIcon from '../../assets/gold.png';
+import xpIcon from '../../assets/xp.png';
+
 function TownHome() {
   const {selectedUser, setSelectedUser, userID, setUserID} = useContext(TurbodotaContext);
   const [enableReset, setEnableReset] = useState(false)
@@ -56,6 +59,9 @@ function TownHome() {
     if(userID !== undefined && userID !== '') getTownData()
   }, [userID])
 
+  const handleTownDataChange = (townData) => {
+    setTownData(townData)
+  }
   return (
       <Container id="container">
           { !!selectedUser.userStats ? (
@@ -68,11 +74,33 @@ function TownHome() {
               <Button>Reset Town</Button>
             </div>
           ) : ''}
+
+          <Container className={'flexRow'} fluid>
+            { !!townData.active ? 
+              <Statistic.Group widths='two'>
+                <Statistic>
+                  <Statistic.Value>
+                    <Image src={goldIcon} className='circular inline' />
+                    { townData.gold }
+                  </Statistic.Value>
+                  <Statistic.Label>Gold</Statistic.Label>
+                </Statistic>
+                <Statistic>
+                  <Statistic.Value>
+                    <Image src={xpIcon} className='circular inline' />
+                    { townData.xp }
+                  </Statistic.Value>
+                  <Statistic.Label>XP</Statistic.Label>
+                </Statistic>
+              </Statistic.Group>
+              : '' }
+          </Container>
           
           <Container className={'flexRow'} fluid>
             { !!townData.active ? 
                 <Quests 
                   townData={townData}
+                  handleTownDataChange={handleTownDataChange}
                 />
             : '' }
           </Container>
