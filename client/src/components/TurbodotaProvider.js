@@ -27,12 +27,10 @@ export default function Page({children}){
   useEffect(() => {
     async function getUserByID(id) {
       if(id.length > 3 && (id !== '' || id !== undefined) ){
-        // console.log(id)
         try {
           axios.get(`/api/players/${id}`)
           .then(res => {
             let content = res.data;
-            content.matchStats = content.matchStats
             // console.log(content.matchStats)
             setSelectedUser(content)
           })

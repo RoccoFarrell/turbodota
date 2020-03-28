@@ -10,6 +10,7 @@ const newTown = {
 }
 
 const newTownQuest =  {
+  id: 0,
   hero: {},
   active: true,
   completed: false,
@@ -48,13 +49,22 @@ exports.getTownForUser = async function (req, res) {
     let townArray = []
     for(i = 0; i < 3; i++){
       let townQuest = { ...newTownQuest }
-      townQuest.heroID = allHeroes[Math.floor(Math.random() * allHeroes.length)]
+      townQuest.id = playerID + '-' + i
+      townQuest.hero = allHeroes[Math.floor(Math.random() * allHeroes.length)]
       townArray.push(townQuest)
     }
 
     let town = { ...newTown }
-    town.playerID = playerID
+    town.playerID = parseInt(playerID)
     town.active = townArray
+
+    townsRef.doc(playerID).set(town).then(ref => {
+      console.log('[town] Added new town for user ' + playerID);
+    })
+    .catch(e => {
+      console.log('Error adding town: ', e)
+    })
+
     //console.log(town)
     return town
   }
@@ -63,42 +73,17 @@ exports.getTownForUser = async function (req, res) {
     
   }
 
-  let townExists = await townsRef.where('playerID','==', parseInt(playerID)).get()
-  .then(snapshot => {
+  let returnTown = {}
+  townsRef.where('playerID','==', parseInt(playerID)).get()
+  .then(async (snapshot) => {
     if(snapshot.empty){
-      return false
+      returnTown = await createNewTown(playerID)
+      res.send(returnTown)
     } else {
       snapshot.forEach(doc => {
         let returnData = doc.data()
-      })
-      return returnData
+        res.send(returnData)
+      }) 
     }
   })
-
-  console.log('townExists: ', townExists)
-
-  let returnTown = {}
-  if(townExists){
-    processExistingTown(townExists)
-  } else {
-    returnTown = createNewTown(playerID)
-  }
-  
-  // console.log('[gusfod] user with id ' + userID + ' exists: ' + userExists)
-
-  // if(userExists === false) {
-  //   console.log('[gusfod] pulling new user data from OD')
-  //   userStats = await fetchUserData(userID)
-  //   userStats.lastUpdated = Date.now()
-  //   usersRef.doc(userID).set(userStats).then(ref => {
-  //     console.log('[gusfod] Added userID ' + userID);
-  //   });
-  // }
-
-  // let matchStats = await fetchMatchesForUser(req.params.steamID)
-
-  // let calcObj =  await processPlayerInfo(matchStats)
-  // let returnObj = {"userStats": userStats, "matchStats": matchStats, "averages": calcObj.averages, "totals": calcObj.totals, "calculations": calcObj}
-
-  res.send(returnTown)
 }

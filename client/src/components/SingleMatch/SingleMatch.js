@@ -5,7 +5,6 @@ import {
     Card,
     Button,
     Container,
-    Label,
     Header,
     Grid,
     Icon
@@ -16,7 +15,6 @@ function SingleMatch(props) {
     const { heroesList }= useContext(TurbodotaContext);
 
     const [matchData, setMatchData] = useState({});
-    const [selectedMatch, setSelectedMatch] = useState('');
     const [heroDamage, setHeroDamage] = useState({})
 
     const [parseLoading, setParseLoading] = useState(false)
@@ -29,7 +27,7 @@ function SingleMatch(props) {
                 axios.get(`/api/matches/${matchOverview.match_id}`)
                 .then(res => {
                     let content = res.data;
-                    console.log('matchData: ', content)
+                    // console.log('matchData: ', content)
                     let returnDmg = calculateHeroDamage(matchOverview, content)
                     setHeroDamage(returnDmg)
                     setMatchData(content)

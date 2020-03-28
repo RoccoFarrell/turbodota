@@ -1,0 +1,13 @@
+.flexRow {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1em;
+}
+
+.questCard {
+  margin-left: 1em!important;
+  margin-right: 1em!important;
+  margin-top: 0em!important;
+}

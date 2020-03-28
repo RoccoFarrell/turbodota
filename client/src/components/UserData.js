@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useLocation } from "react-router-dom";
+import { useLocation, useHistory } from "react-router-dom";
 import TurbodotaContext from './TurbodotaContext'
 import SingleMatch from './SingleMatch/SingleMatch'
 import UserHeroTable from './UserHeroTable/UserHeroTable'
@@ -10,7 +10,8 @@ import {
     Image,
     Header,
     Statistic,
-    Tab
+    Tab,
+    Button
 } from 'semantic-ui-react'
 import './UserData.css';
 import UserMatchHistory from './UserMatchHistory/UserMatchHistory';
@@ -21,6 +22,7 @@ function UserData() {
 
     const userData = selectedUser
     let location = useLocation()
+    let history = useHistory()
 
     useEffect(() => {
         if (userID === undefined || userID === ''){
@@ -72,6 +74,11 @@ function UserData() {
           } 
         }
       ]
+    
+    const handleRouteChange = (route) => {
+        console.log('changing route')
+        history.push("/users/" + userID + '/' + route)
+    }
 
     return (
         <Container id="container">
@@ -158,7 +165,7 @@ function UserData() {
                                         <span>MMR Estimate: {userData.userStats.mmr_estimate.estimate}</span>
                                     </Card.Meta>
                                     <Card.Description>
-                                        Test more stats
+                                        <Button onClick={ () => {handleRouteChange('town')} }> View Turbo Town </Button>
                                     </Card.Description>
                                     </Card.Content>
                                     <Card.Content extra>

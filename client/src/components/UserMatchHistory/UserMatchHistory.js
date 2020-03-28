@@ -19,21 +19,21 @@ function UserMatchHistory(props) {
     const [totalPages, setTotalPages] = useState(countTotalPages)
     const [matchSubset, setMatchSubset] = useState([])
 
-    const heroIcon = (hero_id) => {
-      let heroString = 'd2mh hero-' + hero_id
-      return <i style={{ zoom: .5, padding: '0px' }} className={heroString}/>
-    }
+    // const heroIcon = (hero_id) => {
+    //   let heroString = 'd2mh hero-' + hero_id
+    //   return <i style={{ zoom: .5, padding: '0px' }} className={heroString}/>
+    // }
   
-    const heroName = (hero_id) => {
-      // console.log('hero_id: ' + hero_id)
-      // return heroesList.filter(hero => hero.id == hero_id)[0].localized_name
-      if(hero_id === 0 || hero_id === '0') {
-        return 'HeroZero'
-      } else {
-        return heroesList.filter(hero => hero.id == hero_id)[0].localized_name
-      }
+    // const heroName = (hero_id) => {
+    //   // console.log('hero_id: ' + hero_id)
+    //   // return heroesList.filter(hero => hero.id == hero_id)[0].localized_name
+    //   if(hero_id === 0 || hero_id === '0') {
+    //     return 'HeroZero'
+    //   } else {
+    //     return heroesList.filter(hero => hero.id == hero_id)[0].localized_name
+    //   }
       
-    }
+    // }
 
     const handlePaginationChange = (e, { activePage }) => setActivePage(activePage)
 

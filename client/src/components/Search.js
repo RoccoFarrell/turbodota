@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import '../App.css';
 import axios from 'axios'
-import { Container, Image, Input, Header, Search } from 'semantic-ui-react'
+import { Container, Image, Input, Header } from 'semantic-ui-react'
 import './Search.css';
 
 import logo from '../assets/turbologo.png';

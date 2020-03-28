@@ -1,0 +1,10 @@
+.flexRow {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+#container {
+  margin-top: 2em;
+}
