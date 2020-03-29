@@ -26,14 +26,46 @@ function UserData() {
 
     useEffect(() => {
         if (userID === undefined || userID === ''){
-            // console.log('userID is undefined')
-            // console.log('userID: ', userID, 'userData: ', userData, 'selectedUser: ', selectedUser)
-            // console.log('userID: ', userID)
             setUserID(location.pathname.split('/users/')[1])
         } else {
             console.log('userID: ', userID, 'userData: ', userData, 'selectedUser: ', selectedUser)
         }
     }, [])
+
+    function winOrLoss (slot, win) {
+        if (slot > 127){
+            if (win === false){
+                return true
+            }
+            else return false
+        }
+        else {
+            if (win === false){
+                return false
+            }
+            else return true
+        }
+    }
+
+    const calcWinLoss = (lastTen) => {
+        let wins = 0
+        let losses = 0
+        lastTen.forEach(match => {
+            if(winOrLoss(match.player_slot, match.radiant_win)) wins++
+            else losses++
+        })
+
+        return(<div>
+            <Statistic size='mini' color='green'> 
+                <Statistic.Value>{wins}</Statistic.Value>
+                <Statistic.Label style={{ fontSize: '12px'}}>Wins</Statistic.Label>
+            </Statistic>
+            <Statistic size='mini' color='red'> 
+                <Statistic.Value>{losses}</Statistic.Value>
+                <Statistic.Label style={{ fontSize: '12px'}}>Losses</Statistic.Label>
+            </Statistic>
+        </div>)
+    }
 
     const panes = [
         {
@@ -44,11 +76,18 @@ function UserData() {
             content: 
                 (
                     <div>
-                        <Header as='h2'>Last 10 Games</Header>
+                        
                         { !!userData.matchStats ? (
-                            <UserMatchHistory
-                                matchStats = { userData.matchStats }
-                            />
+                            <div>
+                                <div className = {'flexContainer'} style={{ flexDirection: 'column', justifyContent:'center'}}>
+                                    <Header as='h2'>Last 10 Games</Header>
+                                    <Header as='h3' style={{ marginTop: '0em' }}>{ calcWinLoss(userData.matchStats.slice(0,10)) }</Header>
+                                </div>
+                                <UserMatchHistory
+                                    matchStats = { userData.matchStats }
+                                />
+                                
+                            </div>  
                             )
                          : ''}
                     </div>
@@ -129,7 +168,7 @@ function UserData() {
                                 <Card.Content extra>
                                     <a>
                                         <Icon name='save' />
-                                        {(userData.matchStats.length)+1} Matches
+                                        {(userData.matchStats.length)} Matches
                                     </a>
                                 </Card.Content>
                             </Card>
@@ -154,7 +193,7 @@ function UserData() {
                                     <Card.Content extra>
                                     <a>
                                         <Icon name='save' />
-                                        {(userData.matchStats.length)+1} Matches
+                                        {(userData.matchStats.length)} Matches
                                     </a>
                                 </Card.Content>
                             </Card>
@@ -171,7 +210,7 @@ function UserData() {
                                     <Card.Content extra>
                                     <a>
                                         <Icon name='save' />
-                                        {(userData.matchStats.length)+1} Matches
+                                        {(userData.matchStats.length)} Matches
                                     </a>
                                 </Card.Content>
                             </Card>

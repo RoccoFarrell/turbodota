@@ -9,6 +9,7 @@ export default function Changelog() {
   return (
     <Container id='changeLog'>
         <ul>
+          <li>V1.1.01 - 03/29/20 -Ben's first feature: wins and losses on last 10</li>
           <li>V1.1 - 03/28/20 - Major release: Turbo Town is live. Play heroes and redeem quests!</li>
           <li>V1.0 - 03/23/2020 - After one week of coding and 3 years of planning, version 1.0 of Turbodota.com is live! We finally have a data-driven methodology for finding out why Robbie sucks at Spirit Breaker, in statistically significant detail.</li>
           <li>V0.05 - 03/19/2020 - Fixed routing, and displayed best players by MMR. Guess who's last, it might shock you...</li>
