@@ -78,9 +78,11 @@ const createNewTown = async (playerID) => {
   return town
 }
 
-const processExistingTown = async (townData) => {
+const recalculateExistingTown = async (townData) => {
   let oldestQuestTime = 0
   let questHeroIDs = []
+
+  //loop through all actives, get all quest IDs, and oldest
   townData.active.forEach((quest, index) => {
     // console.log(quest,index)
     questHeroIDs.push(quest.hero.id)
@@ -89,6 +91,17 @@ const processExistingTown = async (townData) => {
       if(oldestQuestTime > quest.startTime._seconds) oldestQuestTime = quest.startTime._seconds
     }
   })
+
+  //loop through all completed, get all quest IDs, and oldest
+  townData.completed.forEach((quest, index) => {
+    // console.log(quest,index)
+    questHeroIDs.push(quest.hero.id)
+    if(index == 0) oldestQuestTime = quest.startTime._seconds
+    if(index > 0) {
+      if(oldestQuestTime > quest.startTime._seconds) oldestQuestTime = quest.startTime._seconds
+    }
+  })
+
   let checkMatches = await match.fetchMatches(townData.playerID, oldestQuestTime)
 
   let winOrLoss = (slot, win) => {
@@ -106,26 +119,44 @@ const processExistingTown = async (townData) => {
     }
   }
 
-  console.log(checkMatches.length + ' matches played since oldest match')
+  console.log(checkMatches.length + ' matches played since oldest quest start time (active and completed)')
+  
+  townData.active.forEach(quest => quest.attempts = [])
+  townData.completed.forEach(quest => quest.attempts = [])
+
   checkMatches.forEach(match => {
     let matchResult = winOrLoss(match.player_slot, match.radiant_win)
     // console.log('match ID ' + match.match_id + ': '+ matchResult)
     if(questHeroIDs.includes(match.hero_id)){
       if(matchResult){
-        console.log('quest complete for heroID ' + match.hero_id)
+        console.log('user ' + townData.playerID + ': quest complete for heroID ' + match.hero_id)
 
         townData.active.filter(quest => quest.hero.id == match.hero_id).forEach(completedQuest => {
           townData.active.forEach(savedQuest => {
             if(savedQuest.id == completedQuest.id && savedQuest.completed !== true) {
               savedQuest.completed = true
               savedQuest.completedMatchID = match.match_id
+              savedQuest.attempts.push(completedQuest.id)
+            }
+          })
+        })
+
+        townData.completed.filter(quest => quest.hero.id == match.hero_id).forEach(completedQuest => {
+          townData.completed.forEach(savedQuest => {
+            if(savedQuest.id == completedQuest.id) {
+              console.log('found completed match attempt loss, pushing' + completedQuest.completedMatchID + 'on to ' + savedQuest.id + ' attempts')
+              savedQuest.attempts.push(completedQuest.completedMatchID)
             }
           })
         })
         
       } else {
-        console.log('quest attempted and failed for heroID ' + match.hero_id)
+        // console.log('quest attempted and failed for heroID ' + match.hero_id)
         townData.active.filter(quest => quest.hero.id == match.hero_id).forEach(quest => {
+          quest.attempts.push(match.match_id)
+        })
+
+        townData.completed.filter(quest => quest.hero.id == match.hero_id).forEach(quest => {
           quest.attempts.push(match.match_id)
         })
       }
@@ -141,79 +172,6 @@ exports.getTownForUser = async function (req, res) {
   
   let playerID = req.params.steamID
 
-  // let createNewTown = (playerID) => {
-  //   let townArray = []
-  //   for(i = 0; i < 3; i++){
-  //     let townQuest = { ...newTownQuest }
-  //     townQuest.id = playerID + '-' + i
-  //     townQuest.hero = allHeroes[Math.floor(Math.random() * allHeroes.length)]
-  //     townArray.push(townQuest)
-  //   }
-
-  //   let town = { ...newTown }
-  //   town.playerID = parseInt(playerID)
-  //   town.active = townArray
-
-  //   townsRef.doc(playerID).set(town).then(ref => {
-  //     console.log('[town] Added new town for user ' + playerID);
-  //   })
-  //   .catch(e => {
-  //     console.log('Error adding town: ', e)
-  //   })
-
-  //   //console.log(town)
-  //   return town
-  // }
-
-  // let processExistingTown = async (townData) => {
-  //   let oldestQuestTime = 0
-  //   let questHeroIDs = []
-  //   townData.active.forEach((quest, index) => {
-  //     // console.log(quest,index)
-  //     questHeroIDs.push(quest.hero.id)
-  //     if(index == 0) oldestQuestTime = quest.startTime._seconds
-  //     if(index > 0) {
-  //       if(oldestQuestTime > quest.startTime._seconds) oldestQuestTime = quest.startTime._seconds
-  //     }
-  //   })
-  //   let checkMatches = await match.fetchMatches(townData.playerID, oldestQuestTime)
-
-  //   let winOrLoss = (slot, win) => {
-  //     if (slot > 127){
-  //         if (win === false){
-  //             return true
-  //         }
-  //         else return false
-  //     }
-  //     else {
-  //         if (win === false){
-  //             return false
-  //         }
-  //         else return true
-  //     }
-  //   }
-
-  //   console.log(checkMatches.length + ' matches played since oldest match')
-  //   checkMatches.forEach(match => {
-  //     let matchResult = winOrLoss(match.player_slot, match.radiant_win)
-  //     // console.log('match ID ' + match.match_id + ': '+ matchResult)
-  //     if(questHeroIDs.includes(match.hero_id)){
-  //       if(matchResult){
-  //         console.log('quest complete for heroID ' + match.hero_id)
-  //         townData.active.filter(quest => quest.hero.id == match.hero_id).forEach(match => {
-  //           console.log(match)
-  //           match.completed = true
-  //         })
-          
-  //       } else {
-  //         console.log('quest attempted and failed for heroID ' + match.hero_id)
-  //       }
-  //     }
-  //   })
-    
-  //   return townData  
-  // }
-
   let returnTown = {}
   townsRef.where('playerID','==', parseInt(playerID)).get()
   .then(async (snapshot) => {
@@ -225,8 +183,8 @@ exports.getTownForUser = async function (req, res) {
       snapshot.forEach(async doc => {
         let existingTown = doc.data()
         console.log('[town] found existing town for '  + existingTown)
-        let returnData = await processExistingTown(existingTown)
-        res.send(returnData)
+        let returnTown = await recalculateExistingTown(existingTown)
+        res.send(returnTown)
       }) 
     }
   })
@@ -255,6 +213,7 @@ exports.completeQuest = async function (req, res) {
 
     townData.gold += 100
     townData.xp += 100
+    townData.totalQuests = townData.active.length + townData.active.completed
   }
 
   townsRef.doc(townData.playerID.toString()).set(townData)
@@ -268,4 +227,38 @@ exports.completeQuest = async function (req, res) {
   .catch(e => console.log(e))
 
   res.send(townData)
+}
+
+exports.getAllTowns = async function (req, res) {
+  let townsRef = db.collection('towns')
+
+  async function getAllTowns(){
+    let snapshot = await townsRef.get()
+
+    if(snapshot.empty) console.log("[towns] Couldn't find any towns")
+    else {
+      for(i=0; i < snapshot.size ; i++){
+        let returnArr = []
+        // console.log('size: ', snapshot.size, snapshot)
+        let docs = snapshot.docs
+        await Promise.all(docs.map(async doc => {
+          let dbTownData = doc.data()
+          let returnTown = await recalculateExistingTown(dbTownData)
+          townsRef.doc(returnTown.playerID.toString()).set(returnTown)
+            .then(result => {
+              console.log('store town results for ' + returnTown.playerID + ' after recalculate')
+            })
+          returnArr.push(doc.data())
+        }))
+
+        return returnArr
+    }
+    }
+
+  }
+  
+  let allTowns = await getAllTowns()
+
+  // console.log('allTowns: ', allTowns)
+  res.send(allTowns)
 }

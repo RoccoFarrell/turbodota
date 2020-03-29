@@ -45,7 +45,8 @@ module.exports = function (app) {
   app.route('/api/towns/:steamID')
     .post(town.completeQuest)
     .get(town.getTownForUser)
-    
 
+  app.route('/api/towns')
+    .get(town.getAllTowns)
 
 }

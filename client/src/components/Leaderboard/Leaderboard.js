@@ -1,0 +1,154 @@
+import React, { useState, useEffect, useContext } from 'react';
+import {
+    Table
+} from 'semantic-ui-react'
+import './Leaderboard.css'
+import TurbodotaContext from '../TurbodotaContext'
+import axios from 'axios'
+
+function Leaderboard(props) {
+    const { heroesList } = useContext(TurbodotaContext);
+
+    const [column, setColumn] = useState('')
+    const [direction, setDirection] = useState('ascending')
+
+    const [allTowns, setAllTowns] = useState([])
+
+    useEffect(() => {
+      async function getAllTowns(){
+          try {
+              axios.get(`/api/towns`)
+              .then(res => {
+                  let content = res.data;
+                  console.log('AllTownData: ', content)
+                  let sortedArr = initialSort(content)
+                  setAllTowns(sortedArr)
+              })
+          
+          } catch(e) {console.error(e)}
+      }
+      getAllTowns()
+    }, [])
+
+    const initialSort = (data) => {
+      let tempSorted = data.sort((a, b) => {
+        // if(a[clickedColumn] > 99.9|| b[clickedColumn] > 99.9 ) console.log(a,b)
+        if(a['xp'] < b['xp']) return 1
+        if(a['xp'] > b['xp']) return -1
+        return 0
+      })
+      return tempSorted
+    }
+
+    const handleSort = (clickedColumn) => () => {
+      console.log('called ' + clickedColumn)
+      if (column !== clickedColumn) {
+        console.log('trying to sort by column ' + clickedColumn)
+        setDirection('ascending')
+        let tempSorted = allTowns.sort((a, b) => {
+          // if(a[clickedColumn] > 99.9|| b[clickedColumn] > 99.9 ) console.log(a,b)
+          if(a[clickedColumn] < b[clickedColumn]) return -1
+          if(a[clickedColumn] > b[clickedColumn]) return 1
+          return 0
+        })
+        console.log('tempSorted: ', tempSorted)
+        setAllTowns(tempSorted)
+        setColumn(clickedColumn)
+        return
+      }
+      
+      setAllTowns(allTowns.reverse())
+      // sortableHeroStats = sortableHeroStats.reverse()
+      setDirection(direction === 'ascending' ? 'descending' : 'ascending')
+    }
+
+    const heroIcon = (hero_id) => {
+      let heroString = 'd2mh hero-' + hero_id
+      return <i style={{ zoom: .5, padding: '0px' }} className={heroString}/>
+    }
+  
+    const heroName = (hero_id) => {
+      // console.log('hero_id: ' + hero_id)
+      // return heroesList.filter(hero => hero.id == hero_id)[0].localized_name
+      if(hero_id === 0 || hero_id === '0') {
+        return 'HeroZero'
+      } else {
+        return heroesList.filter(hero => hero.id == hero_id)[0].localized_name
+      }
+      
+    }
+
+    const calculateAttempts = (town) => {
+      let attempts = 0
+      town.active.forEach(quest => {
+        attempts += quest.attempts.length
+      })
+      town.completed.forEach(quest => {
+        attempts += quest.attempts.length
+
+      })
+      return attempts
+    }
+    return (
+      <Table compact sortable celled fixed>
+        <Table.Header>
+          <Table.Row>
+            <Table.HeaderCell
+              sorted={column === 'id' ? direction : null}
+              onClick={handleSort('id')}
+            >
+              PlayerID
+            </Table.HeaderCell>
+            <Table.HeaderCell
+              sorted={column === 'playername' ? direction : null}
+              onClick={handleSort('playername')}
+            >
+              Player
+            </Table.HeaderCell>
+            <Table.HeaderCell
+              sorted={column === 'gold' ? direction : null}
+              onClick={handleSort('gold')}
+            >
+              Gold
+            </Table.HeaderCell>
+            <Table.HeaderCell
+              sorted={column === 'xp' ? direction : null}
+              onClick={handleSort('xp')}
+            >
+              XP
+            </Table.HeaderCell>
+            <Table.HeaderCell
+              sorted={column === 'totalQuests' ? direction : null}
+              onClick={handleSort('totalQuests')}
+            >
+              Total Quests
+            </Table.HeaderCell>
+            <Table.HeaderCell
+              sorted={column === 'attempts' ? direction : null}
+              onClick={handleSort('attempts')}
+            >
+              Attempts
+            </Table.HeaderCell>
+          </Table.Row>
+        </Table.Header>
+        <Table.Body>
+        {allTowns.map((town) => (
+          <Table.Row 
+            positive = { town.winpercentage > 55 }
+            negative = { town.winpercentage < 45 }
+            key={town.playerID}
+          >
+            <Table.Cell>{town.playerID}</Table.Cell>
+            <Table.Cell>{town.playerID}</Table.Cell>
+            <Table.Cell>{town.xp}</Table.Cell>
+            <Table.Cell>{ town.gold }</Table.Cell>
+            <Table.Cell>{town.totalQuests}</Table.Cell>
+            <Table.Cell>{calculateAttempts(town)}</Table.Cell>
+          </Table.Row>
+        ))}
+        </Table.Body>
+      </Table>
+    )
+}
+
+export default Leaderboard;

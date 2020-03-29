@@ -32,6 +32,10 @@ function UserData() {
         }
     }, [])
 
+    useEffect(() => {
+        window.scrollTo(0, 0)
+    }, [])
+
     function winOrLoss (slot, win) {
         if (slot > 127){
             if (win === false){

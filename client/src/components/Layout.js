@@ -27,6 +27,7 @@ import Search from './Search'
 import Changelog from './Changelog'
 import UserData from './UserData'
 import TownHome from './TownHome/TownHome'
+import Leaderboard from './Leaderboard/Leaderboard'
 import TurbodotaContext from './TurbodotaContext'
 
 import logo from '../assets/squareLogo.png';
@@ -75,6 +76,9 @@ function FixedMenuLayout() {
                 {/* <Menu.Item as='a' onClick={() => {pushRoute('search')}}>
                 Search
                 </Menu.Item> */}
+                <Menu.Item as='a' onClick={() => {pushRoute('leaderboard')}}>
+                    Leaderboard
+                </Menu.Item>
                 <Menu.Item as='a' onClick={() => {pushRoute('changelog')}}>
                     Changelog
                 </Menu.Item>
@@ -112,9 +116,9 @@ function FixedMenuLayout() {
                     <Route path="/changelog">
                         <Changelog />
                     </Route>
-                    
                     <Route exact path="/users/:id" component={UserData} />
                     <Route path="/users/:id/town" component={TownHome} />
+                    <Route path="/leaderboard" component={Leaderboard} />
                     <Route path="/">
                         <Search />
                     </Route>
