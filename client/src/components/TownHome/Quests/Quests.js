@@ -10,7 +10,8 @@ import {
     Header,
     Statistic,
     Tab,
-    Button
+    Button,
+    Label
 } from 'semantic-ui-react'
 import './Quests.css';
 
@@ -107,9 +108,12 @@ function Quest(props) {
                     </Card.Meta>
                   </div>
                 </div>
-                <Card.Description>
+                <Card.Description className={'flexColumn'}>
                   <div className={'flexRow'} style={{ justifyContent: 'flex-start', flexWrap: 'wrap', padding: '0em', margin: '0em'}}>
-                    { quest.hero.roles.map(role => (<strong key={role} style={{ margin: '.25em'}}>{ role }</strong>)) }
+                    { quest.hero.roles.map(role => (<Label key={role} size='mini' style={{ margin: '.25em'}}> { role }</Label>)) }
+                  </div>
+                  <div className={'flexRow'} style={{ alignSelf: 'flex-start', justifyContent: 'flex-end', marginBottom: '0em'}}>
+                    Attempts: { quest.attempts.length }
                   </div>
                 </Card.Description>
               </Card.Content>

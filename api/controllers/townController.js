@@ -125,6 +125,9 @@ const processExistingTown = async (townData) => {
         
       } else {
         console.log('quest attempted and failed for heroID ' + match.hero_id)
+        townData.active.filter(quest => quest.hero.id == match.hero_id).forEach(quest => {
+          quest.attempts.push(match.match_id)
+        })
       }
     }
   })
