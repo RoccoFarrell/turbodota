@@ -10,38 +10,31 @@ if(process.env.NODE_ENV === 'production') {
   serviceAccount = require("./serviceAccountKey.json");
 }
 
-const serviceAccount_test = require("./serviceAccountKey-2.json")
-
-//----
-
 // Initialize Firebase with a default Firebase project
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: "https://turbodota-1f6de.firebaseio.com"
 });
 
-// Initialize Firebase with a second Firebase project
-let db_test = admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount_test),
-  databaseURL: 'https://turbodota-2.firebaseio.com'
-}, 'db_test')
-
 // console.log(admin.app().name + ' live connection as db');  // "[DEFAULT]"
-// console.log(db_test.name + ' test connection active as dbTest');    // "otherProject"
-
-// Use the shorthand notation to access the default project's Firebase services
-
 let db = admin.firestore();
-const dbTest = db_test.firestore();
-
 const settings = { timestampsInSnapshots: true }
-
 admin.firestore().settings(settings);
-db_test.firestore().settings(settings);
 
 // to enable debug DB actions on live server, uncomment below
 // environment = "production"
 if(environment === "development"){
+  const serviceAccount_test = require("./serviceAccountKey-2.json")
+  
+  // Initialize Firebase with a second Firebase project
+  let db_test = admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount_test),
+    databaseURL: 'https://turbodota-2.firebaseio.com'
+  }, 'db_test')
+
+  const dbTest = db_test.firestore();
+  db_test.firestore().settings(settings);
+
   console.log('connecting to backup DB')
   db = dbTest
 } else {
