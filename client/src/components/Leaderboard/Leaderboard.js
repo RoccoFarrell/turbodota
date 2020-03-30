@@ -89,6 +89,12 @@ function Leaderboard(props) {
       })
       return attempts
     }
+
+    const calculateTownWinRate = (town) => {
+      let attempts = calculateAttempts(town)
+      if(town.completed.length == 0) return 0
+      else return ((town.completed.length / attempts) * 100).toFixed(0)
+    }
     return (
       <Table compact sortable celled fixed>
         <Table.Header>
@@ -118,16 +124,22 @@ function Leaderboard(props) {
               XP
             </Table.HeaderCell>
             <Table.HeaderCell
-              sorted={column === 'totalQuests' ? direction : null}
-              onClick={handleSort('totalQuests')}
+              sorted={column === 'completedQuests' ? direction : null}
+              onClick={handleSort('completedQuests')}
             >
-              Total Quests
+              Completed Quests
             </Table.HeaderCell>
             <Table.HeaderCell
-              sorted={column === 'attempts' ? direction : null}
-              onClick={handleSort('attempts')}
+              sorted={column === 'totalAttempts' ? direction : null}
+              onClick={handleSort('totalAttempts')}
             >
-              Attempts
+              Total Town Trys
+            </Table.HeaderCell>
+            <Table.HeaderCell
+              sorted={column === 'Rate' ? direction : null}
+              onClick={handleSort('rate')}
+            >
+              Conversion %
             </Table.HeaderCell>
           </Table.Row>
         </Table.Header>
@@ -142,8 +154,9 @@ function Leaderboard(props) {
             <Table.Cell>{town.playerID}</Table.Cell>
             <Table.Cell>{town.xp}</Table.Cell>
             <Table.Cell>{ town.gold }</Table.Cell>
-            <Table.Cell>{town.totalQuests}</Table.Cell>
+            <Table.Cell>{town.completed.length}</Table.Cell>
             <Table.Cell>{calculateAttempts(town)}</Table.Cell>
+            <Table.Cell>{calculateTownWinRate(town)}%</Table.Cell>
           </Table.Row>
         ))}
         </Table.Body>

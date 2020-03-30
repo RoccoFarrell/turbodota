@@ -3,6 +3,8 @@ const db = require('../db')
 var usersRef = db.collection('users')
 var OD = require('./openDotaController')
 
+let environment = process.env.NODE_ENV
+if(environment) console.log(environment)
 exports.updateUser = function (req, res) {
   // console.log('req.params')
   // console.log(req.params)

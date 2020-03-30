@@ -23,7 +23,11 @@ const newTownQuest =  {
   startTime: new Date(),
   endTime: null,
   conditions: [],
-  attempts: []
+  attempts: [],
+  bounty: {
+    xp: 100,
+    gold: 100
+  }
 }
 
 let heroesRef = db.collection('heroes')
@@ -40,12 +44,18 @@ async function getHeroesFromDB(){
   })
 }
 
-async function editTown(){
+async function editExistingTown(playerID, town){
   let townsRef = db.collection('towns')
 
-  townsRef.doc(playerID).set(town).then(ref => {
-    console.log('[town] Added new town for user ' + playerID);
+  console.log('editing existing town: ', town)
+  let returnTown = await recalculateExistingTown(town)
+
+  townsRef.doc(playerID).set(returnTown).then(ref => {
+    console.log('[editTown] Edited town for user ' + playerID);
   })
+  .catch(e => {console.error(e)})
+
+  return returnTown
 }
 
 const createNewTown = async (playerID) => {
@@ -57,7 +67,7 @@ const createNewTown = async (playerID) => {
 
   for(i = 0; i < 3; i++){
     let townQuest = { ...newTownQuest }
-    townQuest.id = playerID + '-' + i
+    townQuest.id = i
     townQuest.hero = allHeroes[Math.floor(Math.random() * allHeroes.length)]
     townArray.push(townQuest)
   }
@@ -162,6 +172,8 @@ const recalculateExistingTown = async (townData) => {
       }
     }
   })
+
+  townData.totalQuests = townData.active.length + townData.completed.length
   
   return townData  
 }
@@ -191,42 +203,62 @@ exports.getTownForUser = async function (req, res) {
 }
 
 exports.completeQuest = async function (req, res) {
-  const steamID = req.params.steamID
+  const playerID = req.params.steamID
   let townsRef = db.collection('towns')
   let allHeroes = await getHeroesFromDB()
   allHeroes = allHeroes.herolist
 
-  const incomingTownData = req.body
+  const editTownData = req.body
 
   console.log('completing quest')
-  console.log('incoming town data: ', incomingTownData)
+  console.log('incoming edit town data: ', editTownData)
 
-  let townData = incomingTownData.townData
-  let action = incomingTownData.action
+  let action = editTownData.action
 
   if(action == 'completeQuest'){
-    let townQuest = { ...newTownQuest }
-    // console.log(townData.totalQuests)
-    townQuest.id = townData.playerID + '-' + (townData.totalQuests + 1)
-    townQuest.hero = allHeroes[Math.floor(Math.random() * allHeroes.length)]
-    townData.active.push(townQuest)
+    let completedQuest = editTownData.quest
 
-    townData.gold += 100
-    townData.xp += 100
-    townData.totalQuests = townData.active.length + townData.active.completed
+    console.log(playerID)
+    townsRef.where('playerID', '==', parseInt(playerID)).get()
+      .then(snapshot => {
+        if(snapshot.empty){ 
+          res.send({'status': 'failed', 'message' : 'Couldn\'t find player ' + playerID})
+        } 
+        else {
+          snapshot.forEach(async doc => {
+            let townID = doc.id
+            let town = doc.data()
+            console.log(completedQuest)
+            
+            town.active.filter(q => q.id == completedQuest.id).forEach(q => {
+              console.log('found match: ', q)
+              town.completed.push(q)
+
+              //add randomized new quest
+              let townQuest = { ...newTownQuest }
+              // console.log(townData.totalQuests)
+              townQuest.id = (town.totalQuests + 1)
+              townQuest.hero = allHeroes[Math.floor(Math.random() * allHeroes.length)]
+              
+              town.active.push(townQuest)
+
+              town.xp += q.bounty.xp
+              town.gold += q.bounty.gold
+            })
+
+            town.active = town.active.filter(q => q.id != completedQuest.id)
+            
+            let returnTown = await editExistingTown(townID, town)
+
+            res.send(returnTown)
+          })
+        }
+      })
+
+
+  } else {
+    res.send({'status': 'failed'})
   }
-
-  townsRef.doc(townData.playerID.toString()).set(townData)
-  .then(snapshot => {
-    if(snapshot.empty) console.log('no user found')
-    else console.log('user found')
-    console.log(snapshot)
-    // let townData = snapshot.data()
-    // townData.active.filter()
-  })
-  .catch(e => console.log(e))
-
-  res.send(townData)
 }
 
 exports.getAllTowns = async function (req, res) {

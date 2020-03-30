@@ -42,6 +42,10 @@ console.log('Env: ' + environment)
 const routes = require('./api/routes/appRoutes')
 routes(app)
 
+app.use(function(req, res){
+  res.sendStatus(404);
+});
+
 // Serve static files from the React app
 app.use(express.static(path.join(__dirname, 'client/build')))
 
