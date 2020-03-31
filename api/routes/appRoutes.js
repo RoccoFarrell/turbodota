@@ -6,7 +6,6 @@ module.exports = function (app) {
   const user = require('../controllers/userController')
   const town = require('../controllers/townController')
   const match = require('../controllers/matchController')
-  const debug = require('../controllers/debugControllers/overallController.js')
 
   const environment = process.env.NODE_ENV || 'development'
 
@@ -49,6 +48,7 @@ module.exports = function (app) {
     .get(town.getAllTowns)
 
   if(environment === 'development'){
+    const debug = require('../controllers/debugControllers/overallController.js')
     app.route('/api/debug/test')
       .get(debug.test)
 

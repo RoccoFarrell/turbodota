@@ -1,4 +1,7 @@
-const Bottleneck = require("bottleneck");
+const environment = process.env.NODE_ENV || 'development'
+if(environment === "development") {
+  const Bottleneck = require("bottleneck")
+};
 
 const fetch = require('node-fetch');
 const db = require('../../db')
