@@ -8,6 +8,7 @@ const port = process.env.PORT || 8081
 const bodyParser = require('body-parser')
 const path = require('path')
 const cors = require('cors')
+const logger = require('morgan');
 const environment = process.env.NODE_ENV || 'development'
 
 const apicache = require('apicache')
@@ -19,25 +20,18 @@ app.use(bodyParser.urlencoded({ extended: true }))
 // app.use(require('connect-history-api-fallback')())
 app.use(bodyParser.json())
 app.use(cors())
-
-//Log requests to console
-app.use('*', (req, res, next) => {
-  // apicache.getPerformance()
-  // console.log(req)
-  console.log('REQ:'+ req.baseUrl + ' | T: ' + Date.now())
-  next()
-})
+app.use(logger('dev'));
 
 //only in dev env
 console.log('Env: ' + environment)
-// if(environment === 'development'){
-//   console.log('Caching API calls')
-//   //implement cache
-//   let cache = apicache.middleware
-//   apicache.getPerformance
-//   apicache.options({ debug: true })
-//   app.use(cache('5 minutes'))
-// }
+if(environment === 'development'){
+  // console.log('Caching API calls')
+  // //implement cache
+  // let cache = apicache.middleware
+  // apicache.getPerformance
+  // apicache.options({ debug: true })
+  // app.use(cache('5 minutes'))
+}
 
 const routes = require('./api/routes/appRoutes')
 routes(app)

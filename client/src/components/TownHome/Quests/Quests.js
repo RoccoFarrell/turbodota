@@ -105,6 +105,7 @@ function Quest(props) {
 
               <Card.Content>
                 <div className={'flexRow'} style={{ justifyContent: 'flex-start', alignItems: 'flex-begin', padding: '0em', margin: '0em'}}>
+                  <div style={{ marginRight: '1em' }}>#{quest.id}</div>
                   <div className={'flexColumn'} style={{ width: '50px', height: '50px', padding: '0em', margin: '0em'}}>
                     { heroIcon(quest.hero.id, 1) }
                   </div>
@@ -153,6 +154,7 @@ function Quest(props) {
 
               <Card.Content >
                 <div className={'flexRow'} style={{ justifyContent: 'flex-start', alignItems: 'flex-begin', padding: '0em', margin: '0em'}}>
+                  <div style={{ marginRight: '1em' }}>#{quest.id}</div>
                   <div className={'flexColumn'} style={{ width: '50px', height: '50px', padding: '0em', margin: '0em'}}>
                     { heroIcon(quest.hero.id, 1) }
                   </div>

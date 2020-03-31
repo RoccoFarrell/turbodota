@@ -20,6 +20,8 @@
     "node-fetch": "^2.6.0"
   },
   "devDependencies": {
+    "bottleneck": "^2.19.5",
+    "morgan": "^1.10.0",
     "nodemon": "^2.0.2"
   }
 }

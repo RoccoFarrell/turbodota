@@ -90,12 +90,13 @@ const createNewTown = async (playerID) => {
 
 const recalculateExistingTown = async (townData) => {
   let oldestQuestTime = 0
-  let questHeroIDs = []
+  let activeQuestHeroIDs = []
+  let completedQuestHeroIDs = []
 
   //loop through all actives, get all quest IDs, and oldest
   townData.active.forEach((quest, index) => {
     // console.log(quest,index)
-    questHeroIDs.push(quest.hero.id)
+    activeQuestHeroIDs.push(quest.hero.id)
     if(index == 0) oldestQuestTime = quest.startTime._seconds
     if(index > 0) {
       if(oldestQuestTime > quest.startTime._seconds) oldestQuestTime = quest.startTime._seconds
@@ -105,7 +106,7 @@ const recalculateExistingTown = async (townData) => {
   //loop through all completed, get all quest IDs, and oldest
   townData.completed.forEach((quest, index) => {
     // console.log(quest,index)
-    questHeroIDs.push(quest.hero.id)
+    completedQuestHeroIDs.push(quest.hero.id)
     if(index == 0) oldestQuestTime = quest.startTime._seconds
     if(index > 0) {
       if(oldestQuestTime > quest.startTime._seconds) oldestQuestTime = quest.startTime._seconds
@@ -113,7 +114,8 @@ const recalculateExistingTown = async (townData) => {
   })
 
   let checkMatches = await match.fetchMatches(townData.playerID, oldestQuestTime)
-
+  checkMatches = checkMatches.sort((a, b) => a.start_time < b.start_time)
+  
   let winOrLoss = (slot, win) => {
     if (slot > 127){
         if (win === false){
@@ -129,51 +131,73 @@ const recalculateExistingTown = async (townData) => {
     }
   }
 
-  console.log(checkMatches.length + ' matches played since oldest quest start time (active and completed)')
+  // console.log(checkMatches.length + ' matches played since oldest quest start time (active and completed)')
   
   townData.active.forEach(quest => quest.attempts = [])
   townData.completed.forEach(quest => quest.attempts = [])
 
   checkMatches.forEach(match => {
     let matchResult = winOrLoss(match.player_slot, match.radiant_win)
-    // console.log('match ID ' + match.match_id + ': '+ matchResult)
-    if(questHeroIDs.includes(match.hero_id)){
+    // console.log('MATCH ' + match.match_id + ': '+ matchResult)
+    
+    //Check if match hero id was an active quest
+    if(activeQuestHeroIDs.includes(match.hero_id)){
+      // console.log('MATCH - QUEST - matched active quest to hero id')
+      //Check if matched active quest was won
       if(matchResult){
-        console.log('user ' + townData.playerID + ': quest complete for heroID ' + match.hero_id)
+        // console.log('user ' + townData.playerID + ': quest complete for heroID ' + match.hero_id)
 
-        townData.active.filter(quest => quest.hero.id == match.hero_id).forEach(completedQuest => {
-          townData.active.forEach(savedQuest => {
-            if(savedQuest.id == completedQuest.id && savedQuest.completed !== true) {
-              savedQuest.completed = true
-              savedQuest.completedMatchID = match.match_id
-              savedQuest.attempts.push(completedQuest.id)
-            }
-          })
+        //Quest complete! Push completed, matchID, and attempt
+        townData.active.filter(quest => quest.hero.id == match.hero_id).forEach(quest => {
+          if(quest.completed !== true && match.start_time > quest.startTime._seconds) {
+            // console.log('MATCH ' + match.match_id + '- ACTIVE - WON - match found for ' + quest.id)
+            quest.completed = true
+            //add half hour to match start time to get end time... ?
+            quest.endTime = match.start_time + 180000
+            quest.completedMatchID = match.match_id
+            quest.attempts.push(quest.id)
+          }
         })
-
-        townData.completed.filter(quest => quest.hero.id == match.hero_id).forEach(completedQuest => {
-          townData.completed.forEach(savedQuest => {
-            if(savedQuest.id == completedQuest.id) {
-              console.log('found completed match attempt loss, pushing' + completedQuest.completedMatchID + 'on to ' + savedQuest.id + ' attempts')
-              savedQuest.attempts.push(completedQuest.completedMatchID)
-            }
-          })
-        })
-        
       } else {
-        // console.log('quest attempted and failed for heroID ' + match.hero_id)
+        // console.log('MATCH ' + match.match_id + '- ACTIVE - LOSS - quest attempted and failed for heroID ' + match.hero_id)
         townData.active.filter(quest => quest.hero.id == match.hero_id).forEach(quest => {
           quest.attempts.push(match.match_id)
         })
-
+      }
+    } else 
+    //Check if match hero id was an completed quest
+    if(completedQuestHeroIDs.includes(match.hero_id)){
+      // console.log('MATCH - COMPLETED - matched completed quest to match ' + match.match_id + ' and heroID '+ match.hero_id )
+      //Check if completed quest was a win
+      if(matchResult){
+        // console.log('MATCH ' + match.match_id + ' - COMPLETED - WIN')
+        townData.completed.filter(quest => (quest.hero.id == match.hero_id)).forEach(quest => {
+          // console.log(quest)
+          if(quest.completed === false) quest.completed = true
+          if(quest.endTime > match.start_time) quest.attempts.push(quest.completedMatchID)
+          else if(quest.endTime === null) {
+            quest.endTime = match.start_time + 180000
+            quest.attempts.push(match.match_id)
+          }
+        })
+      } else {
+        // console.log('MATCH ' + match.match_id + ' - COMPLETED - LOSS - found failed quest attempt for completed quest')
         townData.completed.filter(quest => quest.hero.id == match.hero_id).forEach(quest => {
-          quest.attempts.push(match.match_id)
+          // console.log(quest.endTime, match.start_time)
+          if(quest.endTime > match.start_time) quest.attempts.push(match.match_id)
+          else if(quest.endTime === null) {
+            quest.endTime = match.start_time + 180000
+            quest.attempts.push(match.match_id)
+          }
         })
       }
+    } else {
+      // console.log('!! Match ' + match.match_id + ' was not a TurboTown Attempt.')
     }
   })
 
   townData.totalQuests = townData.active.length + townData.completed.length
+  townData.lastModified = new Date()
   
   return townData  
 }
@@ -232,6 +256,7 @@ exports.completeQuest = async function (req, res) {
             
             town.active.filter(q => q.id == completedQuest.id).forEach(q => {
               console.log('found match: ', q)
+              q.completed = true
               town.completed.push(q)
 
               //add randomized new quest

@@ -1,5 +1,8 @@
+const Bottleneck = require("bottleneck");
+
 const fetch = require('node-fetch');
 const db = require('../../db')
+
 const admin = require("firebase-admin");
 
 const heroesRef = db.collection('heroes')
@@ -27,11 +30,16 @@ exports.test = (req, res) => {
   res.send({'test': true})
 }
 
-//need to rearrange this if i need more backups
-// const heroesRef_test = db.dbTest.collection('heroes')
-// const matchesRef_test = db.dbTest.collection('matches')
-// const townsRef_test = db.dbTest.collection('towns')
-// const usersRef_test = db.dbTest.collection('users')
+let enableDoubleConnection = false
+
+if(enableDoubleConnection){
+  const dbTest = require('../../dbTest')
+  const heroesRef_test = dbTest.collection('heroes')
+  const matchesRef_test = dbTest.collection('matches')
+  const townsRef_test = dbTest.collection('towns')
+  const usersRef_test = dbTest.collection('users')
+}
+
 
 async function getHeroesFromDB(){
   return await heroesRef.get()
@@ -46,21 +54,32 @@ async function getHeroesFromDB(){
   })
 }
 
-exports.createBackup = (req, res) => {
-  // heroesRef.get()
-  // .then(snapshot => {
-  //   if(snapshot.empty) console.log('[backup] no heroes found')
-  //   else {
-  //     snapshot.forEach(doc => {
-  //       let id = doc.id
-  //       let data = doc.data()
-  //       heroesRef_test.doc(id).set(data).then( result => {
-  //         console.log('[backup] heroesID: ' + id + ' complete')
-  //       })
-  //       .catch(e => console.log('[backup] error copying heroesID: ' + id + ' :' + e))
-  //     })
-  //   }
-  // })
+exports.createBackup = async (req, res) => {
+  const limiter = new Bottleneck({
+    maxConcurrent: 5,
+    minTime: 500
+  });
+
+  async function copyHeroes() {
+    heroesRef.get()
+    .then(snapshot => {
+      if(snapshot.empty) console.log('[backup] no heroes found')
+      else {
+        snapshot.forEach(async doc => {
+          let id = doc.id
+          let data = doc.data()
+  
+          const result = await limiter.schedule(() => {
+            heroesRef_test.doc(id).set(data).then( result => {
+              console.log('[backup] heroesID: ' + id + ' complete')
+              return true
+            })
+            .catch(e => console.log('[backup] error copying heroesID: ' + id + ' :' + e))
+          });
+        })
+      }
+    })
+  }
   // matchesRef.get()
   // .then(snapshot => {
   //   if(snapshot.empty) console.log('[backup] no matches found')
@@ -75,20 +94,79 @@ exports.createBackup = (req, res) => {
   //     })
   //   }
   // })
-  // townsRef.get()
-  // .then(snapshot => {
-  //   if(snapshot.empty) console.log('[backup] no towns found')
-  //   else {
-  //     snapshot.forEach(doc => {
-  //       let id = doc.id
-  //       let data = doc.data()
-  //       townsRef_test.doc(id).set(data).then( result => {
-  //         console.log('[backup] townsID: ' + id + ' copy complete')
-  //       })
-  //       .catch(e => console.log('[backup] error copying towns: ' + e))
-  //     })
-  //   }
-  // })
+
+  async function copyTowns(){
+    let count = 0
+    townsRef.get()
+      .then(snapshot => {
+        if(snapshot.empty) console.log('[backup] no towns found')
+        else {
+          snapshot.forEach(async doc => {
+            let id = doc.id
+            let data = doc.data()
+
+            const result = await limiter.schedule(() => {
+              townsRef_test.doc(id).set(data).then( result => {
+                console.log('[backup] townsID: ' + id + ' copy complete')
+                count += 1
+                return
+              })
+              .catch(e => console.log('[backup] error copying towns: ' + e))
+            });
+          })
+          return count
+        }
+      })
+  }
+
+  async function copyMatches(){
+    let count = 0
+    matchesRef.get()
+      .then(snapshot => {
+        if(snapshot.empty) console.log('[backup] no matches found')
+        else {
+          snapshot.forEach(async doc => {
+            let id = doc.id
+            let data = doc.data()
+
+            const result = await limiter.schedule(() => {
+              matchesRef_test.doc(id).set(data).then( result => {
+                console.log('[backup] matchesID: ' + id + ' copy complete')
+                count += 1
+                return
+              })
+              .catch(e => console.log('[backup] error copying matches: ' + e))
+            });
+          })
+          return count
+        }
+      })
+  }
+
+  async function copyUsers(){
+    let count = 0
+    usersRef.get()
+      .then(snapshot => {
+        if(snapshot.empty) console.log('[backup] no users found')
+        else {
+          snapshot.forEach(async doc => {
+            let id = doc.id
+            let data = doc.data()
+
+            const result = await limiter.schedule(() => {
+              usersRef_test.doc(id).set(data).then( result => {
+                console.log('[backup] usersID ' + id + ' copy complete')
+                count += 1
+                return true
+              })
+              .catch(e => console.log('[backup] error copying users: ' + e))
+            });
+          })
+        }
+      })
+    
+    return count
+  }
   // usersRef.get()
   // .then(snapshot => {
   //   if(snapshot.empty) console.log('[backup] no users found')
@@ -104,7 +182,15 @@ exports.createBackup = (req, res) => {
   //   }
   // })
 
-  res.send({'success': true})
+  let copiedTownsCount = await copyTowns()
+  let copiedHeroesCount = await copyHeroes()
+  let copiedUsersCount = await copyUsers()
+  let copiedMatchesCount = await copyMatches()
+
+  res.send({
+    'success': true,  
+    'users': copiedUsersCount
+  })
 }
 
 exports.editAllTowns = async (req, res) => {
