@@ -33,8 +33,8 @@ function UserData() {
     }, [])
 
     useEffect(() => {
-        window.scrollTo(0, 0)
-    }, [])
+        console.log(selectedUser.userData)
+    }, [selectedUser])
 
     function winOrLoss (slot, win) {
         if (slot > 127){

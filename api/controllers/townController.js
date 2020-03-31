@@ -140,8 +140,10 @@ const recalculateExistingTown = async (townData) => {
   townData.active.forEach(quest => quest.attempts = [])
   townData.completed.forEach(quest => quest.attempts = [])
   townData.townStats.nonTownGames = 0
+  townData.townStats.totalTownGames = 0
 
   checkMatches.forEach(match => {
+    townData.townStats.totalTownGames += 1
     let matchResult = winOrLoss(match.player_slot, match.radiant_win)
     // console.log('MATCH ' + match.match_id + ': '+ matchResult)
     
@@ -161,6 +163,9 @@ const recalculateExistingTown = async (townData) => {
             quest.endTime = match.start_time + 180000
             quest.completedMatchID = match.match_id
             quest.attempts.push(quest.id)
+
+            // push array of { player ids, hero ids, carryFlag } that had a hero (with carry label)?
+            // carryFlag = calculateCarry()
           }
         })
       } else {

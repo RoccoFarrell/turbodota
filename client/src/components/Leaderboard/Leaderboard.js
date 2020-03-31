@@ -62,9 +62,9 @@ function Leaderboard(props) {
         setDirection('ascending')
         let tempSorted = allTowns.sort((a, b) => {
           // if(a[clickedColumn] > 99.9|| b[clickedColumn] > 99.9 ) console.log(a,b)
-          if(clickedColumn === 'nonTownGames') {
-            if(a.townStats.nonTownGames < b.townStats.nonTownGames) return -1
-            if(a.townStats.nonTownGames > b.townStats.nonTownGames) return 1
+          if(clickedColumn === 'nonTownGames' || clickedColumn === 'totalTownGAmes') {
+            if(a.townStats.clickedColumn < b.townStats.clickedColumn) return -1
+            if(a.townStats.clickedColumn > b.townStats.clickedColumn) return 1
           } else {
             if(a[clickedColumn] < b[clickedColumn]) return -1
             if(a[clickedColumn] > b[clickedColumn]) return 1
@@ -134,6 +134,7 @@ function Leaderboard(props) {
             <Table.HeaderCell
               sorted={column === 'gold' ? direction : null}
               onClick={handleSort('gold')}
+              // style={{width: '75px!important'}}
             >
               Gold
             </Table.HeaderCell>
@@ -167,6 +168,12 @@ function Leaderboard(props) {
             >
               Non-Town Games
             </Table.HeaderCell>
+            <Table.HeaderCell
+              sorted={column === 'totalTownGames' ? direction : null}
+              onClick={handleSort('totalTownGames')}
+            >
+              Total Town Games
+            </Table.HeaderCell>
           </Table.Row>
         </Table.Header>
         <Table.Body>
@@ -184,6 +191,7 @@ function Leaderboard(props) {
             <Table.Cell>{calculateAttempts(town)}</Table.Cell>
             <Table.Cell>{calculateTownWinRate(town)}%</Table.Cell>
             <Table.Cell>{town.townStats.nonTownGames}</Table.Cell>
+            <Table.Cell>{town.townStats.totalTownGames}</Table.Cell>
           </Table.Row>
         ))}
         </Table.Body>

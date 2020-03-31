@@ -120,8 +120,9 @@ async function fetchMatches(userID, startDate) {
   })
   .then(data => data.json())
   .then((json) => {
-    //console.log('matches data complete', json)
-    return json
+    console.log('matches data complete', json)
+    if(!!json.error) throw new Error(json.error)
+    else return json
   })
   .catch(e => {
     console.error(e)
