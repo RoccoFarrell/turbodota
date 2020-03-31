@@ -8,7 +8,6 @@ const port = process.env.PORT || 8081
 const bodyParser = require('body-parser')
 const path = require('path')
 const cors = require('cors')
-const logger = require('morgan');
 const environment = process.env.NODE_ENV || 'development'
 
 const apicache = require('apicache')
@@ -25,6 +24,7 @@ app.use(cors())
 //only in dev env
 console.log('Env: ' + environment)
 if(environment === 'development'){
+  const logger = require('morgan');
   app.use(logger('dev'));
   // console.log('Caching API calls')
   // //implement cache
