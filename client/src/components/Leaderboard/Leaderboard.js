@@ -13,6 +13,7 @@ function Leaderboard(props) {
     const [direction, setDirection] = useState('ascending')
 
     const [allTowns, setAllTowns] = useState([])
+    const [allPlayers, setAllPlayers] = useState([])
 
     useEffect(() => {
       async function getAllTowns(){
@@ -27,7 +28,20 @@ function Leaderboard(props) {
           
           } catch(e) {console.error(e)}
       }
-      getAllTowns()
+      async function getAllPlayers(){
+        try {
+            axios.get(`/api/users`)
+            .then(res => {
+                let content = res.data;
+                console.log('AllPlayers: ', content.users)
+                setAllPlayers(content.users)
+            })
+        
+        } catch(e) {console.error(e)}
+    }
+    getAllTowns()
+    getAllPlayers()
+    
     }, [])
 
     const initialSort = (data) => {
@@ -37,6 +51,7 @@ function Leaderboard(props) {
         if(a['xp'] > b['xp']) return -1
         return 0
       })
+      setColumn('xp')
       return tempSorted
     }
 
@@ -47,8 +62,13 @@ function Leaderboard(props) {
         setDirection('ascending')
         let tempSorted = allTowns.sort((a, b) => {
           // if(a[clickedColumn] > 99.9|| b[clickedColumn] > 99.9 ) console.log(a,b)
-          if(a[clickedColumn] < b[clickedColumn]) return -1
-          if(a[clickedColumn] > b[clickedColumn]) return 1
+          if(clickedColumn === 'nonTownGames') {
+            if(a.townStats.nonTownGames < b.townStats.nonTownGames) return -1
+            if(a.townStats.nonTownGames > b.townStats.nonTownGames) return 1
+          } else {
+            if(a[clickedColumn] < b[clickedColumn]) return -1
+            if(a[clickedColumn] > b[clickedColumn]) return 1
+          }
           return 0
         })
         console.log('tempSorted: ', tempSorted)
@@ -136,10 +156,16 @@ function Leaderboard(props) {
               Total Town Trys
             </Table.HeaderCell>
             <Table.HeaderCell
-              sorted={column === 'Rate' ? direction : null}
+              sorted={column === 'rate' ? direction : null}
               onClick={handleSort('rate')}
             >
               Conversion %
+            </Table.HeaderCell>
+            <Table.HeaderCell
+              sorted={column === 'nonTownGames' ? direction : null}
+              onClick={handleSort('nonTownGames')}
+            >
+              Non-Town Games
             </Table.HeaderCell>
           </Table.Row>
         </Table.Header>
@@ -151,12 +177,13 @@ function Leaderboard(props) {
             key={town.playerID}
           >
             <Table.Cell>{town.playerID}</Table.Cell>
-            <Table.Cell>{town.playerID}</Table.Cell>
+            <Table.Cell>{allPlayers.filter(player => player.profile.account_id === town.playerID)[0].profile.personaname}</Table.Cell>
             <Table.Cell>{town.xp}</Table.Cell>
             <Table.Cell>{ town.gold }</Table.Cell>
             <Table.Cell>{town.completed.length}</Table.Cell>
             <Table.Cell>{calculateAttempts(town)}</Table.Cell>
             <Table.Cell>{calculateTownWinRate(town)}%</Table.Cell>
+            <Table.Cell>{town.townStats.nonTownGames}</Table.Cell>
           </Table.Row>
         ))}
         </Table.Body>

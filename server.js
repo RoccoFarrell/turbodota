@@ -20,11 +20,12 @@ app.use(bodyParser.urlencoded({ extended: true }))
 // app.use(require('connect-history-api-fallback')())
 app.use(bodyParser.json())
 app.use(cors())
-app.use(logger('dev'));
+
 
 //only in dev env
 console.log('Env: ' + environment)
 if(environment === 'development'){
+  app.use(logger('dev'));
   // console.log('Caching API calls')
   // //implement cache
   // let cache = apicache.middleware

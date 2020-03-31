@@ -205,26 +205,23 @@ exports.editAllTowns = async (req, res) => {
           let totalCount = 0
           //add changes here
 
-          town.completed.forEach(quest => {
-            quest.id = totalCount   
-            totalCount++
-            quest.active = false
-            quest.bounty = {
-              xp: 100,
-              gold: 100
-            }
-          })
+          town.townStats = {}
+          town.townStats.nonTownGames = 0
+          
+          // town.completed.forEach(quest => {
 
-          town.active.forEach(quest => {
-            quest.id = totalCount
-            totalCount++
-            quest.bounty = {
-              xp: 100,
-              gold: 100
-            }
-          })
+          // })
 
-          town.totalQuests = town.active.length + town.completed.length
+          // town.active.forEach(quest => {
+          //   quest.id = totalCount
+          //   totalCount++
+          //   quest.bounty = {
+          //     xp: 100,
+          //     gold: 100
+          //   }
+          // })
+
+          // town.totalQuests = town.active.length + town.completed.length
 
           //end changes
           townsRef.doc(townID).set(town).then( result => {

@@ -10,8 +10,12 @@ const newTown = {
   gold: 0,
   xp: 0,
   totalQuests: 0,
+  townStats: {
+    nonTownGames: 0
+  },
   active: [],
-  completed: []
+  completed: [],
+  lastModified: new Date()
 }
 
 const newTownQuest =  {
@@ -135,6 +139,7 @@ const recalculateExistingTown = async (townData) => {
   
   townData.active.forEach(quest => quest.attempts = [])
   townData.completed.forEach(quest => quest.attempts = [])
+  townData.townStats.nonTownGames = 0
 
   checkMatches.forEach(match => {
     let matchResult = winOrLoss(match.player_slot, match.radiant_win)
@@ -193,6 +198,7 @@ const recalculateExistingTown = async (townData) => {
       }
     } else {
       // console.log('!! Match ' + match.match_id + ' was not a TurboTown Attempt.')
+      townData.townStats.nonTownGames += 1
     }
   })
 
