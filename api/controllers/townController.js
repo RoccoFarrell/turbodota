@@ -147,8 +147,11 @@ const recalculateExistingTown = async (townData) => {
     let matchResult = winOrLoss(match.player_slot, match.radiant_win)
     // console.log('MATCH ' + match.match_id + ': '+ matchResult)
     
+    let townAttempt = false
+
     //Check if match hero id was an active quest
     if(activeQuestHeroIDs.includes(match.hero_id)){
+      townAttempt = true
       // console.log('MATCH - QUEST - matched active quest to hero id')
       //Check if matched active quest was won
       if(matchResult){
@@ -174,9 +177,10 @@ const recalculateExistingTown = async (townData) => {
           quest.attempts.push(match.match_id)
         })
       }
-    } else 
+    } 
     //Check if match hero id was an completed quest
     if(completedQuestHeroIDs.includes(match.hero_id)){
+      townAttempt = true
       // console.log('MATCH - COMPLETED - matched completed quest to match ' + match.match_id + ' and heroID '+ match.hero_id )
       //Check if completed quest was a win
       if(matchResult){
@@ -201,8 +205,9 @@ const recalculateExistingTown = async (townData) => {
           }
         })
       }
-    } else {
+    } 
       // console.log('!! Match ' + match.match_id + ' was not a TurboTown Attempt.')
+    if(townAttempt === false){
       townData.townStats.nonTownGames += 1
     }
   })

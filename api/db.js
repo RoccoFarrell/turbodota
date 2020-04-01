@@ -22,7 +22,7 @@ const settings = { timestampsInSnapshots: true }
 admin.firestore().settings(settings);
 
 // to enable debug DB actions on live server, uncomment below
-// environment = "production"
+environment = "production"
 if(environment === "development"){
   const serviceAccount_test = require("./serviceAccountKey-2.json")
   
