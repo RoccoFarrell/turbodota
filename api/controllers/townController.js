@@ -118,7 +118,11 @@ const recalculateExistingTown = async (townData) => {
   })
 
   let checkMatches = await match.fetchMatches(townData.playerID, oldestQuestTime)
-  checkMatches = checkMatches.sort((a, b) => a.start_time < b.start_time)
+  checkMatches = checkMatches.sort((a, b) => {
+    if(a.start_time < b.start_time) return -1
+    if(a.start_time > b.start_time) return 1
+    return 0
+  })
   
   let winOrLoss = (slot, win) => {
     if (slot > 127){
@@ -143,6 +147,7 @@ const recalculateExistingTown = async (townData) => {
   townData.townStats.totalTownGames = 0
 
   checkMatches.forEach(match => {
+    // console.log(match.match_id)
     townData.townStats.totalTownGames += 1
     let matchResult = winOrLoss(match.player_slot, match.radiant_win)
     // console.log('MATCH ' + match.match_id + ': '+ matchResult)
@@ -181,17 +186,22 @@ const recalculateExistingTown = async (townData) => {
     //Check if match hero id was an completed quest
     if(completedQuestHeroIDs.includes(match.hero_id)){
       townAttempt = true
-      // console.log('MATCH - COMPLETED - matched completed quest to match ' + match.match_id + ' and heroID '+ match.hero_id )
+      // if(match.hero_id === 94) console.log('QUEST ' + completedQuestHeroIDs + ' MATCH - COMPLETED - matched completed quest to match ' + match.match_id + ' and heroID '+ match.hero_id )
       //Check if completed quest was a win
       if(matchResult){
         // console.log('MATCH ' + match.match_id + ' - COMPLETED - WIN')
         townData.completed.filter(quest => (quest.hero.id == match.hero_id)).forEach(quest => {
-          // console.log(quest)
           if(quest.completed === false) quest.completed = true
-          if(quest.endTime > match.start_time) quest.attempts.push(quest.completedMatchID)
+          if(!!quest.endTime && quest.endTime > match.start_time && quest.startTime._seconds < match.start_time) {
+            //if(match.hero_id === 94) console.log("0: pushing " + match.match_id + ' on to ' + quest.id, quest.endTime, match.start_time)
+            quest.attempts.push(match.match_id )
+          }
           else if(quest.endTime === null) {
+            //if(match.hero_id === 94) console.log("1: pushing " + match.match_id  + ' on to ' + quest.id, quest.endTime, match.start_time)
             quest.endTime = match.start_time + 180000
             quest.attempts.push(match.match_id)
+          } else {
+            console.log('townController warning - duplicate hero quests per chance? => ' + match.match_id, quest.id)
           }
         })
       } else {
@@ -206,8 +216,9 @@ const recalculateExistingTown = async (townData) => {
         })
       }
     } 
-      // console.log('!! Match ' + match.match_id + ' was not a TurboTown Attempt.')
+      
     if(townAttempt === false){
+      // console.log('!! Match ' + match.match_id + ' was not a TurboTown Attempt.')
       townData.townStats.nonTownGames += 1
     }
   })

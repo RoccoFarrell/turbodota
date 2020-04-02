@@ -16,9 +16,12 @@ import {
 import './UserData.css';
 import UserMatchHistory from './UserMatchHistory/UserMatchHistory';
 import underConstruction from '../assets/construction.png';
+import turboTownIcon from '../assets/turbotown.png';
+import axios from 'axios'
 
 function UserData() {
     const {selectedUser, setSelectedUser, userID, setUserID} = useContext(TurbodotaContext);
+    const [townData, setTownData] = useState({})
 
     const userData = selectedUser
     let location = useLocation()
@@ -33,7 +36,24 @@ function UserData() {
     }, [])
 
     useEffect(() => {
-        console.log(selectedUser.userData)
+        async function getTownData(){
+            try {
+                axios.get(`/api/towns/${userID}`)
+                .then(res => {
+                    let content = res.data;
+                    console.log('townData: ', content)
+                    // let returnDmg = calculateHeroDamage(matchOverview, content)
+                    setTownData(content)
+                })
+            
+            } catch(e) {console.error(e)}
+        }
+        if(userID !== undefined && userID !== '') getTownData()
+      }, [userID])
+
+    useEffect(() => {
+        console.log(selectedUser)
+
     }, [selectedUser])
 
     function winOrLoss (slot, win) {
@@ -131,12 +151,62 @@ function UserData() {
                         style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}
                     >
                         <Card.Group style={{ width: '100%' }}>
-                            <Card id="playerCard">
-                                <Image src={userData.userStats.profile.avatarfull} wrapped ui={false} />
+                            <Card style={{ width: '200px', padding: '1em'}}>
+                                <Image style={{ width: '150px'}} src={userData.userStats.profile.avatarfull} wrapped ui={false} />
+                                <h2>{ userData.userStats.profile.personaname }</h2>
+                                <Card.Header>ID: {userData.userStats.profile.account_id}</Card.Header>
+                                <Card.Meta>
+                                    <span>MMR Estimate: {userData.userStats.mmr_estimate.estimate}</span>
+                                </Card.Meta>
+                            </Card>
+                            { !!townData.completed && !!townData.active && townData.townStats ? (
+                            <Card id="playerCard3">
+                            
                                 <Card.Content>
-                                    <Card.Header>ID: {userData.userStats.profile.account_id}</Card.Header>
+                                    <Card.Header>Turbo Town</Card.Header>
                                     <Card.Meta>
-                                        <span>MMR Estimate: {userData.userStats.mmr_estimate.estimate}</span>
+                                        Can you be mayor?
+                                    </Card.Meta>
+                                    
+                                    <Card.Description>
+                                        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+                                            <img width='300px' src={turboTownIcon}/>
+                                            
+                                                <div style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'baseline', marginTop: '1.5em'}}>
+                                                    <Statistic size={ townData.active.filter(quest => quest.completed === true).length > 0 ? 'large' : 'mini'} color='yellow'> 
+                                                        <Statistic.Value>{ townData.active.filter(quest => quest.completed === true).length }</Statistic.Value>
+                                                    <Statistic.Label style={{ fontSize: '12px'}}>{ townData.active.filter(quest => quest.completed === true).length === 1 ? 'Quest Complete' : 'Quests Complete'}</Statistic.Label>
+                                                    </Statistic>
+                                                    <Statistic size='mini' color='purple'> 
+                                                        <Statistic.Value>{ townData.active.length }</Statistic.Value>
+                                                        <Statistic.Label style={{ fontSize: '12px'}}>Active Quests</Statistic.Label>
+                                                    </Statistic>
+                                                    <Statistic size='mini' color='green' style={{ marginTop: '0px'}}> 
+                                                        <Statistic.Value>{ townData.completed.length }</Statistic.Value>
+                                                        <Statistic.Label style={{ fontSize: '12px'}}>Completed Quests</Statistic.Label>
+                                                    </Statistic>
+                                                </div>
+                                            
+                                            <Button color='orange' style={{ marginTop: '1em' }} onClick={ () => {handleRouteChange('town')} }> View Your Turbo Town </Button>`
+                                        </div>
+                                    </Card.Description>
+                                    
+                                </Card.Content>
+                                <Card.Content extra>
+                                    <a>
+                                        <Icon name='magic' />
+                                        { townData.townStats.totalTownGames } Total Town Games
+                                    </a>
+                                </Card.Content>
+                                
+                            </Card>
+                            ): '' }
+                            <Card id="playerCard" style={{ width: '300px'}}>
+                                {/* <Image style={{ width: '300px'}} src={userData.userStats.profile.avatarfull} wrapped ui={false} /> */}
+                                <Card.Content >
+                                    <Card.Header>Overall Stats</Card.Header>
+                                    <Card.Meta>
+                                        All Turbo Games
                                     </Card.Meta>
                                     <Card.Description style={{ marginTop: '2em'}}>
                                         <Container style = {{display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'baseline'}}>
@@ -176,6 +246,7 @@ function UserData() {
                                     </a>
                                 </Card.Content>
                             </Card>
+{/*                             
                             <Card id="playerCard2">
                                 <Card.Content>
                                     <Card.Header><Icon name='gem' />Top Picks and Bans for You</Card.Header>
@@ -201,23 +272,8 @@ function UserData() {
                                     </a>
                                 </Card.Content>
                             </Card>
-                            <Card id="playerCard3">
-                                <Card.Content>
-                                    <Card.Header>ID: {userData.userStats.profile.account_id}</Card.Header>
-                                    <Card.Meta>
-                                        <span>MMR Estimate: {userData.userStats.mmr_estimate.estimate}</span>
-                                    </Card.Meta>
-                                    <Card.Description>
-                                        <Button onClick={ () => {handleRouteChange('town')} }> View Turbo Town </Button>
-                                    </Card.Description>
-                                    </Card.Content>
-                                    <Card.Content extra>
-                                    <a>
-                                        <Icon name='save' />
-                                        {(userData.matchStats.length)} Matches
-                                    </a>
-                                </Card.Content>
-                            </Card>
+                             */}
+
                         </Card.Group>
                     </div>
                     <div className={'tabView'}>
