@@ -84,9 +84,10 @@ function Quest(props) {
     return color
   }
 
-  const calculateHeroWinRate = (heroID) => {
+  const heroWL = (heroID) => {
     if(!!selectedUser.calculated){
-      return selectedUser.calculated.allHeroRecord[heroID]
+      if(!!selectedUser.calculated.allHeroRecord[heroID].games) return selectedUser.calculated.allHeroRecord[heroID]
+      else return 0
     }
   }
 
@@ -146,7 +147,7 @@ function Quest(props) {
                   </div> */}
                   
                     <div className={'flexRow','questCardFooter'} style={{ justifyContent: 'flex-begin', marginBottom: '0em'}}>
-                      { user.calculations ? (
+                      { (!!user.calculations && !!user.calculations.allHeroRecord[quest.hero.id]) ? (
                       <div className={'flexColumn'} style={{ alignSelf: 'flex-start', justifyContent: 'flex-begin', marginBottom: '0em', padding: '0em'}}>
                         <Statistic.Group size='mini' widths={1}>
                           <Statistic size='mini' color={calculateWinRateColor(((user.calculations.allHeroRecord[quest.hero.id].wins / user.calculations.allHeroRecord[quest.hero.id].games) * 100).toFixed(0))}> 
@@ -163,7 +164,7 @@ function Quest(props) {
 
                         </Statistic.Group>
                       </div>
-                      ) : ''}
+                      ) : (<div>Never Played</div>)}
                       <Statistic size='mini' color={calculateAttemptsColor(quest.attempts.length)} style={{ alignSelf: 'center', marginLeft: '2em'}}> 
                           <Statistic.Value>{ quest.attempts.length }</Statistic.Value>
                           <Statistic.Label style={{ fontSize: '10px'}}>{ quest.attempts.length == 1 ? 'Attempt' : 'Attempts'}</Statistic.Label>
