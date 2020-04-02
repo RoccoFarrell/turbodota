@@ -9,6 +9,7 @@
 #playerCard3 {
     width: 400px;
     margin-left: 0.5em;
+    flex: 2;
 }
 
 #results {

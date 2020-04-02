@@ -18,10 +18,17 @@ import './Quests.css';
 import questIcon from '../../../assets/questIcon.png';
 
 function Quest(props) {
+  const {selectedUser, setSelectedUser, userID, setUserID} = useContext(TurbodotaContext);
   const [loading, setLoading] = useState(false)
+  const [user, setUser] = useState(selectedUser)
 
   let townData = props.townData
   let handleTownDataChange = props.handleTownDataChange
+
+  useEffect(() => {
+    console.log(selectedUser)
+    setUser(selectedUser)
+  }, [selectedUser])
 
   const processDate = (date) => {
     let tempDate = new Date(date._seconds * 1000)
@@ -66,6 +73,23 @@ function Quest(props) {
 
     return color
   }
+
+  const calculateWinRateColor = (rate) => {
+    let color = ""
+    if(rate <= 35) color = "red"
+    else if(rate <= 45) color = "orange"
+    else if(rate >= 55) color = "green"
+    else color = "grey"
+
+    return color
+  }
+
+  const calculateHeroWinRate = (heroID) => {
+    if(!!selectedUser.calculated){
+      return selectedUser.calculated.allHeroRecord[heroID]
+    }
+  }
+
   return (
     <div style={{ textAlign: 'center'}}>
       {/* <div className={'flexRow'}>
@@ -116,17 +140,36 @@ function Quest(props) {
                     </Card.Meta>
                   </div>
                 </div>
-                <Card.Description className={'flexRow'} style={{ justifyContent: 'flex-end', paddingBottom: '0em', paddingLeft: '0em'}}>
+                <Card.Description className={'flexRow'} style={{ justifyContent: 'flex-begin', paddingBottom: '0em', paddingLeft: '0em', marginTop: '0em'}}>
                   {/* <div className={'flexRow'} style={{ justifyContent: 'flex-start', flexWrap: 'wrap', padding: '0em', margin: '0em'}}>
                     { quest.hero.roles.map(role => (<strong key={role} style={{ margin: '.25em'}}>{ role }</strong>)) }
                   </div> */}
+                  
+                    <div className={'flexRow','questCardFooter'} style={{ justifyContent: 'flex-begin', marginBottom: '0em'}}>
+                      { user.calculations ? (
+                      <div className={'flexColumn'} style={{ alignSelf: 'flex-start', justifyContent: 'flex-begin', marginBottom: '0em', padding: '0em'}}>
+                        <Statistic.Group size='mini' widths={1}>
+                          <Statistic size='mini' color={calculateWinRateColor(((user.calculations.allHeroRecord[quest.hero.id].wins / user.calculations.allHeroRecord[quest.hero.id].games) * 100).toFixed(0))}> 
+                              <Statistic.Value>{ ((user.calculations.allHeroRecord[quest.hero.id].wins / user.calculations.allHeroRecord[quest.hero.id].games) * 100).toFixed(0) }</Statistic.Value>
+                              <Statistic.Label style={{ fontSize: '12px'}}>Win%</Statistic.Label>
+                          </Statistic>
+                          <Statistic size='mini'> 
+                              <Statistic.Value>
+                               <div style={{ display: 'inline'}}>{user.calculations.allHeroRecord[quest.hero.id].wins + ' - '}</div> 
+                               <div style={{ display: 'inline'}}>{user.calculations.allHeroRecord[quest.hero.id].losses}</div>
+                              </Statistic.Value>
+                              <Statistic.Label style={{ fontSize: '10px'}}>W - L</Statistic.Label>
+                          </Statistic>
 
-                  <div className={'flexRow','questCardFooter'} style={{ alignSelf: 'flex-end', justifyContent: 'flex-begin', marginBottom: '0em'}}>
-                    <Statistic size='mini' color={calculateAttemptsColor(quest.attempts.length)}> 
-                        <Statistic.Value>{ quest.attempts.length }</Statistic.Value>
-                        <Statistic.Label style={{ fontSize: '10px'}}>{ quest.attempts.length == 1 ? 'Attempt' : 'Attempts'}</Statistic.Label>
-                    </Statistic>
-                  </div>
+                        </Statistic.Group>
+                      </div>
+                      ) : ''}
+                      <Statistic size='mini' color={calculateAttemptsColor(quest.attempts.length)} style={{ alignSelf: 'center', marginLeft: '2em'}}> 
+                          <Statistic.Value>{ quest.attempts.length }</Statistic.Value>
+                          <Statistic.Label style={{ fontSize: '10px'}}>{ quest.attempts.length == 1 ? 'Attempt' : 'Attempts'}</Statistic.Label>
+                      </Statistic>
+                    </div>
+
                 </Card.Description>
               </Card.Content>
             </Card>

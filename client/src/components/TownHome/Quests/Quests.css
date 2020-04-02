@@ -23,8 +23,9 @@
 }
 
 .questCardFooter {
+  display: flex;
   margin-left: .25em!important;
   margin-right: .25em!important;
   margin-bottom: 0em!important;
-  margin-top: 1em!important;
+  margin-top: 0em!important;
 }
