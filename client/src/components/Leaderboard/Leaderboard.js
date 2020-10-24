@@ -33,8 +33,12 @@ function Leaderboard(props) {
             axios.get(`/api/users`)
             .then(res => {
                 let content = res.data;
-                console.log('AllPlayers: ', content.users)
-                setAllPlayers(content.users)
+                let usersFiltered = content.users.filter(user => !!user.profile)
+                console.log('UsersFiltered: ', usersFiltered)
+                usersFiltered.forEach(user => {
+                  console.log(user.profile.account_id)
+                })  
+                setAllPlayers(usersFiltered)
             })
         
         } catch(e) {console.error(e)}
@@ -115,6 +119,15 @@ function Leaderboard(props) {
       if(town.completed.length == 0) return 0
       else return ((town.completed.length / attempts) * 100).toFixed(0)
     }
+
+    const fetchPlayerName = (playerID) => {
+      let returnName = 'n/a'
+      allPlayers.forEach(player => {
+        if(player.profile.account_id === playerID) returnName = player.profile.personaname
+      })
+      return returnName
+    }
+
     return (
       <Table compact sortable celled fixed>
         <Table.Header>
@@ -184,7 +197,7 @@ function Leaderboard(props) {
             key={town.playerID}
           >
             <Table.Cell>{town.playerID}</Table.Cell>
-            <Table.Cell>{allPlayers.filter(player => player.profile.account_id === town.playerID)[0].profile.personaname}</Table.Cell>
+            <Table.Cell style={{fontWeight: 'bold'}}>{fetchPlayerName(town.playerID)}</Table.Cell>
             <Table.Cell>{town.xp}</Table.Cell>
             <Table.Cell>{ town.gold }</Table.Cell>
             <Table.Cell>{town.completed.length}</Table.Cell>

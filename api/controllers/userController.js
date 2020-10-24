@@ -37,8 +37,7 @@ exports.getAllUsers = function (req, res) {
       let userArr = []
       snapshot.forEach(userDoc => {
         let userData = userDoc.data()
-
-        userArr.push(userData)
+        if(!!userData.profile) userArr.push(userData)
       });
       // console.log(userArr)
       res.send({ "users": userArr })
