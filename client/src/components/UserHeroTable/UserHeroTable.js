@@ -64,7 +64,7 @@ function UserHeroTable(props) {
       if(hero_id === 0 || hero_id === '0') {
         return 'HeroZero'
       } else {
-        return heroesList.filter(hero => hero.id == hero_id)[0].localized_name
+        return (heroesList.filter(hero => hero.id == hero_id)[0].localized_name || "error: couldnt get name"
       }
       
     }
