@@ -177,9 +177,11 @@ const recalculateExistingTown = async (townData) => {
           }
         })
       } else {
-        // console.log('MATCH ' + match.match_id + '- ACTIVE - LOSS - quest attempted and failed for heroID ' + match.hero_id)
+        console.log('MATCH ' + match.match_id + '- ACTIVE - LOSS - quest attempted and failed for heroID ' + match.hero_id, match.start_time)
         townData.active.filter(quest => quest.hero.id == match.hero_id).forEach(quest => {
-          quest.attempts.push(match.match_id)
+          if(quest.completed !== true && match.start_time > quest.startTime._seconds) {
+            quest.attempts.push(match.match_id)
+          }
         })
       }
     } 
@@ -222,8 +224,10 @@ const recalculateExistingTown = async (townData) => {
       townData.townStats.nonTownGames += 1
     }
   })
+  
+  if(!townData.skipped) townData.skipped = []
 
-  townData.totalQuests = townData.active.length + townData.completed.length
+  townData.totalQuests = townData.active.length + townData.completed.length + townData.skipped.length
   townData.lastModified = new Date()
   
   return townData  
@@ -253,7 +257,7 @@ exports.getTownForUser = async function (req, res) {
   })
 }
 
-exports.completeQuest = async function (req, res) {
+exports.modifyQuest = async function (req, res) {
   const playerID = req.params.steamID
   let townsRef = db.collection('towns')
   let allHeroes = await getHeroesFromDB()
@@ -272,7 +276,8 @@ exports.completeQuest = async function (req, res) {
     console.log(playerID)
     townsRef.where('playerID', '==', parseInt(playerID)).get()
       .then(snapshot => {
-        if(snapshot.empty){ 
+        if(snapshot.empty){
+          res.status(404) 
           res.send({'status': 'failed', 'message' : 'Couldn\'t find player ' + playerID})
         } 
         else {
@@ -308,7 +313,57 @@ exports.completeQuest = async function (req, res) {
       })
 
 
-  } else {
+  } else
+  if(action == 'skipQuest'){
+    console.log('got skip')
+    let skipQuest = editTownData.quest
+
+    console.log(playerID)
+    townsRef.where('playerID', '==', parseInt(playerID)).get()
+      .then(snapshot => {
+        if(snapshot.empty){ 
+          res.send({'status': 'failed', 'message' : 'Couldn\'t find player ' + playerID})
+        } 
+        else {
+          snapshot.forEach(async doc => {
+            let townID = doc.id
+            let town = doc.data()
+
+            if(town.gold < 300){
+              res.send({'status': 'failed', 'message': 'Not enough gold'})
+            } else
+            {
+              if(!town.skipped) town.skipped = []
+            
+              town.active.filter(q => q.id == skipQuest.id).forEach(q => {
+                console.log('found match to skip: ', q)
+                town.skipped.push(q)
+  
+                //add randomized new quest
+                let townQuest = { ...newTownQuest }
+                // console.log(townData.totalQuests)
+                townQuest.id = (town.totalQuests + 1)
+                townQuest.hero = allHeroes[Math.floor(Math.random() * allHeroes.length)]
+                
+                town.active.push(townQuest)
+  
+                //skipped quest hard coded amount
+                town.gold -= 300
+              })
+  
+              town.active = town.active.filter(q => q.id != skipQuest.id)
+              
+              let returnTown = await editExistingTown(townID, town)
+  
+              res.send(returnTown)
+            }
+
+          })
+        }
+      })
+  }
+  else {
+    res.status(404)
     res.send({'status': 'failed'})
   }
 }
@@ -327,6 +382,9 @@ exports.getAllTowns = async function (req, res) {
         let docs = snapshot.docs
         await Promise.all(docs.map(async doc => {
           let dbTownData = doc.data()
+
+          //oil and pepper appetizer
+          //shouldnt recalc every town every fetch
           let returnTown = await recalculateExistingTown(dbTownData)
           townsRef.doc(returnTown.playerID.toString()).set(returnTown)
             .then(result => {

@@ -41,7 +41,7 @@ module.exports = function (app) {
     .post(match.parseMatchRequest)
 
   app.route('/api/towns/:steamID')
-    .post(town.completeQuest)
+    .post(town.modifyQuest)
     .get(town.getTownForUser)
 
   app.route('/api/towns')

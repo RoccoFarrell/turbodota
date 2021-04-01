@@ -85,7 +85,7 @@ function SingleMatch(props) {
     } 
 
     const heroName = (hero_id) => {
-        return heroesList.filter(hero => hero.id === hero_id)[0].localized_name
+        return (heroesList.filter(hero => hero.id == hero_id)[0] ? heroesList.filter(hero => hero.id == hero_id)[0].localized_name  : "error: couldnt get name" )  
     }
     
     const dateString = (timestamp) => {

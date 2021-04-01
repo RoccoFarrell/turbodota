@@ -11,11 +11,13 @@ import {
     Statistic,
     Tab,
     Button,
-    Label
+    Label,
+    CardContent
 } from 'semantic-ui-react'
 import './Quests.css';
 
 import questIcon from '../../../assets/questIcon.png';
+import goldIcon from '../../../assets/gold.png';
 
 function Quest(props) {
   const {selectedUser, setSelectedUser, userID, setUserID} = useContext(TurbodotaContext);
@@ -59,6 +61,27 @@ function Quest(props) {
         .then(res => {
             let content = res.data;
             handleTownDataChange(content)
+        })
+    
+    } catch(e) {console.error(e)}
+  }
+
+  const skipQuest = async (quest) => {
+    console.log(quest)
+    let postObj = {
+      quest: quest,
+      action: 'skipQuest'
+    }
+
+    try {
+        axios.post(`/api/towns/${townData.playerID}`, postObj)
+        .then(res => {
+            let content = res.data;
+            if(content.status == 'failed') {
+              console.error(content)
+              window.alert(content.message + ', sorry bub')
+            }
+            else handleTownDataChange(content)
         })
     
     } catch(e) {console.error(e)}
@@ -173,6 +196,20 @@ function Quest(props) {
 
                 </Card.Description>
               </Card.Content>
+              <CardContent
+                //style={{ border: '10px solid red' }}
+              >
+                <Button 
+                  size="mini" 
+                  color='orange'
+                  onClick={() => {skipQuest(quest)}}
+                >
+                  
+                  <Image src={goldIcon} size="mini" className='inline' />
+                    Skip Quest (300) 
+                </Button>
+              
+              </CardContent>
             </Card>
           ))}
         </Card.Group>
@@ -194,6 +231,56 @@ function Quest(props) {
                   width='35px'
                   alt='choose yer quest'
                 /> Quest Complete
+              </Card.Content>
+
+              <Card.Content >
+                <div className={'flexRow'} style={{ justifyContent: 'flex-start', alignItems: 'flex-begin', padding: '0em', margin: '0em'}}>
+                  <div style={{ marginRight: '1em' }}>#{quest.id}</div>
+                  <div className={'flexColumn'} style={{ width: '50px', height: '50px', padding: '0em', margin: '0em'}}>
+                    { heroIcon(quest.hero.id, 1) }
+                  </div>
+                  <div className={'flexColumn'} style={{ paddingTop: '.25em'}}>
+                    <Card.Header>{ quest.hero.localized_name }</Card.Header>
+                    <Card.Meta>
+                      <span>{ processDate(quest.startTime) }</span>
+                    </Card.Meta>
+                  </div>
+                </div>
+                <Card.Description className={'flexRow'} style={{ justifyContent: 'flex-end', paddingBottom: '0em', paddingLeft: '0em'}}>
+                  {/* <div className={'flexRow'} style={{ justifyContent: 'flex-start', flexWrap: 'wrap', padding: '0em', margin: '0em'}}>
+                    { quest.hero.roles.map(role => (<strong key={role} style={{ margin: '.25em'}}>{ role }</strong>)) }
+                  </div> */}
+
+
+                  <div className={'flexRow','questCardFooter'} style={{ alignSelf: 'flex-end', justifyContent: 'flex-begin', marginBottom: '0em'}}>
+                    <Statistic size='mini' color={calculateAttemptsColor(quest.attempts.length)}> 
+                        <Statistic.Value>{ quest.attempts.length }</Statistic.Value>
+                        <Statistic.Label style={{ fontSize: '10px'}}>{ quest.attempts.length == 1 ? 'Attempt' : 'Attempts'}</Statistic.Label>
+                    </Statistic>
+                  </div>
+                </Card.Description>
+              </Card.Content>
+            </Card>
+          ))}
+        </Card.Group>
+      </div>
+      <h2>Skipped</h2>
+      <div className={'flexRow'}>
+        <Card.Group>
+          { townData.skipped.map(quest => (
+            <Card 
+              key={quest.id} 
+              className={'questCard'} 
+              color ={ 'grey'} 
+              style={{ width: '225px' }}
+            >
+              <Card.Content extra>
+                <Image 
+                  src={questIcon}
+                  as='i' 
+                  width='35px'
+                  alt='choose yer quest'
+                /> Quest Skipped
               </Card.Content>
 
               <Card.Content >
