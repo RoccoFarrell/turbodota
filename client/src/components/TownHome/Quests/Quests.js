@@ -164,14 +164,15 @@ function Quest(props) {
                     </Card.Meta>
                   </div>
                 </div>
-                <Card.Description className={'flexRow'} style={{ justifyContent: 'flex-begin', paddingBottom: '0em', paddingLeft: '0em', marginTop: '0em'}}>
+                <Card.Description className={'flexColumn'} style={{ justifyContent: 'flex-begin', paddingBottom: '0em', paddingLeft: '0em', marginTop: '0em'}}>
                   {/* <div className={'flexRow'} style={{ justifyContent: 'flex-start', flexWrap: 'wrap', padding: '0em', margin: '0em'}}>
                     { quest.hero.roles.map(role => (<strong key={role} style={{ margin: '.25em'}}>{ role }</strong>)) }
                   </div> */}
                   
-                    <div className={'flexRow','questCardFooter'} style={{ justifyContent: 'flex-begin', marginBottom: '0em'}}>
+                    <div className={'flexColumn','questCardFooter'} style={{ justifyContent: 'flex-begin', marginBottom: '0em'}}>
                       { (!!user.calculations && !!user.calculations.allHeroRecord[quest.hero.id]) ? (
                       <div className={'flexColumn'} style={{ alignSelf: 'flex-start', justifyContent: 'flex-begin', marginBottom: '0em', padding: '0em'}}>
+                        <h4>Hero Stats</h4>
                         <Statistic.Group size='mini' widths={1}>
                           <Statistic size='mini' color={calculateWinRateColor(((user.calculations.allHeroRecord[quest.hero.id].wins / user.calculations.allHeroRecord[quest.hero.id].games) * 100).toFixed(0))}> 
                               <Statistic.Value>{ ((user.calculations.allHeroRecord[quest.hero.id].wins / user.calculations.allHeroRecord[quest.hero.id].games) * 100).toFixed(0) }</Statistic.Value>

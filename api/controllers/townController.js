@@ -23,6 +23,7 @@ const newTownQuest =  {
   hero: {},
   active: true,
   completed: false,
+  skipped: false,
   completedMatchID: null,
   startTime: new Date(),
   endTime: null,
@@ -93,6 +94,131 @@ const createNewTown = async (playerID) => {
 }
 
 const recalculateExistingTown = async (townData) => {
+  let oldestQuestTime = 0
+
+  //loop through all actives, get all quest IDs, and oldest
+  townData.active.forEach((quest, index) => {
+    // console.log(quest,index)
+    if(index == 0) oldestQuestTime = quest.startTime._seconds
+    if(index > 0) {
+      if(oldestQuestTime > quest.startTime._seconds) oldestQuestTime = quest.startTime._seconds
+    }
+  })
+
+  //loop through all completed, get all quest IDs, and oldest
+  townData.completed.forEach((quest, index) => {
+    // console.log(quest,index)
+    if(index == 0) oldestQuestTime = quest.startTime._seconds
+    if(index > 0) {
+      if(oldestQuestTime > quest.startTime._seconds) oldestQuestTime = quest.startTime._seconds
+    }
+  })
+
+  //order matches by start time
+  let checkMatches = await match.fetchMatches(townData.playerID, oldestQuestTime)
+  checkMatches = checkMatches.sort((a, b) => {
+    if(a.start_time < b.start_time) return -1
+    if(a.start_time > b.start_time) return 1
+    return 0
+  })
+
+  let winOrLoss = (slot, win) => {
+    if (slot > 127){
+        if (win === false){
+            return true
+        }
+        else return false
+    }
+    else {
+        if (win === false){
+            return false
+        }
+        else return true
+    }
+  }
+
+  townData.active.forEach(quest => quest.attempts = [])
+  townData.completed.forEach(quest => quest.attempts = [])
+  townData.townStats.nonTownGames = 0
+  townData.townStats.totalTownGames = 0
+
+  checkMatches.forEach(match => {
+    let matchResult = winOrLoss(match.player_slot, match.radiant_win)
+    let townAttempt = false
+
+    townData.active.forEach((quest, index) => {
+      townAttempt = true
+
+      // migration line
+      if(!('skipped' in quest)) {
+        console.log('in if')
+        quest.skipped = false
+        console.log(quest)
+      }
+
+      if(match.start_time > quest.startTime._seconds && quest.hero.id == match.hero_id){
+        if(matchResult){
+          quest.completed = true
+          //add half hour to match start time to get end time... ?
+          quest.endTime = match.start_time + 180000
+          quest.completedMatchID = match.match_id
+          quest.attempts.push(match.match_id)
+        } else {
+          quest.attempts.push(match.match_id)
+        }
+      }
+    })
+
+    townData.completed.forEach((quest, index) => {
+      townAttempt = true
+
+      // migration line
+      if(!quest.skipped) { quest.skipped = false }
+      else { console.log('else')}
+
+      if(match.start_time > quest.startTime._seconds && quest.hero.id == match.hero_id){
+        if(matchResult){
+          // if(quest.completed === false) quest.completed = true
+          if(!!quest.endTime && quest.endTime > match.start_time && quest.startTime._seconds < match.start_time) {
+            quest.attempts.push(match.match_id )
+          }
+          else if(quest.endTime === null) {
+            //why is quest end time null if completed
+            console.warn('townController warning: quest end time for completed quest null ')
+            quest.endTime = match.start_time + 180000
+            quest.attempts.push(match.match_id)
+          } else {
+            // console.log('townController warning - duplicate hero quests per chance? => ' + match.match_id, quest.id)
+            // wat
+            console.log('townController warning - match with quest hero outside of quest time range  => ' + match.match_id, quest.id)
+          }
+        } else {
+          if(quest.endTime > match.start_time) quest.attempts.push(match.match_id)
+          else if(quest.endTime === null) {
+            //why is quest end time null if completed
+            console.warn('townController warning: quest end time for completed quest null ')
+            quest.endTime = match.start_time + 180000
+            quest.attempts.push(match.match_id)
+          }
+        }
+      }
+    })
+
+    if(townAttempt === false){
+      // console.log('!! Match ' + match.match_id + ' was not a TurboTown Attempt.')
+      townData.townStats.nonTownGames += 1
+    }
+  })
+
+  if(!townData.skipped) townData.skipped = []
+
+  townData.totalQuests = townData.active.length + townData.completed.length + townData.skipped.length
+  townData.lastModified = new Date()
+  
+  return townData  
+}
+
+/* const recalculateExistingTown_old = async (townData) => {
   let oldestQuestTime = 0
   let activeQuestHeroIDs = []
   let completedQuestHeroIDs = []
@@ -179,7 +305,7 @@ const recalculateExistingTown = async (townData) => {
       } else {
         console.log('MATCH ' + match.match_id + '- ACTIVE - LOSS - quest attempted and failed for heroID ' + match.hero_id, match.start_time)
         townData.active.filter(quest => quest.hero.id == match.hero_id).forEach(quest => {
-          if(quest.completed !== true && match.start_time > quest.startTime._seconds) {
+          if(match.start_time > quest.startTime._seconds) {
             quest.attempts.push(match.match_id)
           }
         })
@@ -203,7 +329,7 @@ const recalculateExistingTown = async (townData) => {
             quest.endTime = match.start_time + 180000
             quest.attempts.push(match.match_id)
           } else {
-            console.log('townController warning - duplicate hero quests per chance? => ' + match.match_id, quest.id)
+            console.warn('townController warning - duplicate hero quests per chance? => ' + match.match_id, quest.id)
           }
         })
       } else {
@@ -212,6 +338,8 @@ const recalculateExistingTown = async (townData) => {
           // console.log(quest.endTime, match.start_time)
           if(quest.endTime > match.start_time) quest.attempts.push(match.match_id)
           else if(quest.endTime === null) {
+            //why is quest end time null if completed
+            console.warn('townController warning: quest end time for completed quest null ')
             quest.endTime = match.start_time + 180000
             quest.attempts.push(match.match_id)
           }
@@ -232,6 +360,7 @@ const recalculateExistingTown = async (townData) => {
   
   return townData  
 }
+*/
 
 exports.getTownForUser = async function (req, res) {
   let usersRef = db.collection('users')
@@ -250,7 +379,7 @@ exports.getTownForUser = async function (req, res) {
       snapshot.forEach(async doc => {
         let existingTown = doc.data()
         console.log('[town] found existing town for '  + existingTown)
-        let returnTown = await recalculateExistingTown(existingTown)
+        let returnTown = await editExistingTown(playerID, existingTown)
         res.send(returnTown)
       }) 
     }
@@ -265,7 +394,7 @@ exports.modifyQuest = async function (req, res) {
 
   const editTownData = req.body
 
-  console.log('completing quest')
+  // console.log('completing quest')
   console.log('incoming edit town data: ', editTownData)
 
   let action = editTownData.action
@@ -318,7 +447,7 @@ exports.modifyQuest = async function (req, res) {
     console.log('got skip')
     let skipQuest = editTownData.quest
 
-    console.log(playerID)
+    // console.log(playerID)
     townsRef.where('playerID', '==', parseInt(playerID)).get()
       .then(snapshot => {
         if(snapshot.empty){ 
@@ -337,6 +466,7 @@ exports.modifyQuest = async function (req, res) {
             
               town.active.filter(q => q.id == skipQuest.id).forEach(q => {
                 console.log('found match to skip: ', q)
+                q.endTime = (new Date().getTime())/1000
                 town.skipped.push(q)
   
                 //add randomized new quest
