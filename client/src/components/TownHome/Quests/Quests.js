@@ -129,10 +129,10 @@ function Quest(props) {
           { townData.active.map(quest => (
             <Card 
               key={quest.id} 
-              className={'questCard'} 
+              className={'questCardActive'} 
               color ={ quest.completed ? 'yellow': 'grey'} 
               raised={ quest.completed ? true : false} 
-              style={ quest.completed ? { width: '225px' , backgroundColor: 'rgba(255,216,104, 0.1)',} : { width: '225px' }}
+              style={ quest.completed ? { backgroundColor: 'rgba(255,216,104, 0.1)'} : {}}
             >
               <Card.Content extra>
                 <Image 
@@ -221,7 +221,7 @@ function Quest(props) {
           { townData.completed.map(quest => (
             <Card 
               key={quest.id} 
-              className={'questCard'} 
+              className={'questCardCompleted'} 
               color ={ 'grey'} 
               style={ quest.completed ? { width: '225px' , backgroundColor: '#F5F5F5'} : { width: '225px' }}
             >
@@ -265,7 +265,7 @@ function Quest(props) {
           ))}
         </Card.Group>
       </div>
-      <h2>Skipped</h2>
+      { townData.skipped.length != 0 ? <h2>Skipped</h2> : ''}
       <div className={'flexRow'}>
         <Card.Group>
           { townData.skipped.map(quest => (

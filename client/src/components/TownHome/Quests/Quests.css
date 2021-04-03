@@ -16,12 +16,22 @@
 }
 
 
-.questCard {
+.questCardActive {
   height: 35em;
-  margin-left: 1em!important;
-  margin-right: 1em!important;
+  width: 20em;
+  margin-left: .5em!important;
+  margin-right: .5em!important;
   margin-top: 0em!important;
 }
+
+.questCardCompleted {
+  height: 20em;
+  width: 15em;
+  margin-left: .5em!important;
+  margin-right: .5em!important;
+  margin-top: 0em!important;
+}
+
 
 .questCardFooter {
   display: flex;

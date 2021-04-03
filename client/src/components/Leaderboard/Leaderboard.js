@@ -66,7 +66,7 @@ function Leaderboard(props) {
         setDirection('ascending')
         let tempSorted = allTowns.sort((a, b) => {
           // if(a[clickedColumn] > 99.9|| b[clickedColumn] > 99.9 ) console.log(a,b)
-          if(clickedColumn === 'nonTownGames' || clickedColumn === 'totalTownGAmes') {
+          if(clickedColumn === 'nonTownGames' || clickedColumn === 'totalTownGames') {
             if(a.townStats.clickedColumn < b.townStats.clickedColumn) return -1
             if(a.townStats.clickedColumn > b.townStats.clickedColumn) return 1
           } else {
@@ -102,20 +102,8 @@ function Leaderboard(props) {
       
     }
 
-    const calculateAttempts = (town) => {
-      let attempts = 0
-      town.active.forEach(quest => {
-        attempts += quest.attempts.length
-      })
-      town.completed.forEach(quest => {
-        attempts += quest.attempts.length
-
-      })
-      return attempts
-    }
-
     const calculateTownWinRate = (town) => {
-      let attempts = calculateAttempts(town)
+      let attempts = town.townStats.totalAttemptGames
       if(town.completed.length == 0) return 0
       else return ((town.completed.length / attempts) * 100).toFixed(0)
     }
@@ -201,7 +189,7 @@ function Leaderboard(props) {
             <Table.Cell>{town.xp}</Table.Cell>
             <Table.Cell>{ town.gold }</Table.Cell>
             <Table.Cell>{town.completed.length}</Table.Cell>
-            <Table.Cell>{calculateAttempts(town)}</Table.Cell>
+            <Table.Cell>{town.townStats.totalAttemptGames}</Table.Cell>
             <Table.Cell>{calculateTownWinRate(town)}%</Table.Cell>
             <Table.Cell>{town.townStats.nonTownGames}</Table.Cell>
             <Table.Cell>{town.townStats.totalTownGames}</Table.Cell>

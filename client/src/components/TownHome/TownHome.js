@@ -62,6 +62,7 @@ function TownHome() {
   const handleTownDataChange = (townData) => {
     setTownData(townData)
   }
+
   return (
       <Container id="container">
           { !!selectedUser.userStats ? (
@@ -75,24 +76,46 @@ function TownHome() {
             </div>
           ) : ''}
 
-          <Container className={'flexRow'} fluid>
-            { !!townData.active ? 
-              <Statistic.Group widths='two'>
-                <Statistic>
-                  <Statistic.Value>
-                    <Image src={goldIcon} className='circular inline' />
-                    { townData.gold }
-                  </Statistic.Value>
-                  <Statistic.Label>Gold</Statistic.Label>
-                </Statistic>
-                <Statistic>
-                  <Statistic.Value>
-                    <Image src={xpIcon} className='circular inline' />
-                    { townData.xp }
-                  </Statistic.Value>
-                  <Statistic.Label>XP</Statistic.Label>
-                </Statistic>
-              </Statistic.Group>
+          <Container fluid>
+            { !!townData.active ?
+              <div className={'flexRow'}>
+                <Statistic.Group widths='one'>
+                  <Statistic>
+                    <Statistic.Value>
+                      <Image src={goldIcon} className='circular inline' />
+                      { townData.gold }
+                    </Statistic.Value>
+                    <Statistic.Label>Gold</Statistic.Label>
+                  </Statistic>
+                  <Statistic>
+                    <Statistic.Value>
+                      <Image src={xpIcon} className='circular inline' />
+                      { townData.xp }
+                    </Statistic.Value>
+                    <Statistic.Label>XP</Statistic.Label>
+                  </Statistic>
+                </Statistic.Group>
+                <Statistic.Group widths='one'>
+                  <Statistic>
+                    <Statistic.Value>
+                      { townData.townStats.totalTownGames }
+                    </Statistic.Value>
+                    <Statistic.Label>Total Town Games</Statistic.Label>
+                  </Statistic>
+                  <Statistic>
+                    <Statistic.Value>
+                      { townData.townStats.nonTownGames }
+                    </Statistic.Value>
+                    <Statistic.Label>Non Town Games</Statistic.Label>
+                  </Statistic>
+                  <Statistic>
+                    <Statistic.Value>
+                      { townData.townStats.totalAttemptGames }
+                    </Statistic.Value>
+                    <Statistic.Label>Total Attempts</Statistic.Label>
+                  </Statistic>
+                </Statistic.Group>
+              </div>
               : '' }
           </Container>
           
