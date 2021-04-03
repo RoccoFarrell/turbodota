@@ -107,7 +107,9 @@ const recalculateExistingTown = async (townData) => {
 
   //loop through all completed, get all quest IDs, and oldest
   townData.completed.forEach((quest, index) => {
-    // console.log(quest,index)
+    //Hardcoded time from April 3rd 2021 at 9:05AM to fix legacy endTime issues
+    if (quest.endTime < 1617455102) {quest.endTime = null}
+
     if(index == 0) oldestQuestTime = quest.startTime._seconds
     if(index > 0) {
       if(oldestQuestTime > quest.startTime._seconds) oldestQuestTime = quest.startTime._seconds
@@ -149,9 +151,6 @@ const recalculateExistingTown = async (townData) => {
     townData.active.forEach((quest, index) => {
       townAttempt = true
 
-      //migration line 2
-      if(quest.endTime < quest.startTime._seconds) quest.endTime = null
-
       // migration line
       if(!('skipped' in quest)) {
         console.log('in if')
@@ -159,7 +158,8 @@ const recalculateExistingTown = async (townData) => {
         console.log(quest)
       }
 
-      if(match.start_time > quest.startTime._seconds && quest.hero.id == match.hero_id){
+      //If quest is already completed skip completely
+      if(match.start_time > quest.startTime._seconds && quest.hero.id == match.hero_id && !quest.completed){
         if(matchResult == true){
           quest.completed = true
           //add half hour to match start time to get end time... ?
@@ -175,20 +175,9 @@ const recalculateExistingTown = async (townData) => {
     townData.completed.forEach((quest, index) => {
       townAttempt = true
 
-      //migration line 2
-      if(quest.endTime < quest.startTime._seconds) quest.endTime = null
-
       // migration line
       if(!quest.skipped) { quest.skipped = false }
       else { console.log('else')}
-
-      if(match.match_id == 5406891005 && quest.id == 31) {
-        console.log('match quest found')
-        console.log(match, quest)
-        console.log('ts check: ', match.start_time > quest.startTime._seconds)
-        console.log('full check: ', match.start_time > quest.startTime._seconds && quest.hero.id == match.hero_id)
-        console.log('quest.endTime > match.start_time', quest.endTime > match.start_time)
-      }
 
       if(match.start_time > quest.startTime._seconds && quest.hero.id == match.hero_id){
         if(matchResult == true){
@@ -198,8 +187,8 @@ const recalculateExistingTown = async (townData) => {
           }
           else if(quest.endTime === null) {
             //why is quest end time null if completed
-            if(quest.id == 31) console.log('setting endTime for WK quest using match', match.match_id, matchResult)
             console.warn('townController warning: quest end time for completed quest null ')
+            quest.completedMatchID = match.match_id
             quest.endTime = match.start_time + 180000
             quest.attempts.push(match.match_id)
           } else {
@@ -211,10 +200,10 @@ const recalculateExistingTown = async (townData) => {
           //quest end time null needs to be removed, we removed from the line below
           //-----------------------------------------------------------------------
           if(quest.endTime > match.start_time) quest.attempts.push(match.match_id)
-          else if(quest.endTime === null) {
+          else if(quest.endTime === null && quest.startTime._seconds < match.start_time) {
+            quest.attempts.push(match.match_id)
             //why is quest end time null if completed
-            //if(quest.id == 37) console.log('setting endTime for WK quest using match', match.match_id, matchResult)
-            console.warn('townController warning: quest end time for completed quest still null ')
+            console.warn('townController warning: quest end time for completed quest still null, still adding attempt ')
           } else {
             console.log('broken ', quest.startTime, match.start_time, match.match_id)
           }
@@ -436,7 +425,7 @@ exports.modifyQuest = async function (req, res) {
             town.active.filter(q => q.id == completedQuest.id).forEach(q => {
               console.log('found match: ', q)
               q.completed = true
-              q.endTime = (new Date().getTime())/1000
+              q.endTime = ((new Date().getTime())/1000).toFixed(0)
               town.completed.push(q)
 
               //add randomized new quest

@@ -41,7 +41,7 @@ export default function SearchResults(props) {
               size='mini'
             />
             <Card.Header>{player.personaname}</Card.Header>
-            <Card.Description>Last Played: {formatDate(player.last_match_time)}</Card.Description>
+            {/* <Card.Description>Last Played: {formatDate(player.last_match_time)}</Card.Description> */}
 
           </Card.Content>
         </Card>
