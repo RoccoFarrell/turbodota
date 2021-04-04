@@ -1,5 +1,5 @@
 // Turbo Doto
-// Copyright No Salt Studios 2020
+// Copyright No Salt Studios 2021
 
 const express = require('express')
 const dotenvcfg = require('dotenv').config()
@@ -10,10 +10,13 @@ const path = require('path')
 const cors = require('cors')
 const environment = process.env.NODE_ENV || 'development'
 
-const fs = require('fs')
+//passport stuff
+//const fs = require('fs')
 const passport = require('passport')
 const session = require('express-session')
 const SteamStrategy = require('./lib/passport-steam').Strategy
+const { v4: uuid } = require('uuid')
+const FileStore = require('session-file-store')(session);
 
 const apicache = require('apicache')
 
@@ -46,7 +49,7 @@ if(environment === 'development'){
 //   have a database of user records, the complete Steam profile is serialized
 //   and deserialized.
 passport.serializeUser(function(user, done) {
-  done(null, user);
+  done(null, user.id);
 });
 
 passport.deserializeUser(function(obj, done) {
@@ -57,7 +60,13 @@ app.use(session({
   secret: 'amazing turbo secret invoker',
   name: 'turbodotaSessionID',
   user: {},
-  resave: true,
+  store: new FileStore(),
+  genid: (req) => {
+    console.log('Inside the session middleware')
+    console.log('req.sessionID inside genid:', req.sessionID)
+    return uuid() // use UUIDs for session IDs
+  },
+  resave: false,
   saveUninitialized: true
 }));
 
@@ -78,8 +87,7 @@ passport.use(new SteamStrategy({
       // represent the logged-in user.  In a typical application, you would want
       // to associate the Steam account with a user record in your database,
       // and return that user instead.
-      console.log(identifier, profile)
-      steamProfile = profile
+      //console.log('identifier inside strategy: ', identifier, profile)
       profile.identifier = identifier;
       return done(null, profile);
     });
@@ -97,6 +105,14 @@ app.use(express.static(path.join(__dirname, 'client/build')))
 // persistent login sessions (recommended).
 app.use(passport.initialize());
 app.use(passport.session());
+
+//testing
+// create the homepage route at '/'
+app.get('/sessiontest', (req, res) => {
+  console.log('Inside the homepage callback function')
+  console.log(req.sessionID)
+  res.send(`You hit home page!\n`)
+})
 
 //express router
 const routes = require('./api/routes/appRoutes')

@@ -16,12 +16,12 @@ module.exports = function (app) {
   //   the request will proceed.  Otherwise, the user will be redirected to the
   //   login page.
   function ensureAuthenticated(req, res, next) {
-    console.log('middleware')
+    console.log('ensureAuthenticated')
     if (req.isAuthenticated()) { return next(); }
     res.redirect('/');
   }
 
-  // console.log(debug)
+  //routes
   app.route('/api/auth/:uid')
     .get(auth.userCheck)
 
@@ -34,9 +34,11 @@ module.exports = function (app) {
   app.route('/api/users/')
     .get(user.getAllUsers)
 
-  // app.route('/api/steamUser')
-  //   .get(user.steamUser)
-
+  app.route('/api/steamUser')
+    .get((req, res) => {
+      res.send(req.user)
+    })
+      
   app.route('/api/heroes')
     .get(od.fetchHeroes)
 
@@ -67,7 +69,7 @@ module.exports = function (app) {
     res.render('account', { user: req.user });
   });
   
-  app.get('/logout', function(req, res){
+  app.get('/auth/logout', function(req, res){
     req.logout();
     res.redirect('/');
   });
@@ -95,6 +97,8 @@ module.exports = function (app) {
     }, 
     passport.authenticate('steam', { failureRedirect: '/' }),
     function(req, res) {
+      //console.log(`req.session.passport: ${JSON.stringify(req.session.passport)}`)
+      //console.log(`req.user: ${JSON.stringify(req.user)}`)
       res.redirect('/');
     });
   

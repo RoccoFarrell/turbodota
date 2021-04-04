@@ -31,6 +31,7 @@ export default function Page({children}){
         axios.get(`/api/steamUser`)
         .then(res => {
           let content = res.data;
+          console.log(content)
           setSteamUser(content)
         })
         .catch(e => {
@@ -65,7 +66,7 @@ export default function Page({children}){
   //   console.log('user id set: ', userID)
   // }, [userID])
 
-  const value={selectedUser, setSelectedUser, userID, setUserID, heroesList}
+  const value={selectedUser, setSelectedUser, userID, setUserID, heroesList, steamUser}
 
   return (
     <TurbodotaContext.Provider

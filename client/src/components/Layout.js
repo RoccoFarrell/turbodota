@@ -35,6 +35,7 @@ import logo from '../assets/squareLogo.png';
 function FixedMenuLayout() {
     
     const {selectedUser, setSelectedUser}= useContext(TurbodotaContext);
+    const {steamUser, setSteamUser}= useContext(TurbodotaContext);
 
     const [likeCounter, setLikeCounter] = useState(0)
     const [open, setOpen] = useState(false)
@@ -106,6 +107,12 @@ function FixedMenuLayout() {
                 </Dropdown>
                 <Menu.Item as='a' onClick={() => window.location = "auth/steam"}>
                     LOGIN WITH STEAM
+                </Menu.Item>
+                <Menu.Item>
+                    { steamUser ? steamUser.toString() : 'not logged in'}
+                </Menu.Item>
+                <Menu.Item as='a' onClick={() => window.location = "auth/logout"}>
+                    LOGOUT
                 </Menu.Item>
             </Container>
             </Menu>
