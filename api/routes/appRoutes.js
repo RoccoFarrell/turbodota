@@ -1,4 +1,5 @@
 'use strict'
+const passport = require('passport')
 
 module.exports = function (app) {
   const auth = require('../controllers/authController')
@@ -8,6 +9,17 @@ module.exports = function (app) {
   const match = require('../controllers/matchController')
 
   const environment = process.env.NODE_ENV || 'development'
+
+  // Simple route middleware to ensure user is authenticated.
+  //   Use this route middleware on any resource that needs to be protected.  If
+  //   the request is authenticated (typically via a persistent login session),
+  //   the request will proceed.  Otherwise, the user will be redirected to the
+  //   login page.
+  function ensureAuthenticated(req, res, next) {
+    console.log('middleware')
+    if (req.isAuthenticated()) { return next(); }
+    res.redirect('/');
+  }
 
   // console.log(debug)
   app.route('/api/auth/:uid')
@@ -21,6 +33,9 @@ module.exports = function (app) {
 
   app.route('/api/users/')
     .get(user.getAllUsers)
+
+  // app.route('/api/steamUser')
+  //   .get(user.steamUser)
 
   app.route('/api/heroes')
     .get(od.fetchHeroes)
@@ -47,6 +62,42 @@ module.exports = function (app) {
   app.route('/api/towns')
     .get(town.getAllTowns)
 
+
+  app.get('/account', ensureAuthenticated, function(req, res){
+    res.render('account', { user: req.user });
+  });
+  
+  app.get('/logout', function(req, res){
+    req.logout();
+    res.redirect('/');
+  });
+  
+  // GET /auth/steam
+  //   Use passport.authenticate() as route middleware to authenticate the
+  //   request.  The first step in Steam authentication will involve redirecting
+  //   the user to steamcommunity.com.  After authenticating, Steam will redirect the
+  //   user back to this application at /auth/steam/return
+  app.get('/auth/steam',
+    passport.authenticate('steam', { failureRedirect: '/' }),
+    function(req, res) {
+      res.redirect('/');
+    });
+  
+  // GET /auth/steam/return
+  //   Use passport.authenticate() as route middleware to authenticate the
+  //   request.  If authentication fails, the user will be redirected back to the
+  //   login page.  Otherwise, the primary route function function will be called,
+  //   which, in this example, will redirect the user to the home page.
+  app.get('/auth/steam/return',
+      function(req, res, next) {
+        req.url = req.originalUrl;
+        next();
+    }, 
+    passport.authenticate('steam', { failureRedirect: '/' }),
+    function(req, res) {
+      res.redirect('/');
+    });
+  
   if(environment === 'development'){
     const debug = require('../controllers/debugControllers/overallController.js')
     app.route('/api/debug/test')

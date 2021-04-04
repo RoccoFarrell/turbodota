@@ -104,6 +104,9 @@ function FixedMenuLayout() {
                     <Dropdown.Item>List Item</Dropdown.Item>
                 </Dropdown.Menu>
                 </Dropdown>
+                <Menu.Item as='a' onClick={() => window.location = "auth/steam"}>
+                    LOGIN WITH STEAM
+                </Menu.Item>
             </Container>
             </Menu>
 

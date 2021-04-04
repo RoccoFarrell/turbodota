@@ -85,7 +85,7 @@ exports.fetchHeroes = async function (req, res) {
         // console.log('search results: ', json[0])
         let storeObj = {
           'herolist': json,
-          'lastUpdated': Date.now()
+          'lastUpdated': (Date.now() / 1000).toFixed(0)
         }
 
         heroesRef.add(storeObj).then(ref => {

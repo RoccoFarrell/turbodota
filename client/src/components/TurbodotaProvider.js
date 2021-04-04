@@ -6,6 +6,7 @@ export default function Page({children}){
   const [selectedUser, setSelectedUser] = useState({});
   const [userID, setUserID] = useState('')
   const [heroesList, setHeroesList] = useState([])
+  const [steamUser, setSteamUser] = useState({})
 
   useEffect(() => {
     async function getHeroes(){
@@ -22,6 +23,23 @@ export default function Page({children}){
       } catch(e) {console.error(e)}
     }
     getHeroes()
+  }, [])
+
+  useEffect(() => {
+    async function getSteamUser(){
+      try {
+        axios.get(`/api/steamUser`)
+        .then(res => {
+          let content = res.data;
+          setSteamUser(content)
+        })
+        .catch(e => {
+          console.log(e)
+        })
+        
+      } catch(e) {console.error(e)}
+    }
+    getSteamUser()
   }, [])
 
   useEffect(() => {

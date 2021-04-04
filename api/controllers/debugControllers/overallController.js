@@ -18,6 +18,7 @@ const newTownQuest =  {
   hero: {},
   active: true,
   completed: false,
+  skipped: false,
   completedMatchID: null,
   startTime: new Date(),
   endTime: null,
