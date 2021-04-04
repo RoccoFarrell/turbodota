@@ -49,7 +49,7 @@ if(environment === 'development'){
 //   have a database of user records, the complete Steam profile is serialized
 //   and deserialized.
 passport.serializeUser(function(user, done) {
-  done(null, user.id);
+  done(null, user);
 });
 
 passport.deserializeUser(function(obj, done) {
@@ -126,7 +126,7 @@ app.get('*', (req, res) => {
   if(environment !== 'development'){
     res.sendFile(path.join(__dirname+'/client/build/index.html'));
   } else {
-    res.redirect('http://localhost:3000/?success=true')
+    res.sendStatus(404);
   }
 });
 

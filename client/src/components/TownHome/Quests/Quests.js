@@ -20,9 +20,10 @@ import questIcon from '../../../assets/questIcon.png';
 import goldIcon from '../../../assets/gold.png';
 
 function Quest(props) {
-  const {selectedUser, setSelectedUser, userID, setUserID} = useContext(TurbodotaContext);
+  const {selectedUser, setSelectedUser, userID, setUserID, steamUser} = useContext(TurbodotaContext);
   const [loading, setLoading] = useState(false)
   const [user, setUser] = useState(selectedUser)
+  const [authorizedUser, setAuthorizedUser] = useState(false)
 
   let townData = props.townData
   let handleTownDataChange = props.handleTownDataChange
@@ -30,7 +31,16 @@ function Quest(props) {
   useEffect(() => {
     console.log(selectedUser)
     setUser(selectedUser)
+    checkAuthorizedUser(selectedUser, steamUser)
   }, [selectedUser])
+
+  const checkAuthorizedUser = (selectedUser, steamUser) => {
+    if(!!selectedUser.userStats && !!selectedUser.userStats.profile.steamid && !!steamUser.id) {
+      if(selectedUser.userStats.profile.steamid == steamUser.id) setAuthorizedUser(true)
+      else setAuthorizedUser(false)
+    }
+    else setAuthorizedUser(false)
+  }
 
   const processDate = (date) => {
     let tempDate = new Date(date._seconds * 1000)
@@ -203,6 +213,7 @@ function Quest(props) {
                 <Button 
                   size="mini" 
                   color='orange'
+                  disabled={ authorizedUser ? false : true}
                   onClick={() => {skipQuest(quest)}}
                 >
                   

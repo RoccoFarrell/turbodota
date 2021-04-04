@@ -31,11 +31,16 @@ import Leaderboard from './Leaderboard/Leaderboard'
 import TurbodotaContext from './TurbodotaContext'
 
 import logo from '../assets/squareLogo.png';
+import steam_logo from '../assets/steam_logo.png'
+
+import './Layout.css';
 
 function FixedMenuLayout() {
     
     const {selectedUser, setSelectedUser}= useContext(TurbodotaContext);
     const {steamUser, setSteamUser}= useContext(TurbodotaContext);
+
+    console.log(steamUser)
 
     const [likeCounter, setLikeCounter] = useState(0)
     const [open, setOpen] = useState(false)
@@ -65,7 +70,7 @@ function FixedMenuLayout() {
 
     return (
         <div>
-            <Menu fixed='top' >
+            <Menu fixed='top' fluid>
             <Container>
                 <Menu.Item header as='a' onClick={() => {pushRoute('')}}>
                 <Image size='mini' src={logo} style={{ marginRight: '1.5em' }} />
@@ -105,15 +110,27 @@ function FixedMenuLayout() {
                     <Dropdown.Item>List Item</Dropdown.Item>
                 </Dropdown.Menu>
                 </Dropdown>
-                <Menu.Item as='a' onClick={() => window.location = "auth/steam"}>
-                    LOGIN WITH STEAM
+                
+                { !!steamUser.id ? (              
+                    <Menu.Item position='right' fitted="vertically">
+                            <Image size='mini' src={steamUser._json.avatar} style={{ marginRight: '1.5em' }} />
+                            <div>{steamUser.displayName.toString() }</div>  
+                    </Menu.Item>
+                )
+                : (
+                    <Menu.Item as='a' position="right" onClick={() => window.location = "auth/steam"}>
+                        <div className='flexRow steamInfo'>
+                        <Image size='mini' src={steam_logo} style={{ marginRight: '1.5em' }} />
+                        <div>Login</div>  
+                        </div>
+                    </Menu.Item>
+                    )
+                }
+                { !!steamUser.id ? ( 
+                <Menu.Item  as='a' onClick={() => window.location = "auth/logout"}>
+                    Logout
                 </Menu.Item>
-                <Menu.Item>
-                    { steamUser ? steamUser.toString() : 'not logged in'}
-                </Menu.Item>
-                <Menu.Item as='a' onClick={() => window.location = "auth/logout"}>
-                    LOGOUT
-                </Menu.Item>
+                ) : '' }
             </Container>
             </Menu>
 

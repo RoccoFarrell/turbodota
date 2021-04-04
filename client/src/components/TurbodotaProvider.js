@@ -31,7 +31,7 @@ export default function Page({children}){
         axios.get(`/api/steamUser`)
         .then(res => {
           let content = res.data;
-          console.log(content)
+          //console.log(content)
           setSteamUser(content)
         })
         .catch(e => {
