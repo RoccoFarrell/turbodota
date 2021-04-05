@@ -186,8 +186,8 @@ function Leaderboard(props) {
           >
             <Table.Cell>{town.playerID}</Table.Cell>
             <Table.Cell style={{fontWeight: 'bold'}}>{fetchPlayerName(town.playerID)}</Table.Cell>
+            <Table.Cell>{town.gold}</Table.Cell>
             <Table.Cell>{town.xp}</Table.Cell>
-            <Table.Cell>{ town.gold }</Table.Cell>
             <Table.Cell>{town.completed.length}</Table.Cell>
             <Table.Cell>{town.townStats.totalAttemptGames}</Table.Cell>
             <Table.Cell>{calculateTownWinRate(town)}%</Table.Cell>
