@@ -118,7 +118,7 @@ function FixedMenuLayout() {
                     </Menu.Item>
                 )
                 : (
-                    <Menu.Item as='a' position="right" onClick={() => window.location = "auth/steam"}>
+                    <Menu.Item as='a' position="right" onClick={() => window.location = "/auth/steam"}>
                         <div className='flexRow steamInfo'>
                         <Image size='mini' src={steam_logo} style={{ marginRight: '1.5em' }} />
                         <div>Login</div>  
@@ -127,7 +127,7 @@ function FixedMenuLayout() {
                     )
                 }
                 { !!steamUser.id ? ( 
-                <Menu.Item  as='a' onClick={() => window.location = "auth/logout"}>
+                <Menu.Item  as='a' onClick={() => window.location = "/auth/logout"}>
                     Logout
                 </Menu.Item>
                 ) : '' }
