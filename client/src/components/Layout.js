@@ -69,7 +69,7 @@ function FixedMenuLayout() {
     const handleOpen = () => setOpen(true)
 
     return (
-        <div>
+        <div style={{ display: 'flex', flexDirection: 'column'}}>
             <Menu fixed='top' fluid>
             <Container>
                 <Menu.Item header as='a' onClick={() => {pushRoute('')}}>
@@ -138,7 +138,7 @@ function FixedMenuLayout() {
 
             {/* A <Switch> looks through its children <Route>s and
                 renders the first one that matches the current URL. */}
-            <Container fluid style={{ paddingTop: '4.25em'}}>
+            <Container fluid style={{ paddingTop: '4.25em', flex: 1}}>
                 <Switch>
                     <Route path="/changelog">
                         <Changelog />
@@ -155,101 +155,107 @@ function FixedMenuLayout() {
 
             {/* END MAIN CONTENT AREA */}
             
-            <Segment inverted vertical style={{ padding: '5em 0em' }}>
-            
-            <Portal
-                onClose={handleClose} open={open}>
-                <Segment
-                style={{
-                    left: '60%',
-                    position: 'fixed',
-                    top: '50%',
-                    zIndex: 1000,
-                    padding: '2em',
-                    width: '400px'
-                }}
-                >
-                <Header><i aria-hidden="true" className="cogs icon"/> Make a Feature Request!</Header>
-                <Form>
-                    <Form.Field>
-                    <label>Idea Title</label>
-                    <input placeholder='Automatically ban heroes for me' />
-                    </Form.Field>
-                    <Form.Field>
-                    <label>Description</label>
-                    <input placeholder='Description' />
-                    </Form.Field>
-                    <Form.Field>
-                    <Checkbox label='Rocco and Martin can claim ownership of this idea' />
-                    </Form.Field>
-                    <Button positive type='submit'>Submit</Button>
-                    <Button
-                        negative
-                        onClick={handleClose}
-                    >
-                        Cancel
-                    </Button>
-                </Form>
-                </Segment>
-            </Portal>
-            <Button.Group
-                style={{ position: 'fixed', top: '95vh', right: '15px'}}
-            >
-                <Button
-                    onClick = {() => {
-                        let temp = likeCounter
-                        setLikeCounter(temp += 1)
+            <Segment inverted vertical>
+                <Portal
+                    onClose={handleClose} open={open}>
+                    <Segment
+                    style={{
+                        left: '60%',
+                        position: 'fixed',
+                        top: '50%',
+                        zIndex: 1000,
+                        padding: '2em',
+                        width: '400px'
                     }}
+                    >
+                    <Header><i aria-hidden="true" className="cogs icon"/> Make a Feature Request!</Header>
+                    <Form>
+                        <Form.Field>
+                        <label>Idea Title</label>
+                        <input placeholder='Automatically ban heroes for me' />
+                        </Form.Field>
+                        <Form.Field>
+                        <label>Description</label>
+                        <input placeholder='Description' />
+                        </Form.Field>
+                        <Form.Field>
+                        <Checkbox label='Rocco and Martin can claim ownership of this idea' />
+                        </Form.Field>
+                        <Button positive type='submit'>Submit</Button>
+                        <Button
+                            negative
+                            onClick={handleClose}
+                        >
+                            Cancel
+                        </Button>
+                    </Form>
+                    </Segment>
+                </Portal>
+                <Button.Group
+                    style={{ position: 'fixed', top: '95vh', right: '15px'}}
                 >
-                    <i aria-hidden="true" className="heart icon"></i>
-                    { likeCounter > 0 ? likeCounter + (likeCounter === 1 ? ' Like' : ' Likes') : '0'}
-                </Button>
-                <Button.Or />
-                <Button 
-                    color='red'
-                    onClick={ open ? handleClose : handleOpen }
-                >
-                    <i aria-hidden="true" className="cogs icon"/>
-                    Feature Request
-                </Button>
-            </Button.Group>
+                    <Button
+                        onClick = {() => {
+                            let temp = likeCounter
+                            setLikeCounter(temp += 1)
+                        }}
+                    >
+                        <i aria-hidden="true" className="heart icon"></i>
+                        { likeCounter > 0 ? likeCounter + (likeCounter === 1 ? ' Like' : ' Likes') : '0'}
+                    </Button>
+                    <Button.Or />
+                    <Button 
+                        color='red'
+                        onClick={ open ? handleClose : handleOpen }
+                    >
+                        <i aria-hidden="true" className="cogs icon"/>
+                        Feature Request
+                    </Button>
+                </Button.Group>
 
-            <Container textAlign='center'>
-                <Grid divided inverted stackable>
-                <Grid.Column width={3}>
-                    <Header inverted as='h4' content='Group 1' />
-                    <List link inverted>
-                    <List.Item as='a'>Link One</List.Item>
-                    <List.Item as='a'>Link Two</List.Item>
-                    <List.Item as='a'>Link Three</List.Item>
-                    <List.Item as='a'>Link Four</List.Item>
-                    </List>
-                </Grid.Column>
-                <Grid.Column width={3}>
-                    <Header inverted as='h4' content='Group 2' />
-                    <List link inverted>
-                    <List.Item as='a'>Link One</List.Item>
-                    <List.Item as='a'>Link Two</List.Item>
-                    <List.Item as='a'>Link Three</List.Item>
-                    <List.Item as='a'>Link Four</List.Item>
-                    </List>
-                </Grid.Column>
-                <Grid.Column width={3}>
-                    <Header inverted as='h4' content='Group 3' />
-                    <List link inverted>
-                    <List.Item as='a'>Link One</List.Item>
-                    <List.Item as='a'>Link Two</List.Item>
-                    <List.Item as='a'>Link Three</List.Item>
-                    <List.Item as='a'>Link Four</List.Item>
-                    </List>
-                </Grid.Column>
-                <Grid.Column width={7}>
-                    <Header inverted as='h4' content='Footer Header' />
+                <Container textAlign='center'>
+                {/* <Grid divided inverted stackable>
+                    <Grid.Column width={3}>
+                        <Header inverted as='h4' content='Group 1' />
+                        <List link inverted>
+                        <List.Item as='a'>Link One</List.Item>
+                        <List.Item as='a'>Link Two</List.Item>
+                        <List.Item as='a'>Link Three</List.Item>
+                        <List.Item as='a'>Link Four</List.Item>
+                        </List>
+                    </Grid.Column>
+                    <Grid.Column width={3}>
+                        <Header inverted as='h4' content='Group 2' />
+                        <List link inverted>
+                        <List.Item as='a'>Link One</List.Item>
+                        <List.Item as='a'>Link Two</List.Item>
+                        <List.Item as='a'>Link Three</List.Item>
+                        <List.Item as='a'>Link Four</List.Item>
+                        </List>
+                    </Grid.Column>
+                    <Grid.Column width={3}>
+                        <Header inverted as='h4' content='Group 3' />
+                        <List link inverted>
+                        <List.Item as='a'>Link One</List.Item>
+                        <List.Item as='a'>Link Two</List.Item>
+                        <List.Item as='a'>Link Three</List.Item>
+                        <List.Item as='a'>Link Four</List.Item>
+                        </List>
+                    </Grid.Column>
+                    <Grid.Column width={7}>
+                    <Header inverted as='h4' content='Special thanks to:' />
                     <p>
-                    Extra space for a call to action inside the footer that could help re-engage users.
+                    <br/>
+                    Dotabuff
+                    <br/>
+                    OpenDota
+                    <br/>
+                    FlatIcon
+                    <br/>
+                    Our fantastic product team
                     </p>
                 </Grid.Column>
-                </Grid>
+                </Grid> */}
 
                 <Divider inverted section />
                 <Image centered size='mini' src={logo} />
