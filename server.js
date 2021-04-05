@@ -76,7 +76,7 @@ app.use(session({
 //   callback with a user object.
 passport.use(new SteamStrategy({
     returnURL: (environment == 'development' ? 'http://localhost:3000/auth/steam/return' : 'https://www.turbodota.com/auth/steam/return'),
-    realm: (environment == 'development' ? 'http://localhost:3000/' : 'https://www.turbodota.com/'),
+    realm: (environment == 'development' ? 'http://localhost:3000/' : 'https://www.turbodota.com/auth/steam/return'),
     apiKey: 'EE3C24BAF27E921B77EFF80F9DBB969D'
   },
   function(identifier, profile, done) {
