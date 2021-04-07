@@ -7,9 +7,12 @@ import {
     Container,
     Header,
     Grid,
-    Icon
+    Icon,
+    Image
 } from 'semantic-ui-react'
 import './SingleMatch.css'
+
+import squirrel from '../../assets/squirrel.png';
 
 function SingleMatch(props) {
     const { heroesList }= useContext(TurbodotaContext);
@@ -81,11 +84,13 @@ function SingleMatch(props) {
 
     const heroIcon = (hero_id) => {
         let heroString = 'd2mh hero-' + hero_id
-        return <i className={heroString}/>
+        let returnVal
+        hero_id == 123 ? returnVal = <Image src={squirrel} size="mini" className='inline' /> : returnVal = <i className={heroString}/>
+        return returnVal
     } 
 
     const heroName = (hero_id) => {
-        return (heroesList.filter(hero => hero.id == hero_id)[0] ? heroesList.filter(hero => hero.id == hero_id)[0].localized_name  : "error: couldnt get name" )  
+        return (heroesList.filter(hero => hero.id == hero_id)[0] ? heroesList.filter(hero => hero.id == hero_id)[0].localized_name  : "error: q " )  
     }
     
     const dateString = (timestamp) => {

@@ -27,7 +27,6 @@ function Quest(props) {
 
   let townData = props.townData
   let handleTownDataChange = props.handleTownDataChange
-  let questGroup = props.questGroup
 
   useEffect(() => {
     console.log(selectedUser)
@@ -134,25 +133,24 @@ function Quest(props) {
           Check Progress
         </Button>
       </div> */}
+      <h2>Active</h2>
       <div className={'flexRow'}>
         <Card.Group>
-          { townData[questGroup].map(quest => (
+          { townData.active.map(quest => (
             <Card 
               key={quest.id} 
-              className={ questGroup == 'active' ? 'questCardActive' : ''} 
-              color ={ quest.completed && questGroup == 'active' ? 'yellow': 'grey'} 
-              raised={ quest.completed && questGroup == 'active' ? true : false} 
-              style={ quest.completed && questGroup == 'active' ? { backgroundColor: 'rgba(255,216,104, 0.1)'} : {}}
+              className={'questCardActive'} 
+              color ={ quest.completed ? 'yellow': 'grey'} 
+              raised={ quest.completed ? true : false} 
+              style={ quest.completed ? { backgroundColor: 'rgba(255,216,104, 0.1)'} : {}}
             >
               <Card.Content extra>
-                <h3>#{quest.id}</h3>
                 <Image 
                   src={questIcon}
                   as='i' 
                   width='35px'
                   alt='choose yer quest'
-                /> { questGroup == 'active' ? 'Quest!' : 'Quest Complete' }
-                { questGroup == 'active' ? 
+                /> Quest!
                 <Button 
                   color='yellow' 
                   disabled = { quest.completed == false } 
@@ -161,16 +159,16 @@ function Quest(props) {
                 >
                   { quest.completed ? 'Turn In' : 'Not Done'}
                 </Button>
-                : '' }
               </Card.Content>
 
               <Card.Content>
-                <div className={'flexRow'} style={{ alignItems: 'flex-begin', padding: '0em', margin: '0em'}}>
+                <div className={'flexRow'} style={{ justifyContent: 'flex-start', alignItems: 'flex-begin', padding: '0em', margin: '0em'}}>
+                  <div style={{ marginRight: '1em' }}>#{quest.id}</div>
                   <div className={'flexColumn'} style={{ width: '50px', height: '50px', padding: '0em', margin: '0em'}}>
                     { heroIcon(quest.hero.id, 1) }
                   </div>
                   <div className={'flexColumn'} style={{ paddingTop: '.25em'}}>
-                    <Card.Header style={{ fontSize: '1.4em', margin: '2px' }}>{ quest.hero.localized_name }</Card.Header>
+                    <Card.Header>{ quest.hero.localized_name }</Card.Header>
                     <Card.Meta>
                       <span>{ processDate(quest.startTime) }</span>
                     </Card.Meta>
@@ -180,7 +178,7 @@ function Quest(props) {
                   {/* <div className={'flexRow'} style={{ justifyContent: 'flex-start', flexWrap: 'wrap', padding: '0em', margin: '0em'}}>
                     { quest.hero.roles.map(role => (<strong key={role} style={{ margin: '.25em'}}>{ role }</strong>)) }
                   </div> */}
-                  { questGroup == 'active' ? 
+                  
                     <div className={'flexColumn','questCardFooter'} style={{ justifyContent: 'flex-begin', marginBottom: '0em'}}>
                       { (!!user.calculations && !!user.calculations.allHeroRecord[quest.hero.id]) ? (
                       <div className={'flexColumn'} style={{ alignSelf: 'flex-start', justifyContent: 'flex-begin', marginBottom: '0em', padding: '0em'}}>
@@ -206,31 +204,124 @@ function Quest(props) {
                           <Statistic.Label style={{ fontSize: '10px'}}>{ quest.attempts.length == 1 ? 'Attempt' : 'Attempts'}</Statistic.Label>
                       </Statistic>
                     </div>
-                  : 
-                    <Statistic size='mini' color={calculateAttemptsColor(quest.attempts.length)} style={{ alignSelf: 'center', marginLeft: '2em'}}> 
-                        <Statistic.Value>{ quest.attempts.length }</Statistic.Value>
-                        <Statistic.Label style={{ fontSize: '10px'}}>{ quest.attempts.length == 1 ? 'Attempt' : 'Attempts'}</Statistic.Label>
-                    </Statistic>
-                  }
 
                 </Card.Description>
               </Card.Content>
-              { questGroup == 'active' ? 
-                <CardContent
-                  //style={{ border: '10px solid red' }}
+              <CardContent
+                //style={{ border: '10px solid red' }}
+              >
+                <Button 
+                  size="mini" 
+                  color='orange'
+                  disabled={ authorizedUser ? false : true}
+                  onClick={() => {skipQuest(quest)}}
                 >
-                  <Button 
-                    size="mini" 
-                    color='orange'
-                    disabled={ authorizedUser ? false : true}
-                    onClick={() => {skipQuest(quest)}}
-                  >
-                    
-                    <Image src={goldIcon} size="mini" className='inline' />
-                      Skip Quest (300) 
-                  </Button>
-                </CardContent>
-              : ''}
+                  
+                  <Image src={goldIcon} size="mini" className='inline' />
+                    Skip Quest (300) 
+                </Button>
+              
+              </CardContent>
+            </Card>
+          ))}
+        </Card.Group>
+      </div>
+      <h2>Complete</h2>
+      <div className={'flexRow'}>
+        <Card.Group>
+          { townData.completed.map(quest => (
+            <Card 
+              key={quest.id} 
+              className={'questCardCompleted'} 
+              color ={ 'grey'} 
+              style={ quest.completed ? { width: '225px' , backgroundColor: '#F5F5F5'} : { width: '225px' }}
+            >
+              <Card.Content extra>
+                <Image 
+                  src={questIcon}
+                  as='i' 
+                  width='35px'
+                  alt='choose yer quest'
+                /> Quest Complete
+              </Card.Content>
+
+              <Card.Content >
+                <div className={'flexRow'} style={{ justifyContent: 'flex-start', alignItems: 'flex-begin', padding: '0em', margin: '0em'}}>
+                  <div style={{ marginRight: '1em' }}>#{quest.id}</div>
+                  <div className={'flexColumn'} style={{ width: '50px', height: '50px', padding: '0em', margin: '0em'}}>
+                    { heroIcon(quest.hero.id, 1) }
+                  </div>
+                  <div className={'flexColumn'} style={{ paddingTop: '.25em'}}>
+                    <Card.Header>{ quest.hero.localized_name }</Card.Header>
+                    <Card.Meta>
+                      <span>{ processDate(quest.startTime) }</span>
+                    </Card.Meta>
+                  </div>
+                </div>
+                <Card.Description className={'flexRow'} style={{ justifyContent: 'flex-end', paddingBottom: '0em', paddingLeft: '0em'}}>
+                  {/* <div className={'flexRow'} style={{ justifyContent: 'flex-start', flexWrap: 'wrap', padding: '0em', margin: '0em'}}>
+                    { quest.hero.roles.map(role => (<strong key={role} style={{ margin: '.25em'}}>{ role }</strong>)) }
+                  </div> */}
+
+
+                  <div className={'flexRow','questCardFooter'} style={{ alignSelf: 'flex-end', justifyContent: 'flex-begin', marginBottom: '0em'}}>
+                    <Statistic size='mini' color={calculateAttemptsColor(quest.attempts.length)}> 
+                        <Statistic.Value>{ quest.attempts.length }</Statistic.Value>
+                        <Statistic.Label style={{ fontSize: '10px'}}>{ quest.attempts.length == 1 ? 'Attempt' : 'Attempts'}</Statistic.Label>
+                    </Statistic>
+                  </div>
+                </Card.Description>
+              </Card.Content>
+            </Card>
+          ))}
+        </Card.Group>
+      </div>
+      { townData.skipped.length != 0 ? <h2>Skipped</h2> : ''}
+      <div className={'flexRow'}>
+        <Card.Group>
+          { townData.skipped.map(quest => (
+            <Card 
+              key={quest.id} 
+              className={'questCard'} 
+              color ={ 'grey'} 
+              style={{ width: '225px' }}
+            >
+              <Card.Content extra>
+                <Image 
+                  src={questIcon}
+                  as='i' 
+                  width='35px'
+                  alt='choose yer quest'
+                /> Quest Skipped
+              </Card.Content>
+
+              <Card.Content >
+                <div className={'flexRow'} style={{ justifyContent: 'flex-start', alignItems: 'flex-begin', padding: '0em', margin: '0em'}}>
+                  <div style={{ marginRight: '1em' }}>#{quest.id}</div>
+                  <div className={'flexColumn'} style={{ width: '50px', height: '50px', padding: '0em', margin: '0em'}}>
+                    { heroIcon(quest.hero.id, 1) }
+                  </div>
+                  <div className={'flexColumn'} style={{ paddingTop: '.25em'}}>
+                    <Card.Header>{ quest.hero.localized_name }</Card.Header>
+                    <Card.Meta>
+                      <span>{ processDate(quest.startTime) }</span>
+                    </Card.Meta>
+                  </div>
+                </div>
+                <Card.Description className={'flexRow'} style={{ justifyContent: 'flex-end', paddingBottom: '0em', paddingLeft: '0em'}}>
+                  {/* <div className={'flexRow'} style={{ justifyContent: 'flex-start', flexWrap: 'wrap', padding: '0em', margin: '0em'}}>
+                    { quest.hero.roles.map(role => (<strong key={role} style={{ margin: '.25em'}}>{ role }</strong>)) }
+                  </div> */}
+
+
+                  <div className={'flexRow','questCardFooter'} style={{ alignSelf: 'flex-end', justifyContent: 'flex-begin', marginBottom: '0em'}}>
+                    <Statistic size='mini' color={calculateAttemptsColor(quest.attempts.length)}> 
+                        <Statistic.Value>{ quest.attempts.length }</Statistic.Value>
+                        <Statistic.Label style={{ fontSize: '10px'}}>{ quest.attempts.length == 1 ? 'Attempt' : 'Attempts'}</Statistic.Label>
+                    </Statistic>
+                  </div>
+                </Card.Description>
+              </Card.Content>
             </Card>
           ))}
         </Card.Group>

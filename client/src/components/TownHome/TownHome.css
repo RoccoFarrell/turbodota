@@ -8,3 +8,36 @@
 #container {
   margin-top: 2em;
 }
+
+/* #topUserInfo {
+  border: 1px solid red;
+} */
+
+#topUserRow{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1em;
+}
+
+#nameRow {
+  display: flex;
+}
+
+#questContainer {
+  padding: 1em;
+  margin-top: 2em;
+}
+
+#progressContainer {
+}
+
+.borderRed {
+  border: 1px dashed grey;
+  height: 100%;
+}
+
+.tinyText {
+  font-size: .75em!important;
+}

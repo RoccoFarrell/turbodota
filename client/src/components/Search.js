@@ -22,7 +22,7 @@ function Home() {
   const handleUserSelect = (player) => {
     setUserID('')
     console.log(player)
-    history.push("/users/" + player.account_id)
+    history.push("/users/" + player.account_id + "/town")
   }
 
   const dummyResults = [
@@ -73,7 +73,15 @@ function Home() {
       personaname: "Type 1 Diabetes",
       avatarfull: "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/3e/3edcc029122084bb4478cf8d774b71a5f17e2402_full.jpg",
       last_match_time: "Test"
+    },
+    {
+      account_id: 32756728,
+      personaname: "Bobby Backshots",
+      avatarfull: "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/19/1907b6ce5fbfae8ba0d9952ef190276ac6b57f0f_full.jpg",
+      last_match_time: "Test"
     }
+
+    
   ]
 
   useEffect(() => {

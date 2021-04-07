@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react';
 import {
-    Table
+    Table,
+    Image
 } from 'semantic-ui-react'
 import './UserHeroTable.css'
 import TurbodotaContext from '../TurbodotaContext'
+
+import squirrel from '../../assets/squirrel.png';
 
 function UserHeroTable(props) {
     const { heroesList } = useContext(TurbodotaContext);
@@ -55,8 +58,11 @@ function UserHeroTable(props) {
 
     const heroIcon = (hero_id) => {
       let heroString = 'd2mh hero-' + hero_id
-      return <i style={{ zoom: .5, padding: '0px' }} className={heroString}/>
-    }
+      let returnVal
+      hero_id == 123 ? returnVal = <Image src={squirrel} size="mini" className='inline' /> : returnVal = <i className={heroString}/>
+      return returnVal
+  } 
+
   
     const heroName = (hero_id) => {
       // console.log('hero_id: ' + hero_id)
