@@ -5,13 +5,23 @@
   align-items: center;
 }
 
+.flexColumn {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
 #container {
   margin-top: 2em;
 }
 
-/* #topUserInfo {
-  border: 1px solid red;
-} */
+#topUserInfo {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
 
 #topUserRow{
   display: flex;
@@ -31,6 +41,13 @@
 }
 
 #progressContainer {
+}
+
+#turboTownContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
 }
 
 .borderRed {

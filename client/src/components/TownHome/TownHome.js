@@ -19,6 +19,7 @@ import Quests from './Quests/Quests'
 
 import goldIcon from '../../assets/gold.png';
 import xpIcon from '../../assets/xp.png';
+import turboTownIcon from '../../assets/turbotown.png';
 
 function TownHome() {
   const {selectedUser, setSelectedUser, userID, setUserID} = useContext(TurbodotaContext);
@@ -123,6 +124,11 @@ function TownHome() {
   return (
       <Container id="container">
           <Container id="topUserInfo">
+            <Container id="turboTownContainer">
+              <h3 style={{ marginRight: '.5em' }}>ONLY THE BEST CAN BECOME <strong style={{ fontStyle: 'bold' }}>MAYOR OF </strong></h3>
+              <Image size='small' src={turboTownIcon}/>
+            </Container>
+
             <Card fluid color='blue' id="topUserRow">
               <div id="nameRow">
                 {profilePicture()}
@@ -134,7 +140,7 @@ function TownHome() {
                       <a href={"https://www.dotabuff.com/players/" + selectedUser.userStats.profile.account_id }>Dotabuff</a>
                     </div>
                   ) : ''}
-                  {/* <h4>ONLY THE BEST CAN BECOME <strong style={{ fontStyle: 'bold', color: 'red'}}>MAYOR OF TURBO TOWN</strong></h4> */}
+                  
                 </div>
               </div>
               <div style={{ flex: 1 }}>
