@@ -326,3 +326,33 @@ exports.completeQuests = async (req, res) => {
   
   res.send({'playerID': playerID, 'quests': completeQuestList})
 }
+
+exports.addFieldsToAllTowns = async (req, res) => {
+
+  console.log('Received request to add new fields to all towns.')
+
+  townsRef.get()
+    .then(snapshot => {
+      if(snapshot.empty) console.log('empty')
+      else {
+        snapshot.forEach(doc => {
+
+          let townID = doc.id
+          let town = doc.data()
+
+          //New Fields to Add to Towns
+          //if(!townData.level) townData.level = null
+          if(!town.shop) town.shop = []
+          if(!town.modifiers) town.modifiers = []
+          if(!town.items) town.items = []       
+
+          //Update Existing Towns in Database
+          townsRef.doc(townID).set(town).then(result => {
+            console.log(result, '[debug] Added fields for town: ' + townID)
+          })
+        })
+      }
+    })
+  
+  res.send({'status': 'Added new fields to all towns.'})
+}
