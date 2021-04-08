@@ -35,6 +35,19 @@ const newTownQuest =  {
   }
 }
 
+const levelXPArray = [
+  '0',
+  '200',
+  '500',
+  '800',
+  '1000',
+  '1500',
+  '2000',
+  '2500',
+  '3000',
+  '4000'
+]
+
 let heroesRef = db.collection('heroes')
 
 async function getHeroesFromDB(){
@@ -238,7 +251,13 @@ const recalculateExistingTown = async (townData) => {
 
   townData.townStats.totalAttemptGames = uniqueMatchIDs.length
   townData.townStats.totalQuestAttempts = questAttemptMatchIDs.length
-  
+
+  //calculate level
+  let index = levelXPArray.findIndex(xp => xp > townData.xp)
+  townData.level.value = index
+  townData.level.xpThisLevel = levelXPArray[index - 1]
+  townData.level.xpNextLevel = levelXPArray[index] 
+
   return townData  
 }
 
@@ -310,6 +329,10 @@ exports.modifyQuest = async function (req, res) {
               town.active.push(townQuest)
 
               town.xp += q.bounty.xp
+
+              //gold modifier
+              //if town.modifiers[] contains the hand of midas mod, new equation 
+              //town.gold += q.bounty.gold * 2
               town.gold += q.bounty.gold
             })
 

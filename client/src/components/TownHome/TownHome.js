@@ -133,10 +133,10 @@ function TownHome() {
               <div id="nameRow">
                 {profilePicture()}
                 <div style={{ alignSelf: "center", paddingLeft: "1em" }}>
-                  { !!selectedUser.userStats ? (
+                  { !!selectedUser.userStats && !!townData.level? (
                     <div>
                       <h2><strong style={{ fontStyle: 'bold', color: '#2185d0'}}> { selectedUser.userStats.profile.personaname }</strong> </h2>
-                      <h3>Level 2</h3>
+                      <h3>Level {townData.level.value}</h3>
                       <a href={"https://www.dotabuff.com/players/" + selectedUser.userStats.profile.account_id }>Dotabuff</a>
                     </div>
                   ) : ''}
@@ -203,11 +203,13 @@ function TownHome() {
               <Button>Reset Town</Button>
             </div>
           ) : ''}
+          { !!townData.level ?
           <Container id="progressContainer">
-            <Progress percent={90} progress color='blue' active>
-              XP to Next Level
+            <Progress percent={ (( townData.xp / townData.level.xpNextLevel)*100).toFixed(0) } progress color='blue' active>
+              XP to Next Level: { townData.level.xpNextLevel - townData.xp }
             </Progress>
           </Container>
+          : '' }
           <Container id="questContainer">
             <h2>Quests</h2>
            <Tab menu={{ secondary: true }} panes={panes} />

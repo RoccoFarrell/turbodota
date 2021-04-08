@@ -341,7 +341,7 @@ exports.addFieldsToAllTowns = async (req, res) => {
           let town = doc.data()
 
           //New Fields to Add to Towns
-          //if(!townData.level) townData.level = null
+          town.level = {}
           if(!town.shop) town.shop = []
           if(!town.modifiers) town.modifiers = []
           if(!town.items) town.items = []       

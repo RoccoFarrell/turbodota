@@ -9,6 +9,7 @@ export default function Changelog() {
   return (
     <Container id='changeLog'>
         <ul>
+          <li>V1.3 - 04/07/21 - Town redesign, XP and Leveling system live.... Robbie Low Levels</li>
           <li>V1.2 - 04/02/21 - Trying to fix townController again, some things never change</li>
           <li>V1.1.99 - 04/01/21 - April Fools - Jokes on us - broke website 1 year after launch</li>
           <li>V1.1.01 - 03/29/20 -Ben's first feature: wins and losses on last 10</li>
