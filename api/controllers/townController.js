@@ -38,8 +38,8 @@ const newTownQuest =  {
 const levelXPArray = [
   '0',
   '200',
-  '500',
-  '800',
+  '400',
+  '700',
   '1000',
   '1500',
   '2000',

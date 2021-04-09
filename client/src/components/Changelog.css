@@ -1,4 +1,9 @@
 #changeLog {
-    padding: 10em;
+    padding: 1em;
     margin: 10em;
+    display: flex;
+    flex-grow: 1;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
