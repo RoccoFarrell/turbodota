@@ -205,7 +205,7 @@ function TownHome() {
           ) : ''}
           { !!townData.level ?
           <Container id="progressContainer">
-            <Progress percent={ (( townData.xp / townData.level.xpNextLevel)*100).toFixed(0) } progress color='blue' active>
+            <Progress percent={ (( (townData.xp- townData.xpThisLevel) / townData.level.xpNextLevel)*100).toFixed(0) } progress color='blue' active>
               XP to Next Level: { townData.level.xpNextLevel - townData.xp }
             </Progress>
           </Container>
