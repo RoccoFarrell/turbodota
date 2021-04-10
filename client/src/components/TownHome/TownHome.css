@@ -1,11 +1,11 @@
-.flexRow {
-  display: flex;
+.flexRowTownHome {
+  display: flex!important;
   flex-direction: row;
   justify-content: center;
   align-items: center;
 }
 
-.flexColumn {
+.flexColumnTownHome {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -37,7 +37,6 @@
 
 #questContainer {
   padding: 1em;
-  margin-top: 2em;
 }
 
 #progressContainer {

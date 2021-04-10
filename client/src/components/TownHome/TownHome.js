@@ -3,6 +3,9 @@ import { useLocation, useHistory } from "react-router-dom";
 import TurbodotaContext from '../TurbodotaContext'
 import axios from 'axios'
 import {
+    Checkbox,
+    Grid,
+    Modal,
     Container,
     Card,
     Icon,
@@ -16,6 +19,7 @@ import {
 import './TownHome.css';
 
 import Quests from './Quests/Quests'
+import Shop from './Shop/Shop'
 
 import goldIcon from '../../assets/gold.png';
 import xpIcon from '../../assets/xp.png';
@@ -80,7 +84,7 @@ function TownHome() {
     {
       menuItem: 'Active',
       render: () => (
-        <Container className={'flexRow'} fluid>
+        <Container className={'flexRowTownHome'} fluid>
           { !!townData.active ? 
               <Quests 
                 townData={townData}
@@ -94,7 +98,7 @@ function TownHome() {
     {
       menuItem: 'Completed',
       render: () => (
-        <Container className={'flexRow'} fluid>
+        <Container className={'flexRowTownHome'} fluid>
           { !!townData.active ? 
               <Quests 
                 townData={townData}
@@ -108,7 +112,7 @@ function TownHome() {
     {
       menuItem: 'Skipped',
       render: () => (
-        <Container className={'flexRow'} fluid>
+        <Container className={'flexRowTownHome'} fluid>
           { !!townData.active ? 
               <Quests 
                 townData={townData}
@@ -121,6 +125,51 @@ function TownHome() {
     },
   ]
 
+  function exampleReducer(state, action) {
+    switch (action.type) {
+      case 'OPEN_MODAL':
+        return { ...state, open: true, dimmer: action.dimmer }
+      case 'CLOSE_MODAL':
+        return { ...state, open: false }
+      default:
+        throw new Error()
+    }
+  }
+  
+  function ShopOpenCloseModal() {
+    const [state, dispatch] = React.useReducer(exampleReducer, {
+      open: false,
+      dimmer: undefined,
+    })
+    const { open, dimmer } = state
+  
+    return (
+      <Modal
+        open={open}
+        dimmer={dimmer}
+        onOpen={() => dispatch({ type: 'OPEN_MODAL', dimmer: 'blurring' })}
+        onClose={() => dispatch({ type: 'CLOSE_MODAL' })}
+        trigger={
+          <Button animated='fade' size="medium" color='yellow'>
+            <Button.Content visible>Open Town Shop</Button.Content>
+            <Button.Content hidden>oho you found me</Button.Content>
+          </Button>
+        }
+      >
+        <Modal.Header>Shop</Modal.Header>
+        <Modal.Content>
+          <p>Are you sure you want to shop</p>
+          <Shop/>
+        </Modal.Content>
+        <Modal.Actions>
+          <Button onClick={() => dispatch({ type: 'CLOSE_MODAL' })} negative>
+            Close
+          </Button>
+        </Modal.Actions>
+      </Modal>
+    )
+  }
+  
   return (
       <Container id="container">
           <Container id="topUserInfo">
@@ -146,7 +195,7 @@ function TownHome() {
               <div style={{ flex: 1 }}>
               </div>
               { !!townData.active ?
-              <div className="flexRow" style={{ flex: "0 1 30%"}}>
+              <div className="flexRowTownHome" style={{ flex: "0 1 30%"}}>
                   <div>
                     <Statistic.Group size="mini" widths='one'>
                       <Statistic horizontal>
@@ -210,12 +259,15 @@ function TownHome() {
             </Progress>
           </Container>
           : '' }
+          <Container className='flexRowTownHome' style={{ marginTop: '2em' }}>
+            {ShopOpenCloseModal()}
+          </Container>
           <Container id="questContainer">
             <h2>Quests</h2>
-           <Tab menu={{ secondary: true }} panes={panes} />
+            <Tab menu={{ secondary: true }} panes={panes} />
           </Container>
           
-          {/* <Container className={'flexRow'} fluid>
+          {/* <Container className={'flexRowTownHome'} fluid>
             { !!townData.active ? 
                 <Quests 
                   townData={townData}

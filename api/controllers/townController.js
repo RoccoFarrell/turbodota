@@ -10,12 +10,14 @@ const newTown = {
   gold: 0,
   xp: 0,
   totalQuests: 0,
+  level: {},
   townStats: {
     nonTownGames: 0
   },
   active: [],
   completed: [],
-  lastModified: new Date()
+  lastModified: new Date(),
+  dateCreated: new Date()
 }
 
 const newTownQuest =  {
