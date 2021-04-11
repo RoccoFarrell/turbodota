@@ -40,8 +40,6 @@ function FixedMenuLayout() {
     const {selectedUser, setSelectedUser}= useContext(TurbodotaContext);
     const {steamUser, setSteamUser}= useContext(TurbodotaContext);
 
-    console.log(steamUser)
-
     const [likeCounter, setLikeCounter] = useState(0)
     const [open, setOpen] = useState(false)
     

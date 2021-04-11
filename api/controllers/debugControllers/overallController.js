@@ -280,32 +280,44 @@ exports.completeQuests = async (req, res) => {
   console.log('received')
   let playerID = req.params.steamID
   console.log('playerID: ', playerID)
+  
+  console.log('req.body', req.body)
 
-  let completeQuestList = req.body
+  let completeQuestList = {}
+  let empty = false
+  if(req.body.constructor === Object && Object.keys(req.body).length === 0){
+    empty = true
+    completeQuestList = {
+      'complete': []
+    }
+    res.send({'playerID': playerID, 'quests': completeQuestList, 'newTown': null})
+  } else {
+    completeQuestList = req.body
+  }
 
-  console.log(completeQuestList)
-
-  townsRef.where('playerID', '==', parseInt(playerID)).get()
+  let town = {}
+  console.log('completeQuestList in controller: ', completeQuestList)
+  if(!empty){
+    townsRef.where('playerID', '==', parseInt(playerID)).get()
     .then(snapshot => {
       if(snapshot.empty) console.log('empty')
       else {
         snapshot.forEach(doc => {
           // console.log(doc.data())
           let townID = doc.id
-          let town = doc.data()
+          town = doc.data()
 
           let editFlag = false
           
           town.active.forEach(quest => {
-            console.log(quest.id)
-            console.log(completeQuestList.complete)
             if(completeQuestList.complete.includes(quest.id.toString())){
+              console.log('editing ', quest.id, ' to complete')
               editFlag = true
               quest.completed = true
               quest.completedMatchID = 5320344512
               if(!quest.attempts.includes(5320344512)) quest.attempts.push(5320344512)
             } else {
-              console.log('no matches')
+              console.log('no matches for ', quest.id)
             }
           })
 
@@ -314,11 +326,12 @@ exports.completeQuests = async (req, res) => {
               console.log(result, 'completed quests for playerID ' + townID)
             })
           }
+
+          res.send({'playerID': playerID, 'quests': completeQuestList, 'newTown': town})
         })
       }
     })
-  
-  res.send({'playerID': playerID, 'quests': completeQuestList})
+  }
 }
 
 exports.addFieldsToAllTowns = async (req, res) => {

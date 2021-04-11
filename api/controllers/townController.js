@@ -255,15 +255,12 @@ const recalculateExistingTown = async (townData) => {
     })
 
     townData.skipped.forEach((quest, index) => {
-      //if(match.match_id === 5379251579) console.log('should be town attempt true')
       if(quest.attempts.includes(match.match_id)) {
         townAttempt = true
-        console.log('skipped attempt ', match.match_id)
       }
     })
     
     if(townAttempt === false){
-      //if(match.match_id === 5379251579) console.log('!! Match ' + match.match_id + ' was not a TurboTown Attempt.')
       townData.townStats.nonTownGames += 1
     }
   })
@@ -375,7 +372,7 @@ exports.modifyQuest = async function (req, res) {
 
               //check to make sure new hero quest isnt same hero as completed quest
               townQuest.hero = allHeroes[Math.floor(Math.random() * allHeroes.length)]
-              if(townQuest.hero.id === quest.hero.id) townQuest.hero = allHeroes[Math.floor(Math.random() * allHeroes.length)]
+              if(townQuest.hero.id === q.hero.id) townQuest.hero = allHeroes[Math.floor(Math.random() * allHeroes.length)]
               
               town.active.push(townQuest)
 

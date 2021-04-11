@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import TurbodotaContext from '../../TurbodotaContext'
 import axios from 'axios'
 import {
+    Checkbox,
     Container,
     Card,
     Icon,
@@ -23,9 +24,11 @@ function Quest(props) {
   const [loading, setLoading] = useState(false)
   const [user, setUser] = useState(selectedUser)
   const [authorizedUser, setAuthorizedUser] = useState(false)
+  const [checkedQuests, setCheckedQuests] = useState({})
 
   let townData = props.townData
   let handleTownDataChange = props.handleTownDataChange
+  let handleCheckedQuestsChange = props.handleCheckedQuestsChange
   let questGroup = props.questGroup
 
   useEffect(() => {
@@ -33,6 +36,10 @@ function Quest(props) {
     setUser(selectedUser)
     checkAuthorizedUser(selectedUser, steamUser)
   }, [selectedUser])
+
+  // useEffect(() => {
+  //   handleCheckedQuestsChange(checkedQuests)
+  // }, [checkedQuests])
 
   const checkAuthorizedUser = (selectedUser, steamUser) => {
     if(!!selectedUser.userStats && !!selectedUser.userStats.profile.steamid && !!steamUser.id) {
@@ -124,6 +131,14 @@ function Quest(props) {
     }
   }
 
+  const checkboxReducer = (questID) => {
+    let tempObj = checkedQuests
+    if(!tempObj[questID]) tempObj[questID] = false
+    tempObj[questID] = !tempObj[questID]
+    handleCheckedQuestsChange(checkedQuests)
+    setCheckedQuests(checkedQuests)
+  }
+  
   return (
     <div style={{ textAlign: 'center'}}>
       {/* <div className={'flexRow'}>
@@ -135,7 +150,7 @@ function Quest(props) {
       </div> */}
       <div className={'flexRow'}>
         <Card.Group>
-          { townData[questGroup].map(quest => (
+          { townData[questGroup].map((quest, index) => (
             <Card 
               key={quest.id} 
               className={ questGroup == 'active' ? 'questCardActive' : ''} 
@@ -161,6 +176,14 @@ function Quest(props) {
                   { quest.completed ? 'Turn In' : 'Not Done'}
                 </Button>
                 : '' }
+                <Checkbox 
+                  style={{ marginTop: '1em' }} 
+                  label={'Mark to be completed ' + quest.id} 
+                  checked={checkedQuests[quest.id]}
+                  onClick={(e) => {
+                    checkboxReducer(quest.id)
+                  }}
+                />
               </Card.Content>
 
               <Card.Content>

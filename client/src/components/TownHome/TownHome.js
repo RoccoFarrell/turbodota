@@ -29,6 +29,7 @@ function TownHome() {
   const {selectedUser, setSelectedUser, userID, setUserID} = useContext(TurbodotaContext);
   const [enableReset, setEnableReset] = useState(false)
   const [townData, setTownData] = useState({})
+  const [checkedQuests, setCheckedQuests] = useState({})
 
   const userData = selectedUser
   // console.log(userData)
@@ -50,21 +51,26 @@ function TownHome() {
     console.log('townData: ', townData)
   }, [selectedUser])
 
+  //get town data function
+  async function getTownData(){
+    try {
+        axios.get(`/api/towns/${userID}`)
+        .then(res => {
+            let content = res.data;
+            console.log('townData: ', content)
+            // let returnDmg = calculateHeroDamage(matchOverview, content)
+            setTownData(content)
+        })
+    } catch(e) {console.error(e)}
+  }
+
   useEffect(() => {
-    async function getTownData(){
-        try {
-            axios.get(`/api/towns/${userID}`)
-            .then(res => {
-                let content = res.data;
-                console.log('townData: ', content)
-                // let returnDmg = calculateHeroDamage(matchOverview, content)
-                setTownData(content)
-            })
-        
-        } catch(e) {console.error(e)}
-    }
     if(userID !== undefined && userID !== '') getTownData()
   }, [userID])
+
+  useEffect(() => {
+    console.log(checkedQuests)
+  }, [checkedQuests])
 
   const profilePicture = () => {
     return userData.userStats ? <Image style={{ marginRight: '1em' }} src={userData.userStats.profile.avatarfull} rounded /> : <div></div>
@@ -78,7 +84,48 @@ function TownHome() {
     console.log('changing route')
     if(route) history.push("/users/" + userID + '/' + route)
     else history.push("/users/" + userID)
-}
+  }
+
+  //debug functions
+  //--------------------------------------------
+  async function addQuestToTown(){
+      try {
+          axios.get(`/api/debug/towns/` + userID + `/addQuest`)
+          .then(res => {
+              let content = res.data;
+              console.log('addQuestResult: ', content)
+          })
+      } catch(e) {console.error(e)}
+  }
+
+  //get checkbox info from Quests component
+  const handleCheckedQuestsChange = (checkedQuests) => {
+    //console.log(checkedQuests)
+    setCheckedQuests({ ...checkedQuests })
+  }
+
+  async function completeListOfQuests(){
+    let completeArr = []
+    for(const quest in checkedQuests){
+      if(checkedQuests[quest] === true) completeArr.push(quest)
+    }
+    let postObj = {
+      'complete': completeArr
+    }
+
+    console.log('about to complete: ', postObj)
+
+    try {
+        axios.post(`/api/debug/towns/` + userID + `/complete`, postObj)
+        .then(res => {
+            let content = res.data;
+            console.log('content new town: ', content.newTown)
+            if(content.newTown !== null) handleTownDataChange(content.newTown)
+        })
+        //.then(getTownData())
+    
+    } catch(e) {console.error(e)}
+  }
 
   const panes = [
     {
@@ -90,6 +137,7 @@ function TownHome() {
                 townData={townData}
                 questGroup='active'
                 handleTownDataChange={handleTownDataChange}
+                handleCheckedQuestsChange={handleCheckedQuestsChange}
               />
           : '' }
         </Container>
@@ -125,7 +173,7 @@ function TownHome() {
     },
   ]
 
-  function exampleReducer(state, action) {
+  function modalReducer(state, action) {
     switch (action.type) {
       case 'OPEN_MODAL':
         return { ...state, open: true, dimmer: action.dimmer }
@@ -137,7 +185,7 @@ function TownHome() {
   }
   
   function ShopOpenCloseModal() {
-    const [state, dispatch] = React.useReducer(exampleReducer, {
+    const [state, dispatch] = React.useReducer(modalReducer, {
       open: false,
       dimmer: undefined,
     })
@@ -173,6 +221,14 @@ function TownHome() {
   return (
       <Container id="container">
           <Container id="topUserInfo">
+            { process.env.NODE_ENV === "development" ? 
+              <Container>
+                <Button color='red' onClick={ () => {addQuestToTown()} }> Add Random Quest </Button>
+                <Button color='red' onClick={ () => {completeListOfQuests()} }> Complete Checked Quests </Button>
+                <Button> Click me </Button>
+                <Button> Click me </Button>
+              </Container>            
+            : '' }
             <Container id="turboTownContainer">
               <h3 style={{ marginRight: '.5em' }}>ONLY THE BEST CAN BECOME <strong style={{ fontStyle: 'bold' }}>MAYOR OF </strong></h3>
               <Image size='small' src={turboTownIcon}/>
