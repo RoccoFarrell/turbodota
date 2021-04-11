@@ -176,6 +176,7 @@ function Quest(props) {
                   { quest.completed ? 'Turn In' : 'Not Done'}
                 </Button>
                 : '' }
+                { process.env.NODE_ENV === "development" ? 
                 <Checkbox 
                   style={{ marginTop: '1em' }} 
                   label={'Mark to be completed ' + quest.id} 
@@ -184,6 +185,7 @@ function Quest(props) {
                     checkboxReducer(quest.id)
                   }}
                 />
+                : '' }
               </Card.Content>
 
               <Card.Content>
