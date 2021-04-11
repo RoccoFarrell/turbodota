@@ -14,9 +14,18 @@ import {
 } from 'semantic-ui-react'
 import './Shop.css';
 
+
+
 function Shop(props) {
+  function shopItem(item) {
+    return <div>{item}</div>
+  }
+
   return (
-    <div>test</div>
+    <div>
+      { shopItem('test') }
+      { shopItem('test') }
+    </div>
   )
 }
 

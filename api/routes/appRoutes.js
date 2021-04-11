@@ -118,6 +118,9 @@ module.exports = function (app) {
 
     app.route('/api/debug/towns/:steamID/complete')
       .post(debug.completeQuests)
+    
+    app.route('/api/debug/towns/:steamID/completeWithFakeMatch')
+      .post(debug.completeQuestWithFakeMatch)
 
     app.route('/api/debug/towns/addNewFields')
       .get(debug.addFieldsToAllTowns)

@@ -198,6 +198,7 @@ exports.createBackup = async (req, res) => {
 }
 
 exports.editAllTowns = async (req, res) => {
+  let totalCount = 0
   townsRef.get()
     .then(snapshot => {
       if(snapshot.empty) console.log('[editAllTowns] no towns found')
@@ -206,37 +207,30 @@ exports.editAllTowns = async (req, res) => {
           let townID = doc.id
           let town = doc.data()
 
-          let totalCount = 0
           //add changes here
 
-          town.townStats = {}
-          town.townStats.nonTownGames = 0
-          
-          // town.completed.forEach(quest => {
-
-          // })
-
-          // town.active.forEach(quest => {
-          //   quest.id = totalCount
-          //   totalCount++
-          //   quest.bounty = {
-          //     xp: 100,
-          //     gold: 100
-          //   }
-          // })
-
-          // town.totalQuests = town.active.length + town.completed.length
+          let changeFlag = false
+          town.completed.forEach(quest => {
+            if((typeof quest.endTime) === "string"){
+              changeFlag = true
+              totalCount++
+              quest.endTime = parseInt(quest.endTime)
+            }
+          })
 
           //end changes
-          townsRef.doc(townID).set(town).then( result => {
-            console.log('[editAllTowns] townsID: ' + townID + ' edit complete')
-          })
-          .catch(e => console.log('[editAllTowns] error copying towns: ' + e))
+          if(changeFlag){
+            townsRef.doc(townID).set(town).then( result => {
+              console.log('[editAllTowns] townsID: ' + townID + ' edit complete')
+            })
+            .catch(e => console.log('[editAllTowns] error copying towns: ' + e))
+          }
         })
       }
     })
-  
-  res.send({'status': 'Edit all request received'})
+    .then(
+      res.send({'status': 'Editing all towns'})
+    )
 }
 
 exports.addQuestToTown = async (req, res) => {
@@ -263,9 +257,9 @@ exports.addQuestToTown = async (req, res) => {
           let townQuest = { ...newTownQuest }
           // console.log(townData.totalQuests)
           townQuest.id = (town.totalQuests + 1)
-          townQuest.hero = allHeroes[72]
+          //townQuest.hero = allHeroes[72]
   
-          // townQuest.hero = allHeroes[Math.floor(Math.random() * allHeroes.length)]
+          townQuest.hero = allHeroes[Math.floor(Math.random() * allHeroes.length)]
           editFlag = true
           town.active.push(townQuest)
 
@@ -355,4 +349,9 @@ exports.addFieldsToAllTowns = async (req, res) => {
     })
   
   res.send({'status': 'Added new fields to all towns.'})
+}
+
+exports.completeQuestWithFakeMatch = async (req, res) => {
+  console.log('Received request to add new fields to all towns.')
+  res.send({'status': 'Received request to add new fields to all towns'})
 }

@@ -57,6 +57,23 @@ const levelXPArray = [
 ]
 
 let heroesRef = db.collection('heroes')
+let itemsRef = db.collection('items')
+
+async function getItemsFromDB(){
+  let totalItemsCount = 0
+
+  return await itemsRef.get()
+  .then(snapshot => {
+    let returnData = []
+    console.log('[items] Pulling all items from db')
+    snapshot.forEach(doc => {
+      totalItemsCount++
+      console.log('[items] Found item #', totalItemsCount, ': ', doc.id)
+      returnData.push(doc.data())
+    })
+    return returnData
+  })
+}
 
 async function getHeroesFromDB(){
   return await heroesRef.get()
@@ -266,6 +283,17 @@ const recalculateExistingTown = async (townData) => {
   townData.level.xpThisLevel = levelXPArray[index - 1]
   townData.level.xpNextLevel = levelXPArray[index] 
 
+  //populate shop with items
+  if(!townData.shop) townData.shop = []
+  let items = await getItemsFromDB()
+  items.forEach(item => {
+    let itemInShop = false
+    townData.shop.forEach(shopItem => {
+       if(item.name === shopItem.name) itemInShop = true
+    })
+    if(itemInShop === false) townData.shop.push(item)
+  })
+
   return townData  
 }
 
@@ -325,15 +353,19 @@ exports.modifyQuest = async function (req, res) {
             town.active.filter(q => q.id == completedQuest.id).forEach(q => {
               console.log('found match: ', q)
               q.completed = true
-              q.endTime = ((new Date().getTime())/1000).toFixed(0)
+              q.endTime = Math.round(((new Date().getTime())/1000))
               town.completed.push(q)
 
               //add randomized new quest
               let townQuest = { ...newTownQuest }
               // console.log(townData.totalQuests)
               townQuest.id = (town.totalQuests + 1)
+
+              //check to make sure new hero quest isnt same hero as completed quest
               townQuest.hero = allHeroes[Math.floor(Math.random() * allHeroes.length)]
+              if(townQuest.hero.id === quest.hero.id) townQuest.hero = allHeroes[Math.floor(Math.random() * allHeroes.length)]
               
+
               town.active.push(townQuest)
 
               town.xp += q.bounty.xp
@@ -378,7 +410,7 @@ exports.modifyQuest = async function (req, res) {
             
               town.active.filter(q => q.id == skipQuest.id).forEach(q => {
                 console.log('found match to skip: ', q)
-                q.endTime = (new Date().getTime())/1000
+                q.endTime = Math.round(((new Date().getTime())/1000))
                 q.skipped = true
                 town.skipped.push(q)
   
