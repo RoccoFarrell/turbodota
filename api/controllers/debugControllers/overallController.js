@@ -352,6 +352,12 @@ exports.addFieldsToAllTowns = async (req, res) => {
 }
 
 exports.completeQuestWithFakeMatch = async (req, res) => {
-  console.log('Received request to add new fields to all towns.')
+  let playerID = req.params.steamID
+  let questID = req.params.questID
+  console.log('Completing quest ' + questID +' with fake match for user ' + playerID)
+  
+  
+
+
   res.send({'status': 'Received request to add new fields to all towns'})
 }

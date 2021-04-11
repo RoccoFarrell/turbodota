@@ -103,7 +103,10 @@ module.exports = function (app) {
     });
   
   if(environment === 'development'){
+    console.log('debug controller active')
     const debug = require('../controllers/debugControllers/overallController.js')
+
+    //debug routes
     app.route('/api/debug/test')
       .get(debug.test)
 
@@ -119,8 +122,8 @@ module.exports = function (app) {
     app.route('/api/debug/towns/:steamID/complete')
       .post(debug.completeQuests)
     
-    app.route('/api/debug/towns/:steamID/completeWithFakeMatch')
-      .post(debug.completeQuestWithFakeMatch)
+    app.route('/api/debug/towns/:steamID/completeQuestWithFakeMatch/:questID')
+      .get(debug.completeQuestWithFakeMatch)
 
     app.route('/api/debug/towns/addNewFields')
       .get(debug.addFieldsToAllTowns)

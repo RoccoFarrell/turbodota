@@ -229,13 +229,13 @@ const recalculateExistingTown = async (townData) => {
           } else {
             // console.log('townController warning - duplicate hero quests per chance? => ' + match.match_id, quest.id)
             // wat
-            console.log('townController warning - match with quest hero outside of quest time range  => ' + match.match_id, quest.id)
+            //console.log('townController warning - match with quest hero outside of quest time range  => ' + match.match_id, quest.id)
             townAttempt = false
           }
         } else {
           //quest end time null needs to be removed, we removed from the line below
           //-----------------------------------------------------------------------
-          console.log('lost match as hero after quest started')
+          //console.log('lost match as hero after quest started')
           if(quest.endTime > match.start_time) {
             quest.attempts.push(match.match_id)
             townAttempt = true
@@ -246,16 +246,24 @@ const recalculateExistingTown = async (townData) => {
             //why is quest end time null if completed
             //console.warn('townController warning: quest end time for completed quest still null, still adding attempt ')
           } else {
-            console.log('broken ', 'qID: ', quest.id, 'qStart_ts: ', quest.startTime._seconds, 'qEnd_ts: ', quest.endTime, 'mStart_ts: ', match.start_time, 'mID: ', match.match_id)
+            //console.log('broken ', 'qID: ', quest.id, 'qStart_ts: ', quest.startTime._seconds, 'qEnd_ts: ', quest.endTime, 'mStart_ts: ', match.start_time, 'mID: ', match.match_id)
           }
 
-          console.log('did this get marked as a town attempt?', townAttempt)
+          //console.log('did this get marked as a town attempt?', townAttempt)
         }
       }
     })
 
+    townData.skipped.forEach((quest, index) => {
+      //if(match.match_id === 5379251579) console.log('should be town attempt true')
+      if(quest.attempts.includes(match.match_id)) {
+        townAttempt = true
+        console.log('skipped attempt ', match.match_id)
+      }
+    })
+    
     if(townAttempt === false){
-      // console.log('!! Match ' + match.match_id + ' was not a TurboTown Attempt.')
+      //if(match.match_id === 5379251579) console.log('!! Match ' + match.match_id + ' was not a TurboTown Attempt.')
       townData.townStats.nonTownGames += 1
     }
   })
@@ -268,12 +276,16 @@ const recalculateExistingTown = async (townData) => {
   //calculate total attempts
   let questAttemptMatchIDs = []
   townData.active.forEach(quest => quest.attempts.forEach(attempt => questAttemptMatchIDs.push(attempt)))
+  console.log('attempts after active: ' + questAttemptMatchIDs.length)
   townData.completed.forEach(quest => quest.attempts.forEach(attempt => questAttemptMatchIDs.push(attempt)))
+  console.log('attempts after completed: ' + questAttemptMatchIDs.length)
   townData.skipped.forEach(quest => quest.attempts.forEach(attempt => questAttemptMatchIDs.push(attempt)))
+  console.log('attempts after skipped: ' + questAttemptMatchIDs.length)
 
   //dedupes
   let uniqueMatchIDs = [...new Set(questAttemptMatchIDs)];
 
+  console.log('attempts after dedupe: ' + uniqueMatchIDs.length)
   townData.townStats.totalAttemptGames = uniqueMatchIDs.length
   townData.townStats.totalQuestAttempts = questAttemptMatchIDs.length
 
@@ -365,7 +377,6 @@ exports.modifyQuest = async function (req, res) {
               townQuest.hero = allHeroes[Math.floor(Math.random() * allHeroes.length)]
               if(townQuest.hero.id === quest.hero.id) townQuest.hero = allHeroes[Math.floor(Math.random() * allHeroes.length)]
               
-
               town.active.push(townQuest)
 
               town.xp += q.bounty.xp
