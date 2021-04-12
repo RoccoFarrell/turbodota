@@ -487,3 +487,81 @@ exports.getAllTowns = async function (req, res) {
   // console.log('allTowns: ', allTowns)
   res.send(allTowns)
 }
+
+//shop functions
+exports.purchaseItemFromShop = async function (req, res) {
+  /*
+      if you are purchasing an item
+      decrement shop item quantity - 1
+      decrement gold - (cost of item)
+      add inventory item quantity + 1 (add obj if not exist in inventory)
+  */
+  const playerID = req.params.steamID
+  const purchaseItemID = parseInt(req.params.itemID)
+  let townsRef = db.collection('towns')
+  let returnObj = {}
+
+  await townsRef.where('playerID', '==', parseInt(playerID)).get()
+    .then(snapshot => {
+      if(snapshot.empty) console.log('empty')
+      else {
+        snapshot.forEach(doc => {
+          // console.log(doc.data())
+          let townID = doc.id
+          let town = doc.data()
+
+          let editFlag = false
+
+          town.shop.forEach(itemInShop => {          
+            if(itemInShop.id === purchaseItemID){
+              console.log(itemInShop.id, purchaseItemID)
+              if(town.gold >= itemInShop.cost && town.xp >= itemInShop.xpRequirement && itemInShop.quantity > 0){
+                if(town.items.filter(item => item.id === itemInShop.id).length === 0){
+                  console.log('purchase shop item id ' + purchaseItemID + ' not in inventory yet')
+                  //decrement shop quantity
+                  itemInShop.quantity -= 1
+  
+                  //decrement gold
+                  town.gold -= itemInShop.cost
+  
+                  //add inventory item
+                  let inventoryItem = itemInShop
+                  inventoryItem.quantity = 1
+                  town.items.push(itemInShop)
+
+                  //write new town
+                  editFlag = true
+                  returnObj = {'success': true, 'status': 'Added item to inventory', 'playerID': playerID, 'itemID': purchaseItemID, 'newTown': town }
+                } else {
+                  console.log('purchase shop item id ' + purchaseItemID + ' already in inventory')
+                  //decrement shop quantity
+                  itemInShop.quantity -= 1
+  
+                  //decrement gold
+                  town.gold -= itemInShop.cost
+  
+                  let foundIndex = town.items.findIndex(item => item.id === purchaseItemID)
+                  town.items[foundIndex].quantity += 1
+
+                  //write new town
+                  editFlag = true
+                  returnObj = {'success': true, 'status': 'Added +1 quantity', 'playerID': playerID, 'itemID': purchaseItemID, 'newTown': town }
+                }
+              } else {
+                returnObj = {'success': false, 'status': 'Not enough gold or xp or items', 'playerID': playerID, 'itemID': purchaseItemID, 'newTown': town }
+              }
+            }
+          })
+
+          if(editFlag){
+            townsRef.doc(townID).set(town).then(result => {
+              console.log(result, '[debug] Added quest for user ' + townID)
+            })
+          }
+        })
+      }
+    })
+  
+  res.send(returnObj)
+
+}

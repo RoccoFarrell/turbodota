@@ -64,6 +64,8 @@ module.exports = function (app) {
   app.route('/api/towns')
     .get(town.getAllTowns)
 
+  app.route('/api/towns/:steamID/purchaseItem/:itemID')
+    .post(town.purchaseItemFromShop)
 
   app.get('/account', ensureAuthenticated, function(req, res){
     res.render('account', { user: req.user });

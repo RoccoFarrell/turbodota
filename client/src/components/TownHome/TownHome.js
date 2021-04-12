@@ -80,57 +80,13 @@ function TownHome() {
     setTownData(townData)
   }
 
-  const handlePurchaseItem = (item) => {
-    console.log(item)
-  }
-
   const handleRouteChange = (route) => {
     console.log('changing route')
     if(route) history.push("/users/" + userID + '/' + route)
     else history.push("/users/" + userID)
   }
 
-  //debug functions
-  //--------------------------------------------
-  async function addQuestToTown(){
-      try {
-          axios.get(`/api/debug/towns/` + userID + `/addQuest`)
-          .then(res => {
-              let content = res.data;
-              console.log('addQuestResult: ', content)
-          })
-      } catch(e) {console.error(e)}
-  }
-
-  //get checkbox info from Quests component
-  const handleCheckedQuestsChange = (checkedQuests) => {
-    //console.log(checkedQuests)
-    setCheckedQuests({ ...checkedQuests })
-  }
-
-  async function completeListOfQuests(){
-    let completeArr = []
-    for(const quest in checkedQuests){
-      if(checkedQuests[quest] === true) completeArr.push(quest)
-    }
-    let postObj = {
-      'complete': completeArr
-    }
-
-    console.log('about to complete: ', postObj)
-
-    try {
-        axios.post(`/api/debug/towns/` + userID + `/complete`, postObj)
-        .then(res => {
-            let content = res.data;
-            console.log('content new town: ', content.newTown)
-            if(content.newTown !== null) handleTownDataChange(content.newTown)
-        })
-        //.then(getTownData())
-    
-    } catch(e) {console.error(e)}
-  }
-
+  //quest panes for active completed and skipped
   const panes = [
     {
       menuItem: 'Active',
@@ -177,6 +133,13 @@ function TownHome() {
     },
   ]
 
+  //get checkbox info from Quests component
+  const handleCheckedQuestsChange = (checkedQuests) => {
+    //console.log(checkedQuests)
+    setCheckedQuests({ ...checkedQuests })
+  }
+
+  //shop modal
   function modalReducer(state, action) {
     switch (action.type) {
       case 'OPEN_MODAL':
@@ -230,6 +193,53 @@ function TownHome() {
       </Modal>
     )
   }
+
+  const handlePurchaseItem = (item) => {
+    try {
+      axios.post(`/api/towns/` + userID + `/purchaseItem/` + item.id)
+      .then(res => {
+          let content = res.data;
+          console.log('purchaseItemResult: ', content)
+          if(content.success === true) handleTownDataChange(content.newTown)
+      })
+    } catch(e) {console.error(e)}
+  }
+
+  //debug functions
+  //--------------------------------------------
+  async function addQuestToTown(){
+    try {
+        axios.get(`/api/debug/towns/` + userID + `/addQuest`)
+        .then(res => {
+            let content = res.data;
+            console.log('addQuestResult: ', content)
+        })
+    } catch(e) {console.error(e)}
+  }
+
+  async function completeListOfQuests(){
+    let completeArr = []
+    for(const quest in checkedQuests){
+      if(checkedQuests[quest] === true) completeArr.push(quest)
+    }
+    let postObj = {
+      'complete': completeArr
+    }
+
+    console.log('about to complete: ', postObj)
+
+    try {
+        axios.post(`/api/debug/towns/` + userID + `/complete`, postObj)
+        .then(res => {
+            let content = res.data;
+            console.log('content new town: ', content.newTown)
+            if(content.newTown !== null) handleTownDataChange(content.newTown)
+        })
+        //.then(getTownData())
+    
+    } catch(e) {console.error(e)}
+  }
+
   
   return (
       <Container id="container">
