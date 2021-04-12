@@ -80,6 +80,10 @@ function TownHome() {
     setTownData(townData)
   }
 
+  const handlePurchaseItem = (item) => {
+    console.log(item)
+  }
+
   const handleRouteChange = (route) => {
     console.log('changing route')
     if(route) history.push("/users/" + userID + '/' + route)
@@ -207,11 +211,20 @@ function TownHome() {
         <Modal.Header>Shop</Modal.Header>
         <Modal.Content>
           <p>Are you sure you want to shop</p>
-          <Shop/>
+          <Container className={'flexRowTownHome'} fluid>
+            { !!townData ? 
+                <Shop 
+                  handlePurchaseItem = {handlePurchaseItem}
+                  shop = {townData.shop}
+                  xp = {townData.xp}
+                  gold = {townData.gold}
+                />
+            : '' }
+          </Container>
         </Modal.Content>
         <Modal.Actions>
           <Button onClick={() => dispatch({ type: 'CLOSE_MODAL' })} negative>
-            Close
+            Close Shop
           </Button>
         </Modal.Actions>
       </Modal>
@@ -223,10 +236,9 @@ function TownHome() {
           <Container id="topUserInfo">
             { process.env.NODE_ENV === "development" ? 
               <Container>
+                <h3>Debug Actions:</h3>
                 <Button color='red' onClick={ () => {addQuestToTown()} }> Add Random Quest </Button>
                 <Button color='red' onClick={ () => {completeListOfQuests()} }> Complete Checked Quests </Button>
-                <Button> Click me </Button>
-                <Button> Click me </Button>
               </Container>            
             : '' }
             <Container id="turboTownContainer">
