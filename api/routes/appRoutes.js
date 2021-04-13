@@ -129,5 +129,8 @@ module.exports = function (app) {
 
     app.route('/api/debug/towns/addNewFields')
       .get(debug.addFieldsToAllTowns)
+
+    app.route('/api/debug/items/rebuildItems')
+      .post(debug.rebuildItemsCollection)
   }
 }

@@ -12,6 +12,7 @@ const heroesRef = db.collection('heroes')
 const matchesRef = db.collection('matches')
 const townsRef = db.collection('towns')
 const usersRef = db.collection('users')
+const itemsRef = db.collection('items')
 
 const newTownQuest =  {
   id: 0,
@@ -43,7 +44,6 @@ if(enableDoubleConnection){
   const townsRef_test = dbTest.collection('towns')
   const usersRef_test = dbTest.collection('users')
 }
-
 
 async function getHeroesFromDB(){
   return await heroesRef.get()
@@ -369,8 +369,42 @@ exports.completeQuestWithFakeMatch = async (req, res) => {
   let questID = req.params.questID
   console.log('Completing quest ' + questID +' with fake match for user ' + playerID)
   
-  
-
-
   res.send({'status': 'Received request to add new fields to all towns'})
+}
+
+let itemsList = [
+  {
+    id: 1,
+    name: 'Observer Ward',
+    cost: 50,
+    perpetual: false,
+    quantity: 1000,
+    maxQuantity: 1000,
+    shop: true,
+    xpRequirement: 200,
+    modifiers: [],
+    active: true,
+    numberUsed: 0,
+    description: 'Use when turning in a quest, instead of a random quest you will get to pick your new quest between 3 random options.'
+  }
+]
+
+exports.rebuildItemsCollection = async (req, res) => {
+  await itemsRef.get()
+    .then(snapshot => {
+      if(snapshot.empty) console.log('[rebuildItems] no items found')
+      else {
+        snapshot.forEach(item => {
+          item.delete()
+        })
+      }
+    })
+  
+  itemsList.forEach(item => {
+    let res = itemsRef.doc(item.id).set(item)
+    console.log(res)
+  })  
+  
+  res.send({'status': 'Rebuilt items collection'})
+
 }
