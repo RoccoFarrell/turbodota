@@ -230,7 +230,7 @@ function SingleMatch(props) {
             </Card.Content>
             <Card.Content id="matchInfoContainer">
                 <Card.Meta>Date: {dateString(matchOverview.start_time)}</Card.Meta>
-                <Card.Meta>Match ID: {matchOverview.match_id}</Card.Meta>
+                <Card.Meta>Match ID: <a href={"https://www.dotabuff.com/matches/" + matchOverview.match_id} style={{color: 'blue'}}>{matchOverview.match_id}</a></Card.Meta>
                 <Card.Meta>Player Slot: {matchOverview.player_slot}</Card.Meta>
                 <div>
                     { matchData.isMatchParsed ? (

@@ -378,14 +378,42 @@ let itemsList = [
     name: 'Observer Ward',
     cost: 50,
     perpetual: false,
-    quantity: 1000,
-    maxQuantity: 1000,
+    quantity: 10000,
+    maxQuantity: 10000,
     shop: true,
     xpRequirement: 200,
     modifiers: [],
     active: true,
     numberUsed: 0,
     description: 'Use when turning in a quest, instead of a random quest you will get to pick your new quest between 3 random options.'
+  },
+  {
+    id: 2,
+    name: 'Sentry Ward',
+    cost: 50,
+    perpetual: false,
+    quantity: 10000,
+    maxQuantity: 10000,
+    shop: true,
+    xpRequirement: 200,
+    modifiers: [],
+    active: false,
+    numberUsed: 0,
+    description: 'Use before turning in a quest, shows the next quest you will receive.'
+  },
+  {
+    id: 3,
+    name: 'Hand of Midas',
+    cost: 5000,
+    perpetual: true,
+    quantity: 1,
+    maxQuantity: 1,
+    shop: true,
+    xpRequirement: 200,
+    modifiers: [],
+    active: false,
+    numberUsed: 0,
+    description: 'Hand of Midas will increase your quest bounties by 100 gold permanently.'
   }
 ]
 
@@ -395,15 +423,53 @@ exports.rebuildItemsCollection = async (req, res) => {
       if(snapshot.empty) console.log('[rebuildItems] no items found')
       else {
         snapshot.forEach(item => {
-          item.delete()
+          item.ref.delete()
         })
       }
     })
-  
+
   itemsList.forEach(item => {
-    let res = itemsRef.doc(item.id).set(item)
-    console.log(res)
+    console.log(item)
+    console.log(item.id)
+    let res = itemsRef.doc(item.id.toString()).set(item).then(ref => {
+      console.log('[rebuildItems] itemID: ' + item.id + ' added')
+    })
+    .catch(e => console.log('[rebuildItems] error adding item: ' + e))
+    //console.log(res)
   })  
+
+  //EDIT TOWNS SHOPS WITH REBUILT ITEMS COLLECTION
+  // townsRef.get()
+  //   .then(snapshot => {
+  //     if(snapshot.empty) console.log('[rebuildItems] no towns found')
+  //     else {
+  //       snapshot.forEach(doc => {
+  //         let townID = doc.id
+  //         let town = doc.data()
+
+  //         if(!town.shop) town.shop = []
+  //         let items = await getItemsFromDB()
+  //           items.forEach(item => {
+  //             let itemInShop = false
+  //             town.shop.forEach(shopItem => {
+  //               if(item.name === shopItem.name)
+  //                 //UPDATE SPECIFIC ITEM IN TOWN.SHOP HERE?
+
+  //             })
+  //             //ADD MISSING/NEW ITEM
+  //             if(itemInShop === false) town.shop.push(item)
+  //           })
+
+  //         //end changes
+  //         if(changeFlag){
+  //           townsRef.doc(townID).set(town).then( result => {
+  //             console.log('[rebuildItems] townsID: ' + townID + ' edit complete, shop rebuilt')
+  //           })
+  //           .catch(e => console.log('[rebuildItems] error editing town shop: ' + e))
+  //         }
+  //       })
+  //     }
+  //   })
   
   res.send({'status': 'Rebuilt items collection'})
 
