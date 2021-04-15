@@ -173,7 +173,6 @@ function TownHome() {
       >
         <Modal.Header>Shop</Modal.Header>
         <Modal.Content>
-          <p>Are you sure you want to shop</p>
           <Container className={'flexRowTownHome'} fluid>
             { !!townData ? 
                 <Shop 

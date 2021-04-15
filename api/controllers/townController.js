@@ -17,9 +17,9 @@ const newTown = {
   active: [],
   completed: [],
   skipped: [],
-  //items: [],
-  //shop: [],
-  //modifiers: [],
+  inventory: [],
+  shop: [],
+  modifiers: [],
   lastModified: new Date(),
   dateCreated: new Date()
 }
@@ -302,7 +302,7 @@ const recalculateExistingTown = async (townData) => {
   items.forEach(item => {
     let itemInShop = false
     townData.shop.forEach(shopItem => {
-       if(item.name === shopItem.name) itemInShop = true
+       if(item.id === shopItem.id) itemInShop = true
     })
     if(itemInShop === false) townData.shop.push(item)
   })
@@ -520,7 +520,7 @@ exports.purchaseItemFromShop = async function (req, res) {
             if(itemInShop.id === purchaseItemID){
               console.log(itemInShop.id, purchaseItemID)
               if(town.gold >= itemInShop.cost && town.xp >= itemInShop.xpRequirement && itemInShop.quantity > 0){
-                if(town.items.filter(item => item.id === itemInShop.id).length === 0){
+                if(town.inventory.filter(item => item.id === itemInShop.id).length === 0){
                   console.log('purchase shop item id ' + purchaseItemID + ' not in inventory yet')
                   //decrement shop quantity
                   itemInShop.quantity -= 1
@@ -531,7 +531,7 @@ exports.purchaseItemFromShop = async function (req, res) {
                   //add inventory item
                   let inventoryItem = itemInShop
                   inventoryItem.quantity = 1
-                  town.items.push(itemInShop)
+                  town.inventory.push(itemInShop)
 
                   //write new town
                   editFlag = true
@@ -544,8 +544,8 @@ exports.purchaseItemFromShop = async function (req, res) {
                   //decrement gold
                   town.gold -= itemInShop.cost
   
-                  let foundIndex = town.items.findIndex(item => item.id === purchaseItemID)
-                  town.items[foundIndex].quantity += 1
+                  let foundIndex = town.inventory.findIndex(item => item.id === purchaseItemID)
+                  town.inventory[foundIndex].quantity += 1
 
                   //write new town
                   editFlag = true

@@ -427,7 +427,8 @@ exports.rebuildItemsCollection = async (req, res) => {
         })
       }
     })
-
+  
+  //broken, items in db only gets 2 items??
   itemsList.forEach(item => {
     console.log(item)
     console.log(item.id)
@@ -439,37 +440,35 @@ exports.rebuildItemsCollection = async (req, res) => {
   })  
 
   //EDIT TOWNS SHOPS WITH REBUILT ITEMS COLLECTION
-  // townsRef.get()
-  //   .then(snapshot => {
-  //     if(snapshot.empty) console.log('[rebuildItems] no towns found')
-  //     else {
-  //       snapshot.forEach(doc => {
-  //         let townID = doc.id
-  //         let town = doc.data()
+  townsRef.get()
+    .then(snapshot => {
+      if(snapshot.empty) console.log('[rebuildItems] no towns found')
+      else {
+        snapshot.forEach(doc => {
+          let townID = doc.id
+          let town = doc.data()
 
-  //         if(!town.shop) town.shop = []
-  //         let items = await getItemsFromDB()
-  //           items.forEach(item => {
-  //             let itemInShop = false
-  //             town.shop.forEach(shopItem => {
-  //               if(item.name === shopItem.name)
-  //                 //UPDATE SPECIFIC ITEM IN TOWN.SHOP HERE?
+          //cleanup - one time - rewrite if we need to run this again
+          town.shop = []
+          town.inventory = []
+          delete town.items
 
-  //             })
-  //             //ADD MISSING/NEW ITEM
-  //             if(itemInShop === false) town.shop.push(item)
-  //           })
+          itemsList.forEach(item => {
+            town.shop.push(item)
+          })
 
-  //         //end changes
-  //         if(changeFlag){
-  //           townsRef.doc(townID).set(town).then( result => {
-  //             console.log('[rebuildItems] townsID: ' + townID + ' edit complete, shop rebuilt')
-  //           })
-  //           .catch(e => console.log('[rebuildItems] error editing town shop: ' + e))
-  //         }
-  //       })
-  //     }
-  //   })
+          changeFlag = true
+
+          //end changes
+          if(changeFlag){
+            townsRef.doc(townID).set(town).then( result => {
+              console.log('[rebuildItems] townsID: ' + townID + ' edit complete, shop rebuilt')
+            })
+            .catch(e => console.log('[rebuildItems] error editing town shop: ' + e))
+          }
+        })
+      }
+    })
   
   res.send({'status': 'Rebuilt items collection'})
 
