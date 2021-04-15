@@ -16,6 +16,10 @@ const newTown = {
   },
   active: [],
   completed: [],
+  skipped: [],
+  //items: [],
+  //shop: [],
+  //modifiers: [],
   lastModified: new Date(),
   dateCreated: new Date()
 }
