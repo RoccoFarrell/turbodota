@@ -25,6 +25,7 @@ function Quest(props) {
   const [user, setUser] = useState(selectedUser)
   const [authorizedUser, setAuthorizedUser] = useState(false)
   const [checkedQuests, setCheckedQuests] = useState({})
+  const [obsQuests, setObsQuests] = useState({})
 
   let townData = props.townData
   let handleTownDataChange = props.handleTownDataChange
@@ -70,7 +71,8 @@ function Quest(props) {
     console.log(quest)
     let postObj = {
       quest: quest,
-      action: 'completeQuest'
+      action: 'completeQuest',
+      obs: obsQuests[quest.id] ? obsQuests[quest.id] : false
     }
 
     try {
@@ -138,6 +140,14 @@ function Quest(props) {
     handleCheckedQuestsChange(checkedQuests)
     setCheckedQuests(checkedQuests)
   }
+
+  const obsCheckboxReducer = (questID) => {
+    let tempObj = obsQuests
+    if(!tempObj[questID]) tempObj[questID] = false
+    tempObj[questID] = !tempObj[questID]
+    setObsQuests(obsQuests)
+    console.log(obsQuests)
+  }
   
   return (
     <div style={{ textAlign: 'center'}}>
@@ -166,15 +176,29 @@ function Quest(props) {
                   width='35px'
                   alt='choose yer quest'
                 /> { questGroup == 'active' ? 'Quest!' : 'Quest Complete' }
-                { questGroup == 'active' ? 
-                <Button 
-                  color='yellow' 
-                  disabled = { quest.completed == false } 
-                  style={{ width: '100px', marginLeft: '1em', padding: '.5em'}}
-                  onClick={() => {completeQuest(quest)}}
-                >
-                  { quest.completed ? 'Turn In' : 'Not Done'}
-                </Button>
+                { questGroup == 'active' ?
+                <div className='turnInRow'>
+                  <Button 
+                    color='yellow' 
+                    disabled = { quest.completed == false } 
+                    style={{ width: '100px', marginLeft: '1em', padding: '.5em'}}
+                    onClick={() => {completeQuest(quest)}}
+                  >
+                    { quest.completed ? 'Turn In' : 'Not Done'}
+                  </Button>
+                  { /* TODO: add requirement that user has an obs in inventory to display checkbox below*/}
+                  { quest.completed ? 
+                    <Checkbox
+                      toggle
+                      label='OBS'
+                      style={{ }} 
+                      onClick={(e) => {
+                        obsCheckboxReducer(quest.id)
+                      }}
+                    /> 
+                  : ''}
+                </div> 
+
                 : '' }
                 { process.env.NODE_ENV === "development" ? 
                 <Checkbox 

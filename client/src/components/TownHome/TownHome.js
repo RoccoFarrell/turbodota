@@ -344,15 +344,19 @@ function TownHome() {
             <Tab menu={{ secondary: true }} panes={panes} />
           </Container>
           
-          {/* <Container className={'flexRowTownHome'} fluid>
-            { !!townData.active ? 
-                <Quests 
-                  townData={townData}
-                  questGroup='active'
-                  handleTownDataChange={handleTownDataChange}
-                />
-            : '' }
-          </Container> */}
+          {/* Inventory */}
+          { !!townData.inventory ?
+            <Container>
+              <div className='flexRowTownHome' style={{ border: '1px solid red'}}>
+                {townData.inventory.map((item, index) => (
+                  <div key={index}>
+                    {item.name} : {item.quantity}
+                  </div>
+                ))}
+              </div>
+            </Container>
+          : '' }
+          
       </Container>
   )
 }

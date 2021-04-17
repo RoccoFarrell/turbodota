@@ -347,7 +347,7 @@ exports.modifyQuest = async function (req, res) {
 
   let action = editTownData.action
 
-  if(action == 'completeQuest'){
+  if(action === 'completeQuest'){
     let completedQuest = editTownData.quest
 
     console.log(playerID)
@@ -376,7 +376,9 @@ exports.modifyQuest = async function (req, res) {
 
               //check to make sure new hero quest isnt same hero as completed quest
               townQuest.hero = allHeroes[Math.floor(Math.random() * allHeroes.length)]
-              if(townQuest.hero.id === q.hero.id) townQuest.hero = allHeroes[Math.floor(Math.random() * allHeroes.length)]
+              let activeQuestHeroes = town.active.map(q2 => q2.hero.id)
+              console.log(activeQuestHeroes)
+              while(activeQuestHeroes.includes(townQuest.hero.id)) townQuest.hero = allHeroes[Math.floor(Math.random() * allHeroes.length)]
               
               town.active.push(townQuest)
 
@@ -399,7 +401,7 @@ exports.modifyQuest = async function (req, res) {
 
 
   } else
-  if(action == 'skipQuest'){
+  if(action === 'skipQuest'){
     console.log('got skip')
     let skipQuest = editTownData.quest
 
@@ -445,6 +447,25 @@ exports.modifyQuest = async function (req, res) {
               res.send(returnTown)
             }
 
+          })
+        }
+      })
+  } else 
+  if(action === 'consumeObserverForQuest'){
+    console.log('got observer')
+    let obsQuest = editTownData.quest
+
+    townsRef.where('playerID', '==', parseInt(playerID)).get()
+      .then(snapshot => {
+        if(snapshot.empty){ 
+          res.send({'status': 'failed', 'message' : 'Couldn\'t find player ' + playerID})
+        } 
+        else {
+          snapshot.forEach(async doc => {
+            let townID = doc.id
+            let town = doc.data()
+
+            //TO DO: generate 3 heroes and push to obs object on the quest
           })
         }
       })
@@ -529,9 +550,9 @@ exports.purchaseItemFromShop = async function (req, res) {
                   town.gold -= itemInShop.cost
   
                   //add inventory item
-                  let inventoryItem = itemInShop
+                  let inventoryItem = Object.assign({}, itemInShop)
                   inventoryItem.quantity = 1
-                  town.inventory.push(itemInShop)
+                  town.inventory.push(inventoryItem)
 
                   //write new town
                   editFlag = true

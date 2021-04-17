@@ -428,15 +428,14 @@ exports.rebuildItemsCollection = async (req, res) => {
       }
     })
   
-  //broken, items in db only gets 2 items??
   itemsList.forEach(item => {
-    console.log(item)
-    console.log(item.id)
-    let res = itemsRef.doc(item.id.toString()).set(item).then(ref => {
+    let itemID = item.id.toString()
+    let res = itemsRef.doc(itemID).set(item)
+    .then(ref => {
       console.log('[rebuildItems] itemID: ' + item.id + ' added')
     })
     .catch(e => console.log('[rebuildItems] error adding item: ' + e))
-    //console.log(res)
+    console.log(res)
   })  
 
   //EDIT TOWNS SHOPS WITH REBUILT ITEMS COLLECTION
