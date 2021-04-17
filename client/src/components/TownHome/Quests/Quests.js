@@ -12,7 +12,8 @@ import {
     Tab,
     Button,
     Label,
-    CardContent
+    CardContent,
+    Grid
 } from 'semantic-ui-react'
 import './Quests.css';
 
@@ -31,6 +32,7 @@ function Quest(props) {
   let handleTownDataChange = props.handleTownDataChange
   let handleCheckedQuestsChange = props.handleCheckedQuestsChange
   let questGroup = props.questGroup
+  let devEnv = props.devEnv
 
   useEffect(() => {
     console.log(selectedUser)
@@ -41,6 +43,11 @@ function Quest(props) {
   // useEffect(() => {
   //   handleCheckedQuestsChange(checkedQuests)
   // }, [checkedQuests])
+
+  const checkDevEnv = () => {
+    if(process.env.NODE_ENV === "development" && devEnv) return true
+    else return false
+  }
 
   const checkAuthorizedUser = (selectedUser, steamUser) => {
     if(!!selectedUser.userStats && !!selectedUser.userStats.profile.steamid && !!steamUser.id) {
@@ -151,135 +158,142 @@ function Quest(props) {
   
   return (
     <div style={{ textAlign: 'center'}}>
-      {/* <div className={'flexRow'}>
+      {/* <div className={'questCardFlexRow'}>
         <Button color='green' loading={loading} onClick={() => {
           handleCheckProgress()
         }}>
           Check Progress
         </Button>
       </div> */}
-      <div className={'flexRow'}>
-        <Card.Group>
+      <div className={'questCardFlexRow'}>
+        <Card.Group centered>
           { townData[questGroup].map((quest, index) => (
             <Card 
+              fluid
               key={quest.id} 
               className={ questGroup == 'active' ? 'questCardActive' : ''} 
-              color ={ quest.completed && questGroup == 'active' ? 'yellow': 'grey'} 
+              color ={ quest.completed && questGroup == 'active' ? 'yellow': 'green'} 
               raised={ quest.completed && questGroup == 'active' ? true : false} 
               style={ quest.completed && questGroup == 'active' ? { backgroundColor: 'rgba(255,216,104, 0.1)'} : {}}
             >
               <Card.Content extra>
-                <h3>#{quest.id}</h3>
-                <Image 
-                  src={questIcon}
-                  as='i' 
-                  width='35px'
-                  alt='choose yer quest'
-                /> { questGroup == 'active' ? 'Quest!' : 'Quest Complete' }
-                { questGroup == 'active' ?
-                <div className='turnInRow'>
-                  <Button 
-                    color='yellow' 
-                    disabled = { quest.completed == false } 
-                    style={{ width: '100px', marginLeft: '1em', padding: '.5em'}}
-                    onClick={() => {completeQuest(quest)}}
-                  >
-                    { quest.completed ? 'Turn In' : 'Not Done'}
-                  </Button>
-                  { /* TODO: add requirement that user has an obs in inventory to display checkbox below*/}
-                  { quest.completed ? 
-                    <Checkbox
-                      toggle
-                      label='OBS'
-                      style={{ }} 
-                      onClick={(e) => {
-                        obsCheckboxReducer(quest.id)
-                      }}
-                    /> 
-                  : ''}
-                </div> 
-
-                : '' }
-                { process.env.NODE_ENV === "development" ? 
-                <Checkbox 
-                  style={{ marginTop: '1em' }} 
-                  label={'Mark to be completed ' + quest.id} 
-                  checked={checkedQuests[quest.id]}
-                  onClick={(e) => {
-                    checkboxReducer(quest.id)
-                  }}
-                />
-                : '' }
+                <div className='questCardFlexRow'>
+                  <Image 
+                    src={questIcon}
+                    as='i' 
+                    width='35px'
+                    alt='choose yer quest'
+                    style={{ marginRight: '1em'}}
+                  /> { questGroup == 'active' ? 'Quest #' + quest.id : 'Quest Complete' }
+                </div>
               </Card.Content>
 
               <Card.Content>
-                <div className={'flexRow'} style={{ alignItems: 'flex-begin', padding: '0em', margin: '0em'}}>
-                  <div className={'flexColumn'} style={{ width: '50px', height: '50px', padding: '0em', margin: '0em'}}>
-                    { heroIcon(quest.hero.id, 1) }
-                  </div>
-                  <div className={'flexColumn'} style={{ paddingTop: '.25em'}}>
-                    <Card.Header style={{ fontSize: '1.4em', margin: '2px' }}>{ quest.hero.localized_name }</Card.Header>
-                    <Card.Meta>
-                      <span>{ processDate(quest.startTime) }</span>
-                    </Card.Meta>
-                  </div>
-                </div>
-                <Card.Description className={'flexColumn'} style={{ justifyContent: 'flex-begin', paddingBottom: '0em', paddingLeft: '0em', marginTop: '0em'}}>
-                  {/* <div className={'flexRow'} style={{ justifyContent: 'flex-start', flexWrap: 'wrap', padding: '0em', margin: '0em'}}>
-                    { quest.hero.roles.map(role => (<strong key={role} style={{ margin: '.25em'}}>{ role }</strong>)) }
-                  </div> */}
-                  { questGroup == 'active' ? 
-                    <div className={'flexColumn','questCardFooter'} style={{ justifyContent: 'flex-begin', marginBottom: '0em'}}>
-                      { (!!user.calculations && !!user.calculations.allHeroRecord[quest.hero.id]) ? (
-                      <div className={'flexColumn'} style={{ alignSelf: 'flex-start', justifyContent: 'flex-begin', marginBottom: '0em', padding: '0em'}}>
-                        <h4>Hero Stats</h4>
-                        <Statistic.Group size='mini' widths={1}>
-                          <Statistic size='mini' color={calculateWinRateColor(((user.calculations.allHeroRecord[quest.hero.id].wins / user.calculations.allHeroRecord[quest.hero.id].games) * 100).toFixed(0))}> 
-                              <Statistic.Value>{ ((user.calculations.allHeroRecord[quest.hero.id].wins / user.calculations.allHeroRecord[quest.hero.id].games) * 100).toFixed(0) }</Statistic.Value>
-                              <Statistic.Label style={{ fontSize: '12px'}}>Win%</Statistic.Label>
-                          </Statistic>
-                          <Statistic size='mini'> 
-                              <Statistic.Value>
-                               <div style={{ display: 'inline'}}>{user.calculations.allHeroRecord[quest.hero.id].wins + ' - '}</div> 
-                               <div style={{ display: 'inline'}}>{user.calculations.allHeroRecord[quest.hero.id].losses}</div>
-                              </Statistic.Value>
-                              <Statistic.Label style={{ fontSize: '10px'}}>W - L</Statistic.Label>
-                          </Statistic>
-
-                        </Statistic.Group>
+                <Grid columns={3} divided>
+                  <Grid.Column>
+                    {/* Hero Icon Name and Start Date*/}
+                    <div className={'questCardFlexRow'} style={{ alignItems: 'flex-begin', padding: '0em', margin: '0em'}}>
+                      <div className={'flexColumn'} style={{ width: '50px', height: '50px', padding: '0em', margin: '0em'}}>
+                        { heroIcon(quest.hero.id, 1) }
                       </div>
-                      ) : (<div>Never Played</div>)}
+                      <div className={'flexColumn'} style={{ paddingTop: '.25em'}}>
+                        <Card.Header style={{ fontSize: '1.4em', margin: '2px' }}>{ quest.hero.localized_name }</Card.Header>
+                        <Card.Meta>
+                          <span>{ processDate(quest.startTime) }</span>
+                        </Card.Meta>
+                      </div>
+                      {/* { quest.hero.roles.map(role => (<strong key={role} style={{ margin: '.25em'}}>{ role }</strong>)) } */}
+                    </div>
+                  </Grid.Column>
+                  <Grid.Column>
+                    {/* Hero Stats */}
+                    { questGroup == 'active' ? 
+                      <div className={'flexColumn','questCardFooter'} style={{ justifyContent: 'flex-begin', marginBottom: '0em'}}>
+                        { (!!user.calculations && !!user.calculations.allHeroRecord[quest.hero.id]) ? (
+                        <div className={'flexColumn'} style={{ alignSelf: 'flex-start', justifyContent: 'flex-begin', marginBottom: '0em', padding: '0em'}}>
+                          <Statistic.Group size='mini' widths={1}>
+                            <Statistic size='mini' color={calculateWinRateColor(((user.calculations.allHeroRecord[quest.hero.id].wins / user.calculations.allHeroRecord[quest.hero.id].games) * 100).toFixed(0))}> 
+                                <Statistic.Value>{ ((user.calculations.allHeroRecord[quest.hero.id].wins / user.calculations.allHeroRecord[quest.hero.id].games) * 100).toFixed(0) }</Statistic.Value>
+                                <Statistic.Label style={{ fontSize: '12px'}}>Win%</Statistic.Label>
+                            </Statistic>
+                            <Statistic size='mini'> 
+                                <Statistic.Value>
+                                <div style={{ display: 'inline'}}>{user.calculations.allHeroRecord[quest.hero.id].wins + ' - '}</div> 
+                                <div style={{ display: 'inline'}}>{user.calculations.allHeroRecord[quest.hero.id].losses}</div>
+                                </Statistic.Value>
+                                <Statistic.Label style={{ fontSize: '10px'}}>W - L</Statistic.Label>
+                            </Statistic>
+
+                          </Statistic.Group>
+                        </div>
+                        ) : (<div>Never Played</div>)}
+                        <Statistic size='mini' color={calculateAttemptsColor(quest.attempts.length)} style={{ alignSelf: 'center', marginLeft: '2em'}}> 
+                            <Statistic.Value>{ quest.attempts.length }</Statistic.Value>
+                            <Statistic.Label style={{ fontSize: '10px'}}>{ quest.attempts.length == 1 ? 'Attempt' : 'Attempts'}</Statistic.Label>
+                        </Statistic>
+                      </div>
+                    : 
                       <Statistic size='mini' color={calculateAttemptsColor(quest.attempts.length)} style={{ alignSelf: 'center', marginLeft: '2em'}}> 
                           <Statistic.Value>{ quest.attempts.length }</Statistic.Value>
                           <Statistic.Label style={{ fontSize: '10px'}}>{ quest.attempts.length == 1 ? 'Attempt' : 'Attempts'}</Statistic.Label>
                       </Statistic>
-                    </div>
-                  : 
-                    <Statistic size='mini' color={calculateAttemptsColor(quest.attempts.length)} style={{ alignSelf: 'center', marginLeft: '2em'}}> 
-                        <Statistic.Value>{ quest.attempts.length }</Statistic.Value>
-                        <Statistic.Label style={{ fontSize: '10px'}}>{ quest.attempts.length == 1 ? 'Attempt' : 'Attempts'}</Statistic.Label>
-                    </Statistic>
-                  }
+                    }
+                  </Grid.Column>
+                  <Grid.Column>
+                    {/* Action Buttons */}
+                    <div>
+                      { questGroup == 'active' ?
+                      <div className='turnInRow'>
+                        <Button 
+                          color='yellow' 
+                          disabled = { quest.completed == false } 
+                          style={{ width: '100px', marginLeft: '1em', padding: '.5em'}}
+                          onClick={() => {completeQuest(quest)}}
+                        >
+                          { quest.completed ? 'Turn In' : 'Not Done'}
+                        </Button>
+                        { /* TODO: add requirement that user has an obs in inventory to display checkbox below*/}
+                        { quest.completed ? 
+                          <Checkbox
+                            toggle
+                            label='OBS'
+                            style={{ }} 
+                            onClick={(e) => {
+                              obsCheckboxReducer(quest.id)
+                            }}
+                          /> 
+                        : 
+                        <Button 
+                          size="mini" 
+                          color='orange'
+                          disabled={ authorizedUser ? false : true}
+                          onClick={() => {skipQuest(quest)}}
+                        >
+                          
+                          <Image src={goldIcon} size="mini" className='inline' />
+                            Skip Quest (300) 
+                        </Button>
+                        }
+                      </div> 
 
-                </Card.Description>
-              </Card.Content>
-              { questGroup == 'active' ? 
-                <CardContent
-                  //style={{ border: '10px solid red' }}
-                >
-                  <Button 
-                    size="mini" 
-                    color='orange'
-                    disabled={ authorizedUser ? false : true}
-                    onClick={() => {skipQuest(quest)}}
-                  >
+                      : '' }
+                      { checkDevEnv() ? 
+                      <Checkbox 
+                        style={{ marginTop: '1em' }} 
+                        label={'Mark to be completed ' + quest.id} 
+                        checked={checkedQuests[quest.id]}
+                        onClick={(e) => {
+                          checkboxReducer(quest.id)
+                        }}
+                      />
+                      : '' }
+                    </div>
                     
-                    <Image src={goldIcon} size="mini" className='inline' />
-                      Skip Quest (300) 
-                  </Button>
-                </CardContent>
-              : ''}
+                  </Grid.Column>
+                </Grid>
+              </Card.Content>
             </Card>
+            
           ))}
         </Card.Group>
       </div>
