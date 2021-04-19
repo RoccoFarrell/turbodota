@@ -116,7 +116,7 @@ module.exports = function (app) {
       .get(debug.createBackup)
 
     app.route('/api/debug/editAllTowns')
-      .get(debug.editAllTowns)
+      .post(debug.editAllTowns)
 
     app.route('/api/debug/towns/:steamID/addQuest')
       .get(debug.addQuestToTown)

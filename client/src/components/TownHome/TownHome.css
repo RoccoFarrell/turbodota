@@ -58,3 +58,10 @@
 .tinyText {
   font-size: .75em!important;
 }
+
+#inventoryContainer {
+  display: flex!important;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+}

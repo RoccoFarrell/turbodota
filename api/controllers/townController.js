@@ -3,66 +3,20 @@ const db = require('../db')
 const admin = require("firebase-admin");
 const matchesRef = db.collection('matches')
 
+//import controllers
 const match = require('../controllers/matchController')
 
-const newTown = {
-  playerID: '',
-  gold: 0,
-  xp: 0,
-  totalQuests: 0,
-  level: {},
-  townStats: {
-    nonTownGames: 0
-  },
-  active: [],
-  completed: [],
-  skipped: [],
-  inventory: [],
-  shop: [],
-  modifiers: [],
-  lastModified: new Date(),
-  dateCreated: new Date()
-}
+//import schemas
+const newTown = require('../schemas/newTown')
+const newTownQuest = require('../schemas/newTownQuest')
+const levelXPArray = require('../schemas/levelXpArray')
+const modifiersList = require('../schemas/modifiersList')
 
-const newTownQuest =  {
-  id: 0,
-  hero: {},
-  active: true,
-  completed: false,
-  skipped: false,
-  completedMatchID: null,
-  startTime: new Date(),
-  endTime: null,
-  conditions: [],
-  attempts: [],
-  bounty: {
-    xp: 100,
-    gold: 100
-  }
-}
-
-const levelXPArray = [
-  '0',
-  '200',
-  '400',
-  '700',
-  '1000',
-  '1500',
-  '2000',
-  '2500',
-  '3000',
-  '4000',
-  '5000',
-  '6000',
-  '7000',
-  '8000',
-  '9000',
-  '100000'
-]
-
+//import collections
 let heroesRef = db.collection('heroes')
 let itemsRef = db.collection('items')
 
+//begin functions
 async function getItemsFromDB(){
   let totalItemsCount = 0
 
@@ -310,6 +264,7 @@ const recalculateExistingTown = async (townData) => {
   return townData  
 }
 
+//begin routes
 exports.getTownForUser = async function (req, res) {
   let usersRef = db.collection('users')
   let townsRef = db.collection('towns')
@@ -451,7 +406,7 @@ exports.modifyQuest = async function (req, res) {
         }
       })
   } else 
-  if(action === 'consumeObserverForQuest'){
+  if(action === 'applyObs'){
     console.log('got observer')
     let obsQuest = editTownData.quest
 
@@ -465,7 +420,23 @@ exports.modifyQuest = async function (req, res) {
             let townID = doc.id
             let town = doc.data()
 
-            //TO DO: generate 3 heroes and push to obs object on the quest
+            town.active.filter(q => q.id == obsQuest.id).forEach(q => {
+              //TO DO: generate 3 heroes and push to obs object on the quest
+              if(q.modifiers.length === 0){
+                let mod_observer = modifiersList.filter(modItem => modItem.name='Observer Ward Hero Choice')[0]
+                console.log(mod_observer)
+                while(mod_observer.heroesList.length < 3){
+                  let randomHero = allHeroes[Math.floor(Math.random() * allHeroes.length)]
+                  if(!mod_observer.heroesList.includes(randomHero.id)) mod_observer.heroesList.push(randomHero)
+                }
+                
+                q.modifiers.push(mod_observer)
+              }
+            })
+
+            let returnTown = await editExistingTown(townID, town)
+
+            res.send(returnTown)
           })
         }
       })

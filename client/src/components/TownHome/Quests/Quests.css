@@ -4,12 +4,11 @@
   justify-content: center;
   align-items: center;
 }
-.flexColumn {
+.questCardFlexColumn {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
-  margin-top: 1em;
+  align-items: flex-start;
   padding: 1em;
 }
 
@@ -41,4 +40,9 @@
   justify-content: space-evenly;
   align-items: center;
   padding: .5em;
+}
+
+.actionButton {
+  margin-right: 0em!important;
+  margin-bottom: 5px!important;
 }

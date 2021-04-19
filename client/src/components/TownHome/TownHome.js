@@ -381,22 +381,28 @@ function TownHome() {
                   {ShopOpenCloseModal()}
                 </Container> */}
                 <Container id="questContainer">
+                  <h2>Inventory</h2>
+                    {/* Inventory */}
+                    { !!townData.inventory && townData.inventory.length != 0 ?
+                      <div id='inventoryContainer'>
+                        {townData.inventory.map((item, index) => (
+                          <div key={index}>
+                            <Statistic>
+                              <Statistic.Value>
+                                {item.quantity}
+                              </Statistic.Value>
+                              <Statistic.Label>{item.name} </Statistic.Label>
+                            </Statistic>
+                          </div>
+                        ))}
+                      </div>
+                    : 'Empty Inventory' }
+                </Container>
+                {/* Quests Container*/}
+                <Container id="questContainer">
                   <h2>Quests</h2>
                   <Tab menu={{ secondary: true }} panes={panes} />
                 </Container>
-                
-                {/* Inventory */}
-                { !!townData.inventory ?
-                  <Container>
-                    <div className='flexRowTownHome' style={{ border: '1px solid red'}}>
-                      {townData.inventory.map((item, index) => (
-                        <div key={index}>
-                          {item.name} : {item.quantity}
-                        </div>
-                      ))}
-                    </div>
-                  </Container>
-                : '' }
               </Container>
             </Sidebar.Pusher>
           </Sidebar.Pushable>

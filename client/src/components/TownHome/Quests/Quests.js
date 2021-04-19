@@ -13,7 +13,9 @@ import {
     Button,
     Label,
     CardContent,
-    Grid
+    Grid,
+    Modal,
+    Segment
 } from 'semantic-ui-react'
 import './Quests.css';
 
@@ -64,7 +66,7 @@ function Quest(props) {
 
   const heroIcon = (hero_id, zoom) => {
     let heroString = 'd2mh hero-' + hero_id
-    return <i style={{ zoom: zoom, padding: '0px' }} className={heroString}/>
+    return <i style={{ zoom: '150%', padding: '0px' }} className={heroString}/>
   }
 
   const handleCheckProgress = () => {
@@ -113,6 +115,36 @@ function Quest(props) {
     } catch(e) {console.error(e)}
   }
 
+  const applyObsToQuest = async (quest) => {
+    console.log(quest)
+    let mod_observer = quest.modifiers.filter(modItem => modItem.name='Observer Ward Hero Choice')
+    if(mod_observer.length === 0){
+      let postObj = {
+        quest: quest,
+        action: 'applyObs'
+      }
+
+      try {
+          await axios.post(`/api/towns/${townData.playerID}`, postObj)
+          .then(res => {
+              let content = res.data;
+              if(content.status == 'failed') {
+                console.error(content)
+                window.alert(content.message + ', sorry bub')
+              }
+              else handleTownDataChange(content)
+          })
+      } catch(e) {console.error(e)}
+
+    } else {
+      console.log('modifier already on there')
+    }
+  }
+
+  const chooseObsHero = async (heroes) => {
+    console.log('test')
+  }
+
   const calculateAttemptsColor = (attempts) => {
     let color = ""
     if(attempts <= 1) color = "green"
@@ -155,7 +187,60 @@ function Quest(props) {
     setObsQuests(obsQuests)
     console.log(obsQuests)
   }
+
+  const inventoryContainsItem = (matchItem) => {
+    let result = false
+    townData.inventory.forEach(invItem => {
+      if(matchItem === invItem.name && invItem.quantity > 0){
+        console.log('match item')
+        result = true
+      }
+    })
+    return result
+  }
   
+  const [selectedArr, setSelectedArr] = useState([false, false, false])
+  const heroSelectionModal = (quest) => {
+    
+    //console.log('test')
+    const setSelectedHero = (index) => {
+      let copy = [false, false, false]
+      copy[index] = true
+      setSelectedArr(copy)
+
+      quest.modifiers[0].selectedHero = quest.modifiers[0].heroesList[index].id
+      //handleTownDataChange()
+    }
+
+    return (
+      <div>
+        { !!quest.modifiers && !!quest.modifiers[0] && !!quest.modifiers[0].heroesList ?
+          <Grid columns={3} padded>
+            { quest.modifiers[0].heroesList.map((hero, index) => (
+              <Grid.Column key={index}>
+                <Segment 
+                  textAlign='center' 
+                  //raised={selectedArr[index]}
+                  piled
+                  color={ !!selectedArr && selectedArr[index] === true ? 'yellow' : 'grey'}
+                  //color='yellow'
+                >
+                  <div>{ heroIcon(hero.id) }</div>
+                  <div>{ hero.localized_name }</div>
+                  {/* <div>{ selectedArr[index].toString() }</div> */}
+                </Segment>
+                <Button 
+                  content='Choose'
+                  fluid
+                  onClick={ e => setSelectedHero(index)}
+                />
+              </Grid.Column>
+            ))}
+          </Grid> 
+        : ''}
+      </div>
+    )
+  }
   return (
     <div style={{ textAlign: 'center'}}>
       {/* <div className={'questCardFlexRow'}>
@@ -192,11 +277,11 @@ function Quest(props) {
                 <Grid columns={3} divided>
                   <Grid.Column>
                     {/* Hero Icon Name and Start Date*/}
-                    <div className={'questCardFlexRow'} style={{ alignItems: 'flex-begin', padding: '0em', margin: '0em'}}>
-                      <div className={'flexColumn'} style={{ width: '50px', height: '50px', padding: '0em', margin: '0em'}}>
+                    <div className={'questCardFlexRow'} style={{ justifyContent: 'flex-start'}}>
+                      <div className={'questCardFlexColumn'}>
                         { heroIcon(quest.hero.id, 1) }
                       </div>
-                      <div className={'flexColumn'} style={{ paddingTop: '.25em'}}>
+                      <div className={'questCardFlexColumn'} style={{ marginLeft: '5em'}}>
                         <Card.Header style={{ fontSize: '1.4em', margin: '2px' }}>{ quest.hero.localized_name }</Card.Header>
                         <Card.Meta>
                           <span>{ processDate(quest.startTime) }</span>
@@ -208,74 +293,124 @@ function Quest(props) {
                   <Grid.Column>
                     {/* Hero Stats */}
                     { questGroup == 'active' ? 
-                      <div className={'flexColumn','questCardFooter'} style={{ justifyContent: 'flex-begin', marginBottom: '0em'}}>
-                        { (!!user.calculations && !!user.calculations.allHeroRecord[quest.hero.id]) ? (
-                        <div className={'flexColumn'} style={{ alignSelf: 'flex-start', justifyContent: 'flex-begin', marginBottom: '0em', padding: '0em'}}>
-                          <Statistic.Group size='mini' widths={1}>
-                            <Statistic size='mini' color={calculateWinRateColor(((user.calculations.allHeroRecord[quest.hero.id].wins / user.calculations.allHeroRecord[quest.hero.id].games) * 100).toFixed(0))}> 
-                                <Statistic.Value>{ ((user.calculations.allHeroRecord[quest.hero.id].wins / user.calculations.allHeroRecord[quest.hero.id].games) * 100).toFixed(0) }</Statistic.Value>
-                                <Statistic.Label style={{ fontSize: '12px'}}>Win%</Statistic.Label>
-                            </Statistic>
-                            <Statistic size='mini'> 
-                                <Statistic.Value>
-                                <div style={{ display: 'inline'}}>{user.calculations.allHeroRecord[quest.hero.id].wins + ' - '}</div> 
-                                <div style={{ display: 'inline'}}>{user.calculations.allHeroRecord[quest.hero.id].losses}</div>
-                                </Statistic.Value>
-                                <Statistic.Label style={{ fontSize: '10px'}}>W - L</Statistic.Label>
-                            </Statistic>
 
-                          </Statistic.Group>
-                        </div>
-                        ) : (<div>Never Played</div>)}
-                        <Statistic size='mini' color={calculateAttemptsColor(quest.attempts.length)} style={{ alignSelf: 'center', marginLeft: '2em'}}> 
-                            <Statistic.Value>{ quest.attempts.length }</Statistic.Value>
-                            <Statistic.Label style={{ fontSize: '10px'}}>{ quest.attempts.length == 1 ? 'Attempt' : 'Attempts'}</Statistic.Label>
-                        </Statistic>
-                      </div>
+                      <Grid columns={2}>
+                        <Grid.Column>
+                          { (!!user.calculations && !!user.calculations.allHeroRecord[quest.hero.id]) ? (
+                            <div className={'questCardFlexColumn'} style={{ alignItems: 'center', justifyContent: 'center'}}>
+                              <div>Win Rate: { ((user.calculations.allHeroRecord[quest.hero.id].wins / user.calculations.allHeroRecord[quest.hero.id].games) * 100).toFixed(0) + '%' }</div>
+                              <div>Record: { user.calculations.allHeroRecord[quest.hero.id].wins + ' - ' + user.calculations.allHeroRecord[quest.hero.id].losses }</div>
+                            </div>
+                            ) : (<div>Never Played</div>)}                            
+                        </Grid.Column>
+                        <Grid.Column textAlign='center'>
+                          <Statistic 
+                            style={{ marginLeft: 'auto', marginRight: 'auto'}}
+                            color={calculateAttemptsColor(quest.attempts.length)}
+                          >
+                            <Statistic.Value>{quest.attempts.length}</Statistic.Value>
+                            <Statistic.Label>{ quest.attempts.length == 1 ? ' Attempt' : ' Attempts'}</Statistic.Label>
+                          </Statistic>
+                        </Grid.Column>
+                      </Grid>
+
                     : 
-                      <Statistic size='mini' color={calculateAttemptsColor(quest.attempts.length)} style={{ alignSelf: 'center', marginLeft: '2em'}}> 
-                          <Statistic.Value>{ quest.attempts.length }</Statistic.Value>
-                          <Statistic.Label style={{ fontSize: '10px'}}>{ quest.attempts.length == 1 ? 'Attempt' : 'Attempts'}</Statistic.Label>
-                      </Statistic>
+                      <div>
+                        { quest.attempts.length == 1 ? quest.attempts.length + ' Attempt' : quest.attempts.length + ' Attempts'}
+                      </div>
                     }
                   </Grid.Column>
                   <Grid.Column>
                     {/* Action Buttons */}
-                    <div>
+                    
                       { questGroup == 'active' ?
-                      <div className='turnInRow'>
-                        <Button 
-                          color='yellow' 
-                          disabled = { quest.completed == false } 
-                          style={{ width: '100px', marginLeft: '1em', padding: '.5em'}}
-                          onClick={() => {completeQuest(quest)}}
-                        >
+                      <Grid columns={3}>
+                        <Grid.Column textAlign='center'>
+                          <Button 
+                              disabled = { quest.completed === false } 
+                              onClick={() => {completeQuest(quest)}}
+                              circular
+                              size='massive'
+                              icon='settings'
+                              color='green' 
+                              icon='check circle outline'
+                              className='actionButton'
+                            />
                           { quest.completed ? 'Turn In' : 'Not Done'}
-                        </Button>
-                        { /* TODO: add requirement that user has an obs in inventory to display checkbox below*/}
-                        { quest.completed ? 
-                          <Checkbox
-                            toggle
-                            label='OBS'
-                            style={{ }} 
-                            onClick={(e) => {
-                              obsCheckboxReducer(quest.id)
-                            }}
-                          /> 
-                        : 
-                        <Button 
-                          size="mini" 
-                          color='orange'
-                          disabled={ authorizedUser ? false : true}
-                          onClick={() => {skipQuest(quest)}}
-                        >
-                          
-                          <Image src={goldIcon} size="mini" className='inline' />
-                            Skip Quest (300) 
-                        </Button>
-                        }
-                      </div> 
+                        </Grid.Column>
+                        <Grid.Column>
+                          { !!quest.modifiers ? 
+                          <Modal
+                            dimmer='blurring'
+                            header='Choose your next hero'
+                            content={heroSelectionModal(quest)}
+                            actions={['No', { key: 'Yes', content: 'Yes', positive: true, onClick: () => chooseObsHero()}]}
+                            trigger={
+                              <Button
+                                circular 
+                                size='massive' 
+                                color='yellow' 
+                                icon='eye' 
+                                className='actionButton'
+                                disabled = { (quest.completed === false || !inventoryContainsItem('Observer Ward'))}
+                                onClick={() => {applyObsToQuest(quest)}} 
+                              />
+                            }
+                          />
+                          : ''}
 
+                          { quest.completed ? 'Apply Obs' : 'Not Done'}
+                          {/* <Label color='red' floating>
+                            22
+                          </Label> */}
+                        </Grid.Column>
+                        <Grid.Column>
+                          <Modal
+                            trigger={                          
+                            <Button 
+                              size='massive' 
+                              circular 
+                              color='red' 
+                              icon='shuffle' 
+                              className='actionButton'
+                              disabled = { quest.completed === true }
+                            />}
+                            header='Confirmation'
+                            content='Are you sure you want to skip?'
+                            actions={['No', { key: 'Yes', content: 'Yes', positive: true, onClick: () => skipQuest(quest)}]}
+                          />
+                          Skip
+                        </Grid.Column>
+
+
+                          { /* TODO: add requirement that user has an obs in inventory to display checkbox below*/}
+                          {/* { quest.completed ? 
+                            <Checkbox
+                              toggle
+                              label='OBS'
+                              style={{ }} 
+                              onClick={(e) => {
+                                obsCheckboxReducer(quest.id)
+                              }}
+                            /> 
+                          : 
+                          <Button 
+                            size="mini" 
+                            color='orange'
+                            disabled={ authorizedUser ? false : true}
+                            onClick={() => {skipQuest(quest)}}
+                          >
+                            
+                            <Image src={goldIcon} size="mini" className='inline' />
+                              Skip Quest (300) 
+                          </Button>
+                          } */}
+                      </Grid>
+                        // <Button.Group vertical labeled icon>
+                        //   <Button color='green' icon='check circle outline' content='Turn In' />
+                        //   <Button color='yellow' icon='eye' content='Apply Obs' />
+                        //   <Button color='red' icon='shuffle' content='Skip' />
+                        // </Button.Group>
                       : '' }
                       { checkDevEnv() ? 
                       <Checkbox 
@@ -287,7 +422,7 @@ function Quest(props) {
                         }}
                       />
                       : '' }
-                    </div>
+                   
                     
                   </Grid.Column>
                 </Grid>

@@ -14,22 +14,11 @@ const townsRef = db.collection('towns')
 const usersRef = db.collection('users')
 const itemsRef = db.collection('items')
 
-const newTownQuest =  {
-  id: 0,
-  hero: {},
-  active: true,
-  completed: false,
-  skipped: false,
-  completedMatchID: null,
-  startTime: new Date(),
-  endTime: null,
-  conditions: [],
-  attempts: [],
-  bounty: {
-    xp: 100,
-    gold: 100
-  }
-}
+//import schemas
+const newTown = require('../../schemas/newTown')
+const newTownQuest = require('../../schemas/newTownQuest')
+const levelXPArray = require('../../schemas/levelXpArray')
+const itemsList = require('../../schemas/itemsList')
 
 exports.test = (req, res) => {
   res.send({'test': true})
@@ -209,13 +198,9 @@ exports.editAllTowns = async (req, res) => {
 
           //add changes here
 
-          let changeFlag = false
-          town.completed.forEach(quest => {
-            if((typeof quest.endTime) === "string"){
-              changeFlag = true
-              totalCount++
-              quest.endTime = parseInt(quest.endTime)
-            }
+          let changeFlag = true
+          town.active.forEach(quest => {
+            quest.modifiers = []
           })
 
           //end changes
@@ -371,52 +356,7 @@ exports.completeQuestWithFakeMatch = async (req, res) => {
   
   res.send({'status': 'Received request to add new fields to all towns'})
 }
-
-let itemsList = [
-  {
-    id: 1,
-    name: 'Observer Ward',
-    cost: 50,
-    perpetual: false,
-    quantity: 10000,
-    maxQuantity: 10000,
-    shop: true,
-    xpRequirement: 200,
-    modifiers: [],
-    active: true,
-    numberUsed: 0,
-    description: 'Use when turning in a quest, instead of a random quest you will get to pick your new quest between 3 random options.'
-  },
-  {
-    id: 2,
-    name: 'Sentry Ward',
-    cost: 50,
-    perpetual: false,
-    quantity: 10000,
-    maxQuantity: 10000,
-    shop: true,
-    xpRequirement: 200,
-    modifiers: [],
-    active: false,
-    numberUsed: 0,
-    description: 'Use before turning in a quest, shows the next quest you will receive.'
-  },
-  {
-    id: 3,
-    name: 'Hand of Midas',
-    cost: 5000,
-    perpetual: true,
-    quantity: 1,
-    maxQuantity: 1,
-    shop: true,
-    xpRequirement: 200,
-    modifiers: [],
-    active: false,
-    numberUsed: 0,
-    description: 'Hand of Midas will increase your quest bounties by 100 gold permanently.'
-  }
-]
-
+ 
 exports.rebuildItemsCollection = async (req, res) => {
   await itemsRef.get()
     .then(snapshot => {
