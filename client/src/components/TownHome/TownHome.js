@@ -30,7 +30,7 @@ import xpIcon from '../../assets/xp.png';
 import turboTownIcon from '../../assets/turbotown.png';
 
 function TownHome() {
-  const [devEnv, setDevEnv] = useState(false)
+  const [devEnv, setDevEnv] = useState(true)
   const [visible, setVisible] = useState(false)
   const {selectedUser, setSelectedUser, userID, setUserID} = useContext(TurbodotaContext);
   const [enableReset, setEnableReset] = useState(false)

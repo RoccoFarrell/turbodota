@@ -64,9 +64,9 @@ function Quest(props) {
     return tempDate.toLocaleDateString()
   }
 
-  const heroIcon = (hero_id, zoom) => {
+  const heroIcon = (hero_id, inputZoom) => {
     let heroString = 'd2mh hero-' + hero_id
-    return <i style={{ zoom: '150%', padding: '0px' }} className={heroString}/>
+    return <i style={{ zoom: inputZoom, padding: '0px' }} className={heroString}/>
   }
 
   const handleCheckProgress = () => {
@@ -77,7 +77,7 @@ function Quest(props) {
   }
 
   const completeQuest = async (quest) => {
-    console.log(quest)
+    console.log('complete quest: ', quest)
     let postObj = {
       quest: quest,
       action: 'completeQuest',
@@ -114,37 +114,6 @@ function Quest(props) {
     
     } catch(e) {console.error(e)}
   }
-
-  const applyObsToQuest = async (quest) => {
-    console.log(quest)
-    let mod_observer = quest.modifiers.filter(modItem => modItem.name='Observer Ward Hero Choice')
-    if(mod_observer.length === 0){
-      let postObj = {
-        quest: quest,
-        action: 'applyObs'
-      }
-
-      try {
-          await axios.post(`/api/towns/${townData.playerID}`, postObj)
-          .then(res => {
-              let content = res.data;
-              if(content.status == 'failed') {
-                console.error(content)
-                window.alert(content.message + ', sorry bub')
-              }
-              else handleTownDataChange(content)
-          })
-      } catch(e) {console.error(e)}
-
-    } else {
-      console.log('modifier already on there')
-    }
-  }
-
-  const chooseObsHero = async (heroes) => {
-    console.log('test')
-  }
-
   const calculateAttemptsColor = (attempts) => {
     let color = ""
     if(attempts <= 1) color = "green"
@@ -188,15 +157,57 @@ function Quest(props) {
     console.log(obsQuests)
   }
 
+  const applyObsToQuest = async (quest) => {
+    console.log(quest)
+    let mod_observer = quest.modifiers.filter(modItem => modItem.name='Observer Ward Hero Choice')
+    if(mod_observer.length === 0){
+      let postObj = {
+        quest: quest,
+        action: 'applyObs'
+      }
+
+      try {
+          await axios.post(`/api/towns/${townData.playerID}`, postObj)
+          .then(res => {
+              let content = res.data;
+              if(content.status == 'failed') {
+                console.error(content)
+                window.alert(content.message + ', sorry bub')
+              }
+              else handleTownDataChange(content)
+          })
+      } catch(e) {console.error(e)}
+
+    } else {
+      console.log('modifier already on there')
+    }
+  }
+
+  const chooseObsHero = async (quest) => {
+    console.log('submitting obs hero ' + selectedArr.indexOf(true))
+    console.log(quest)
+    console.log('townData change')
+    handleTownDataChange(townData)
+  }
+
   const inventoryContainsItem = (matchItem) => {
     let result = false
     townData.inventory.forEach(invItem => {
       if(matchItem === invItem.name && invItem.quantity > 0){
-        console.log('match item')
+        //console.log('match item')
         result = true
       }
     })
     return result
+  }
+
+  const questContainsObs = (quest) => {
+    let flag = false
+    quest.modifiers.forEach(mod => {
+      console.log('mod: ', mod)
+      if(mod.name === 'Observer Ward Hero Choice') flag = true
+    })
+    return flag
   }
   
   const [selectedArr, setSelectedArr] = useState([false, false, false])
@@ -209,7 +220,6 @@ function Quest(props) {
       setSelectedArr(copy)
 
       quest.modifiers[0].selectedHero = quest.modifiers[0].heroesList[index].id
-      //handleTownDataChange()
     }
 
     return (
@@ -225,7 +235,7 @@ function Quest(props) {
                   color={ !!selectedArr && selectedArr[index] === true ? 'yellow' : 'grey'}
                   //color='yellow'
                 >
-                  <div>{ heroIcon(hero.id) }</div>
+                  <div>{ heroIcon(hero.id, 1.25) }</div>
                   <div>{ hero.localized_name }</div>
                   {/* <div>{ selectedArr[index].toString() }</div> */}
                 </Segment>
@@ -279,7 +289,7 @@ function Quest(props) {
                     {/* Hero Icon Name and Start Date*/}
                     <div className={'questCardFlexRow'} style={{ justifyContent: 'flex-start'}}>
                       <div className={'questCardFlexColumn'}>
-                        { heroIcon(quest.hero.id, 1) }
+                        { heroIcon(quest.hero.id, 1.5) }
                       </div>
                       <div className={'questCardFlexColumn'} style={{ marginLeft: '5em'}}>
                         <Card.Header style={{ fontSize: '1.4em', margin: '2px' }}>{ quest.hero.localized_name }</Card.Header>
@@ -344,7 +354,7 @@ function Quest(props) {
                             dimmer='blurring'
                             header='Choose your next hero'
                             content={heroSelectionModal(quest)}
-                            actions={['No', { key: 'Yes', content: 'Yes', positive: true, onClick: () => chooseObsHero()}]}
+                            actions={['No', { key: 'Yes', content: 'Yes', positive: true, onClick: () => chooseObsHero(quest)}]}
                             trigger={
                               <Button
                                 circular 
@@ -352,7 +362,7 @@ function Quest(props) {
                                 color='yellow' 
                                 icon='eye' 
                                 className='actionButton'
-                                disabled = { (quest.completed === false || !inventoryContainsItem('Observer Ward'))}
+                                disabled = { (quest.completed === false || (!inventoryContainsItem('Observer Ward') && !questContainsObs(quest)))}
                                 onClick={() => {applyObsToQuest(quest)}} 
                               />
                             }
@@ -360,9 +370,14 @@ function Quest(props) {
                           : ''}
 
                           { quest.completed ? 'Apply Obs' : 'Not Done'}
-                          {/* <Label color='red' floating>
-                            22
-                          </Label> */}
+                          { !!quest.modifiers[0] && quest.modifiers[0]['name'] === "Observer Ward Hero Choice" && quest.modifiers[0]['selectedHero'] !== -1 ? 
+                            <Label color='yellow' floating>
+                              { heroIcon(quest.modifiers[0].selectedHero, .75) }
+                            </Label>
+                          : 
+                            ''
+                          }
+                          
                         </Grid.Column>
                         <Grid.Column>
                           <Modal

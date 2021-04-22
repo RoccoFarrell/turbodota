@@ -320,21 +320,42 @@ exports.modifyQuest = async function (req, res) {
             
             town.active.filter(q => q.id == completedQuest.id).forEach(q => {
               console.log('found match: ', q)
+              
+              //assign found quest from query to completed quest from POST
+              q = completedQuest
+
               q.completed = true
               q.endTime = Math.round(((new Date().getTime())/1000))
               town.completed.push(q)
+
+              //check for OBS modifier to not give user a random hero
+              let obsFound = false
+              let obsHero = -1
+              q.modifiers.forEach(mod => {
+                console.log('mod in API', mod)
+                if(mod.name === "Observer Ward Hero Choice" && mod.selectedHero !== -1){
+                  obsFound = true
+                  obsHero = mod.selectedHero
+                }
+              })
 
               //add randomized new quest
               let townQuest = { ...newTownQuest }
               // console.log(townData.totalQuests)
               townQuest.id = (town.totalQuests + 1)
 
-              //check to make sure new hero quest isnt same hero as completed quest
-              townQuest.hero = allHeroes[Math.floor(Math.random() * allHeroes.length)]
-              let activeQuestHeroes = town.active.map(q2 => q2.hero.id)
-              console.log(activeQuestHeroes)
-              while(activeQuestHeroes.includes(townQuest.hero.id)) townQuest.hero = allHeroes[Math.floor(Math.random() * allHeroes.length)]
-              
+              if(obsFound && obsHero !== -1){
+                townQuest.hero = allHeroes.filter(hero => hero.id === obsHero)[0]
+              } else {
+                //no OBS on quest, generating random hero
+                //check to make sure new hero quest isnt same hero as completed quest
+                townQuest.hero = allHeroes[Math.floor(Math.random() * allHeroes.length)]
+                let activeQuestHeroes = town.active.map(q2 => q2.hero.id)
+                //console.log(activeQuestHeroes)
+                while(activeQuestHeroes.includes(townQuest.hero.id)) townQuest.hero = allHeroes[Math.floor(Math.random() * allHeroes.length)]
+              }
+
+              //push new quest to actives
               town.active.push(townQuest)
 
               town.xp += q.bounty.xp
@@ -422,17 +443,28 @@ exports.modifyQuest = async function (req, res) {
 
             town.active.filter(q => q.id == obsQuest.id).forEach(q => {
               //TO DO: generate 3 heroes and push to obs object on the quest
+              //bad logic: assuming that OBS is the only quest modifier \/ \/ \/ 
               if(q.modifiers.length === 0){
-                let mod_observer = modifiersList.filter(modItem => modItem.name='Observer Ward Hero Choice')[0]
-                console.log(mod_observer)
+                let mod_observer = Object.assign({},modifiersList.filter(modItem => modItem.name='Observer Ward Hero Choice')[0])
+                mod_observer.heroesList = []
+                console.log('fresh mod_observer: ', mod_observer)
+
+                let dupeArray = []
                 while(mod_observer.heroesList.length < 3){
                   let randomHero = allHeroes[Math.floor(Math.random() * allHeroes.length)]
-                  if(!mod_observer.heroesList.includes(randomHero.id)) mod_observer.heroesList.push(randomHero)
+
+                  //push hero ids to dupeArray to check for dupes
+                  if(!dupeArray.includes(randomHero.id) && (randomHero.id !== q.hero.id)){
+                    dupeArray.push(randomHero.id)
+                    mod_observer.heroesList.push(randomHero)
+                  } 
                 }
                 
                 q.modifiers.push(mod_observer)
               }
             })
+
+            town.inventory.filter(item => item.name === "Observer Ward")[0].quantity -= 1
 
             let returnTown = await editExistingTown(townID, town)
 
