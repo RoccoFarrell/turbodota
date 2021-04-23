@@ -64,6 +64,8 @@ module.exports = function (app) {
   app.route('/api/towns')
     .get(town.getAllTowns)
 
+  app.route('/api/towns/:steamID/purchaseItem/:itemID')
+    .post(town.purchaseItemFromShop)
 
   app.get('/account', ensureAuthenticated, function(req, res){
     res.render('account', { user: req.user });
@@ -111,10 +113,10 @@ module.exports = function (app) {
       .get(debug.test)
 
     app.route('/api/debug/createBackup')
-      .get(debug.createBackup)
+      .post(debug.createBackup)
 
     app.route('/api/debug/editAllTowns')
-      .get(debug.editAllTowns)
+      .post(debug.editAllTowns)
 
     app.route('/api/debug/towns/:steamID/addQuest')
       .get(debug.addQuestToTown)
@@ -127,5 +129,8 @@ module.exports = function (app) {
 
     app.route('/api/debug/towns/addNewFields')
       .get(debug.addFieldsToAllTowns)
+
+    app.route('/api/debug/items/rebuildItems')
+      .post(debug.rebuildItemsCollection)
   }
 }

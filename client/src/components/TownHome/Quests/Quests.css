@@ -1,32 +1,25 @@
-.flexRow {
+.questCardFlexRow {
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  margin-top: 1em;
-  padding: 1em;
 }
-.flexColumn {
+.questCardFlexColumn {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
-  margin-top: 1em;
+  align-items: flex-start;
   padding: 1em;
 }
 
 
 .questCardActive {
-  height: 35em;
-  width: 20em;
   margin-left: .5em!important;
   margin-right: .5em!important;
   margin-top: 0em!important;
 }
 
 .questCardCompleted {
-  height: 20em;
-  width: 15em;
   margin-left: .5em!important;
   margin-right: .5em!important;
   margin-top: 0em!important;
@@ -39,4 +32,17 @@
   margin-right: .25em!important;
   margin-bottom: 0em!important;
   margin-top: 0em!important;
+}
+
+.turnInRow {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  padding: .5em;
+}
+
+.actionButton {
+  margin-right: 0em!important;
+  margin-bottom: 5px!important;
 }

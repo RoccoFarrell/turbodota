@@ -3,66 +3,20 @@ const db = require('../db')
 const admin = require("firebase-admin");
 const matchesRef = db.collection('matches')
 
+//import controllers
 const match = require('../controllers/matchController')
 
-const newTown = {
-  playerID: '',
-  gold: 0,
-  xp: 0,
-  totalQuests: 0,
-  level: {},
-  townStats: {
-    nonTownGames: 0
-  },
-  active: [],
-  completed: [],
-  skipped: [],
-  //items: [],
-  //shop: [],
-  //modifiers: [],
-  lastModified: new Date(),
-  dateCreated: new Date()
-}
+//import schemas
+const newTown = require('../schemas/newTown')
+const newTownQuest = require('../schemas/newTownQuest')
+const levelXPArray = require('../schemas/levelXpArray')
+const modifiersList = require('../schemas/modifiersList')
 
-const newTownQuest =  {
-  id: 0,
-  hero: {},
-  active: true,
-  completed: false,
-  skipped: false,
-  completedMatchID: null,
-  startTime: new Date(),
-  endTime: null,
-  conditions: [],
-  attempts: [],
-  bounty: {
-    xp: 100,
-    gold: 100
-  }
-}
-
-const levelXPArray = [
-  '0',
-  '200',
-  '400',
-  '700',
-  '1000',
-  '1500',
-  '2000',
-  '2500',
-  '3000',
-  '4000',
-  '5000',
-  '6000',
-  '7000',
-  '8000',
-  '9000',
-  '100000'
-]
-
+//import collections
 let heroesRef = db.collection('heroes')
 let itemsRef = db.collection('items')
 
+//begin functions
 async function getItemsFromDB(){
   let totalItemsCount = 0
 
@@ -302,7 +256,7 @@ const recalculateExistingTown = async (townData) => {
   items.forEach(item => {
     let itemInShop = false
     townData.shop.forEach(shopItem => {
-       if(item.name === shopItem.name) itemInShop = true
+       if(item.id === shopItem.id) itemInShop = true
     })
     if(itemInShop === false) townData.shop.push(item)
   })
@@ -310,6 +264,7 @@ const recalculateExistingTown = async (townData) => {
   return townData  
 }
 
+//begin routes
 exports.getTownForUser = async function (req, res) {
   let usersRef = db.collection('users')
   let townsRef = db.collection('towns')
@@ -347,7 +302,7 @@ exports.modifyQuest = async function (req, res) {
 
   let action = editTownData.action
 
-  if(action == 'completeQuest'){
+  if(action === 'completeQuest'){
     let completedQuest = editTownData.quest
 
     console.log(playerID)
@@ -365,19 +320,42 @@ exports.modifyQuest = async function (req, res) {
             
             town.active.filter(q => q.id == completedQuest.id).forEach(q => {
               console.log('found match: ', q)
+              
+              //assign found quest from query to completed quest from POST
+              q = completedQuest
+
               q.completed = true
               q.endTime = Math.round(((new Date().getTime())/1000))
               town.completed.push(q)
+
+              //check for OBS modifier to not give user a random hero
+              let obsFound = false
+              let obsHero = -1
+              q.modifiers.forEach(mod => {
+                console.log('mod in API', mod)
+                if(mod.name === "Observer Ward Hero Choice" && mod.selectedHero !== -1){
+                  obsFound = true
+                  obsHero = mod.selectedHero
+                }
+              })
 
               //add randomized new quest
               let townQuest = { ...newTownQuest }
               // console.log(townData.totalQuests)
               townQuest.id = (town.totalQuests + 1)
 
-              //check to make sure new hero quest isnt same hero as completed quest
-              townQuest.hero = allHeroes[Math.floor(Math.random() * allHeroes.length)]
-              if(townQuest.hero.id === q.hero.id) townQuest.hero = allHeroes[Math.floor(Math.random() * allHeroes.length)]
-              
+              if(obsFound && obsHero !== -1){
+                townQuest.hero = allHeroes.filter(hero => hero.id === obsHero)[0]
+              } else {
+                //no OBS on quest, generating random hero
+                //check to make sure new hero quest isnt same hero as completed quest
+                townQuest.hero = allHeroes[Math.floor(Math.random() * allHeroes.length)]
+                let activeQuestHeroes = town.active.map(q2 => q2.hero.id)
+                //console.log(activeQuestHeroes)
+                while(activeQuestHeroes.includes(townQuest.hero.id)) townQuest.hero = allHeroes[Math.floor(Math.random() * allHeroes.length)]
+              }
+
+              //push new quest to actives
               town.active.push(townQuest)
 
               town.xp += q.bounty.xp
@@ -399,7 +377,7 @@ exports.modifyQuest = async function (req, res) {
 
 
   } else
-  if(action == 'skipQuest'){
+  if(action === 'skipQuest'){
     console.log('got skip')
     let skipQuest = editTownData.quest
 
@@ -448,6 +426,52 @@ exports.modifyQuest = async function (req, res) {
           })
         }
       })
+  } else 
+  if(action === 'applyObs'){
+    console.log('got observer')
+    let obsQuest = editTownData.quest
+
+    townsRef.where('playerID', '==', parseInt(playerID)).get()
+      .then(snapshot => {
+        if(snapshot.empty){ 
+          res.send({'status': 'failed', 'message' : 'Couldn\'t find player ' + playerID})
+        } 
+        else {
+          snapshot.forEach(async doc => {
+            let townID = doc.id
+            let town = doc.data()
+
+            town.active.filter(q => q.id == obsQuest.id).forEach(q => {
+              //TO DO: generate 3 heroes and push to obs object on the quest
+              //bad logic: assuming that OBS is the only quest modifier \/ \/ \/ 
+              if(q.modifiers.length === 0){
+                let mod_observer = Object.assign({},modifiersList.filter(modItem => modItem.name='Observer Ward Hero Choice')[0])
+                mod_observer.heroesList = []
+                console.log('fresh mod_observer: ', mod_observer)
+
+                let dupeArray = []
+                while(mod_observer.heroesList.length < 3){
+                  let randomHero = allHeroes[Math.floor(Math.random() * allHeroes.length)]
+
+                  //push hero ids to dupeArray to check for dupes
+                  if(!dupeArray.includes(randomHero.id) && (randomHero.id !== q.hero.id)){
+                    dupeArray.push(randomHero.id)
+                    mod_observer.heroesList.push(randomHero)
+                  } 
+                }
+                
+                q.modifiers.push(mod_observer)
+              }
+            })
+
+            town.inventory.filter(item => item.name === "Observer Ward")[0].quantity -= 1
+
+            let returnTown = await editExistingTown(townID, town)
+
+            res.send(returnTown)
+          })
+        }
+      })
   }
   else {
     res.status(404)
@@ -490,4 +514,82 @@ exports.getAllTowns = async function (req, res) {
 
   // console.log('allTowns: ', allTowns)
   res.send(allTowns)
+}
+
+//shop functions
+exports.purchaseItemFromShop = async function (req, res) {
+  /*
+      if you are purchasing an item
+      decrement shop item quantity - 1
+      decrement gold - (cost of item)
+      add inventory item quantity + 1 (add obj if not exist in inventory)
+  */
+  const playerID = req.params.steamID
+  const purchaseItemID = parseInt(req.params.itemID)
+  let townsRef = db.collection('towns')
+  let returnObj = {}
+
+  await townsRef.where('playerID', '==', parseInt(playerID)).get()
+    .then(snapshot => {
+      if(snapshot.empty) console.log('empty')
+      else {
+        snapshot.forEach(doc => {
+          // console.log(doc.data())
+          let townID = doc.id
+          let town = doc.data()
+
+          let editFlag = false
+
+          town.shop.forEach(itemInShop => {          
+            if(itemInShop.id === purchaseItemID){
+              console.log(itemInShop.id, purchaseItemID)
+              if(town.gold >= itemInShop.cost && town.xp >= itemInShop.xpRequirement && itemInShop.quantity > 0){
+                if(town.inventory.filter(item => item.id === itemInShop.id).length === 0){
+                  console.log('purchase shop item id ' + purchaseItemID + ' not in inventory yet')
+                  //decrement shop quantity
+                  itemInShop.quantity -= 1
+  
+                  //decrement gold
+                  town.gold -= itemInShop.cost
+  
+                  //add inventory item
+                  let inventoryItem = Object.assign({}, itemInShop)
+                  inventoryItem.quantity = 1
+                  town.inventory.push(inventoryItem)
+
+                  //write new town
+                  editFlag = true
+                  returnObj = {'success': true, 'status': 'Added item to inventory', 'playerID': playerID, 'itemID': purchaseItemID, 'newTown': town }
+                } else {
+                  console.log('purchase shop item id ' + purchaseItemID + ' already in inventory')
+                  //decrement shop quantity
+                  itemInShop.quantity -= 1
+  
+                  //decrement gold
+                  town.gold -= itemInShop.cost
+  
+                  let foundIndex = town.inventory.findIndex(item => item.id === purchaseItemID)
+                  town.inventory[foundIndex].quantity += 1
+
+                  //write new town
+                  editFlag = true
+                  returnObj = {'success': true, 'status': 'Added +1 quantity', 'playerID': playerID, 'itemID': purchaseItemID, 'newTown': town }
+                }
+              } else {
+                returnObj = {'success': false, 'status': 'Not enough gold or xp or items', 'playerID': playerID, 'itemID': purchaseItemID, 'newTown': town }
+              }
+            }
+          })
+
+          if(editFlag){
+            townsRef.doc(townID).set(town).then(result => {
+              console.log(result, '[debug] Added quest for user ' + townID)
+            })
+          }
+        })
+      }
+    })
+  
+  res.send(returnObj)
+
 }

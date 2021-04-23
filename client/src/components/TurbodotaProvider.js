@@ -7,6 +7,7 @@ export default function Page({children}){
   const [userID, setUserID] = useState('')
   const [heroesList, setHeroesList] = useState([])
   const [steamUser, setSteamUser] = useState({})
+  const [authorizedUser, setAuthorizedUser] = useState(false)
 
   useEffect(() => {
     async function getHeroes(){
@@ -66,7 +67,23 @@ export default function Page({children}){
   //   console.log('user id set: ', userID)
   // }, [userID])
 
-  const value={selectedUser, setSelectedUser, userID, setUserID, heroesList, steamUser}
+  //check authorized user
+  const checkAuthorizedUser = (selectedUser, steamUser) => {
+    if(!!selectedUser.userStats && !!selectedUser.userStats.profile.steamid && !!steamUser.id) {
+      if(selectedUser.userStats.profile.steamid == steamUser.id) setAuthorizedUser(true)
+      else setAuthorizedUser(false)
+    }
+    else setAuthorizedUser(false)
+  }
+
+  //check authorized user
+  useEffect(() => {
+    //console.log(selectedUser)
+    //setUser(selectedUser)
+    checkAuthorizedUser(selectedUser, steamUser)
+  }, [selectedUser])
+  
+  const value={selectedUser, setSelectedUser, userID, setUserID, heroesList, steamUser, authorizedUser}
 
   return (
     <TurbodotaContext.Provider

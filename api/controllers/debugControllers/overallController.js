@@ -12,23 +12,13 @@ const heroesRef = db.collection('heroes')
 const matchesRef = db.collection('matches')
 const townsRef = db.collection('towns')
 const usersRef = db.collection('users')
+const itemsRef = db.collection('items')
 
-const newTownQuest =  {
-  id: 0,
-  hero: {},
-  active: true,
-  completed: false,
-  skipped: false,
-  completedMatchID: null,
-  startTime: new Date(),
-  endTime: null,
-  conditions: [],
-  attempts: [],
-  bounty: {
-    xp: 100,
-    gold: 100
-  }
-}
+//import schemas
+const newTown = require('../../schemas/newTown')
+const newTownQuest = require('../../schemas/newTownQuest')
+const levelXPArray = require('../../schemas/levelXpArray')
+const itemsList = require('../../schemas/itemsList')
 
 exports.test = (req, res) => {
   res.send({'test': true})
@@ -37,13 +27,13 @@ exports.test = (req, res) => {
 let enableDoubleConnection = false
 
 if(enableDoubleConnection){
+  console.log('*************DOUBLE CONNECTION ACTIVE***************')
   const dbTest = require('../../dbTest')
   const heroesRef_test = dbTest.collection('heroes')
   const matchesRef_test = dbTest.collection('matches')
   const townsRef_test = dbTest.collection('towns')
   const usersRef_test = dbTest.collection('users')
 }
-
 
 async function getHeroesFromDB(){
   return await heroesRef.get()
@@ -59,6 +49,7 @@ async function getHeroesFromDB(){
 }
 
 exports.createBackup = async (req, res) => {
+  
   const limiter = new Bottleneck({
     maxConcurrent: 5,
     minTime: 500
@@ -84,20 +75,6 @@ exports.createBackup = async (req, res) => {
       }
     })
   }
-  // matchesRef.get()
-  // .then(snapshot => {
-  //   if(snapshot.empty) console.log('[backup] no matches found')
-  //   else {
-  //     snapshot.forEach(doc => {
-  //       let id = doc.id
-  //       let data = doc.data()
-  //       matchesRef_test.doc(id).set(data).then( result => {
-  //         console.log('[backup] matchesID: ' + id + ' copy complete')
-  //       })
-  //       .catch(e => console.log('[backup] error copying matches: ' + e))
-  //     })
-  //   }
-  // })
 
   async function copyTowns(){
     let count = 0
@@ -171,25 +148,12 @@ exports.createBackup = async (req, res) => {
     
     return count
   }
-  // usersRef.get()
-  // .then(snapshot => {
-  //   if(snapshot.empty) console.log('[backup] no users found')
-  //   else {
-  //     snapshot.forEach(doc => {
-  //       let id = doc.id
-  //       let data = doc.data()
-  //       usersRef_test.doc(id).set(data).then( result => {
-  //         console.log('[backup] usersID ' + id + ' copy complete')
-  //       })
-  //       .catch(e => console.log('[backup] error copying users: ' + e))
-  //     })
-  //   }
-  // })
 
   let copiedTownsCount = await copyTowns()
   let copiedHeroesCount = await copyHeroes()
   let copiedUsersCount = await copyUsers()
-  let copiedMatchesCount = await copyMatches()
+  //dont really need to copy matches
+  //let copiedMatchesCount = await copyMatches()
 
   res.send({
     'success': true,  
@@ -209,13 +173,9 @@ exports.editAllTowns = async (req, res) => {
 
           //add changes here
 
-          let changeFlag = false
-          town.completed.forEach(quest => {
-            if((typeof quest.endTime) === "string"){
-              changeFlag = true
-              totalCount++
-              quest.endTime = parseInt(quest.endTime)
-            }
+          let changeFlag = true
+          town.active.forEach(quest => {
+            quest.modifiers = []
           })
 
           //end changes
@@ -369,8 +329,61 @@ exports.completeQuestWithFakeMatch = async (req, res) => {
   let questID = req.params.questID
   console.log('Completing quest ' + questID +' with fake match for user ' + playerID)
   
-  
-
-
   res.send({'status': 'Received request to add new fields to all towns'})
+}
+ 
+exports.rebuildItemsCollection = async (req, res) => {
+  await itemsRef.get()
+    .then(snapshot => {
+      if(snapshot.empty) console.log('[rebuildItems] no items found')
+      else {
+        snapshot.forEach(item => {
+          item.ref.delete()
+        })
+      }
+    })
+  
+  itemsList.forEach(async item => {
+    let itemID = item.id.toString()
+    let res = await itemsRef.doc(itemID).set(item)
+    .then(ref => {
+      console.log('[rebuildItems] itemID: ' + item.id + ' added')
+    })
+    .catch(e => console.log('[rebuildItems] error adding item: ' + e))
+    console.log('response after adding item #', item.id, ': ', res)
+  })  
+
+  //EDIT TOWNS SHOPS WITH REBUILT ITEMS COLLECTION
+  townsRef.get()
+    .then(snapshot => {
+      if(snapshot.empty) console.log('[rebuildItems] no towns found')
+      else {
+        snapshot.forEach(doc => {
+          let townID = doc.id
+          let town = doc.data()
+
+          //cleanup - one time - rewrite if we need to run this again
+          town.shop = []
+          town.inventory = []
+          delete town.items
+
+          itemsList.forEach(item => {
+            town.shop.push(item)
+          })
+
+          changeFlag = true
+
+          //end changes
+          if(changeFlag){
+            townsRef.doc(townID).set(town).then( result => {
+              console.log('[rebuildItems] townsID: ' + townID + ' edit complete, shop rebuilt')
+            })
+            .catch(e => console.log('[rebuildItems] error editing town shop: ' + e))
+          }
+        })
+      }
+    })
+  
+  res.send({'status': 'Rebuilt items collection'})
+
 }

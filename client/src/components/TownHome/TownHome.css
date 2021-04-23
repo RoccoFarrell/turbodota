@@ -12,8 +12,9 @@
   align-items: center;
 }
 
-#container {
+#townContainer {
   margin-top: 2em;
+  padding-left: 100px;
 }
 
 #topUserInfo {
@@ -56,4 +57,11 @@
 
 .tinyText {
   font-size: .75em!important;
+}
+
+#inventoryContainer {
+  display: flex!important;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
 }
