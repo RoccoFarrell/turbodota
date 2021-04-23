@@ -25,7 +25,6 @@ import goldIcon from '../../../assets/gold.png';
 function Quest(props) {
   const {selectedUser, setSelectedUser, userID, setUserID, authorizedUser} = useContext(TurbodotaContext);
   const [loading, setLoading] = useState(false)
-  const [user, setUser] = useState(selectedUser)
   const [checkedQuests, setCheckedQuests] = useState({})
   const [obsQuests, setObsQuests] = useState({})
 
@@ -287,10 +286,10 @@ function Quest(props) {
 
                       <Grid columns={2}>
                         <Grid.Column>
-                          { (!!user.calculations && !!user.calculations.allHeroRecord[quest.hero.id]) ? (
+                          { (!!selectedUser.calculations && !!selectedUser.calculations.allHeroRecord[quest.hero.id]) ? (
                             <div className={'questCardFlexColumn'} style={{ alignItems: 'center', justifyContent: 'center'}}>
-                              <div>Win Rate: { ((user.calculations.allHeroRecord[quest.hero.id].wins / user.calculations.allHeroRecord[quest.hero.id].games) * 100).toFixed(0) + '%' }</div>
-                              <div>Record: { user.calculations.allHeroRecord[quest.hero.id].wins + ' - ' + user.calculations.allHeroRecord[quest.hero.id].losses }</div>
+                              <div>Win Rate: { ((selectedUser.calculations.allHeroRecord[quest.hero.id].wins / selectedUser.calculations.allHeroRecord[quest.hero.id].games) * 100).toFixed(0) + '%' }</div>
+                              <div>Record: { selectedUser.calculations.allHeroRecord[quest.hero.id].wins + ' - ' + selectedUser.calculations.allHeroRecord[quest.hero.id].losses }</div>
                             </div>
                             ) : (<div>Never Played</div>)}                            
                         </Grid.Column>
