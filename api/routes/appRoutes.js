@@ -113,7 +113,7 @@ module.exports = function (app) {
       .get(debug.test)
 
     app.route('/api/debug/createBackup')
-      .get(debug.createBackup)
+      .post(debug.createBackup)
 
     app.route('/api/debug/editAllTowns')
       .post(debug.editAllTowns)

@@ -13,7 +13,7 @@ const changeLogArray = [
   { 'version': 'V1.10 ', 'date': '04/01/2021', 'description': 'April Fools - Jokes on us - broke website 1 year after launch'},
   { 'version': 'V1.02 ', 'date': '03/29/2020', 'description': 'Ben\'s first feature: wins and losses on last 10'},
   { 'version': 'V1.01 ', 'date': '03/28/2020', 'description': 'Major release: Turbo Town is live. Play heroes and redeem quests!'},
-  { 'version': 'V1.00', 'date': '03/23/2020', 'description': 'After one week of coding and 3 years of planning, version 1.0 of Turbodota.com is live! We finally have a data-driven methodology for finding out why Robbie sucks at Spirit Breaker, in statistically significant detail.'},
+  { 'version': 'V1.00 ', 'date': '03/23/2020', 'description': 'After one week of coding and 3 years of planning, version 1.0 of Turbodota.com is live! We finally have a data-driven methodology for finding out why Robbie sucks at Spirit Breaker, in statistically significant detail.'},
   { 'version': 'V0.05 ', 'date': '03/19/2020', 'description': 'Fixed routing, and displayed best players by MMR. Guess who\'s last, it might shock you...'},
   { 'version': 'V0.04 ', 'date': '03/19/2020', 'description': 'Removed Evergreen and added CSS sheets to beautify Robbie\'s badness.'},
   { 'version': 'V0.03 ', 'date': '03/17/2020', 'description': 'Added per-hero damage. Low MMR is close to being revealed.'},

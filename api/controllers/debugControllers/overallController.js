@@ -27,6 +27,7 @@ exports.test = (req, res) => {
 let enableDoubleConnection = false
 
 if(enableDoubleConnection){
+  console.log('*************DOUBLE CONNECTION ACTIVE***************')
   const dbTest = require('../../dbTest')
   const heroesRef_test = dbTest.collection('heroes')
   const matchesRef_test = dbTest.collection('matches')
@@ -48,6 +49,7 @@ async function getHeroesFromDB(){
 }
 
 exports.createBackup = async (req, res) => {
+  
   const limiter = new Bottleneck({
     maxConcurrent: 5,
     minTime: 500
@@ -73,20 +75,6 @@ exports.createBackup = async (req, res) => {
       }
     })
   }
-  // matchesRef.get()
-  // .then(snapshot => {
-  //   if(snapshot.empty) console.log('[backup] no matches found')
-  //   else {
-  //     snapshot.forEach(doc => {
-  //       let id = doc.id
-  //       let data = doc.data()
-  //       matchesRef_test.doc(id).set(data).then( result => {
-  //         console.log('[backup] matchesID: ' + id + ' copy complete')
-  //       })
-  //       .catch(e => console.log('[backup] error copying matches: ' + e))
-  //     })
-  //   }
-  // })
 
   async function copyTowns(){
     let count = 0
@@ -160,25 +148,12 @@ exports.createBackup = async (req, res) => {
     
     return count
   }
-  // usersRef.get()
-  // .then(snapshot => {
-  //   if(snapshot.empty) console.log('[backup] no users found')
-  //   else {
-  //     snapshot.forEach(doc => {
-  //       let id = doc.id
-  //       let data = doc.data()
-  //       usersRef_test.doc(id).set(data).then( result => {
-  //         console.log('[backup] usersID ' + id + ' copy complete')
-  //       })
-  //       .catch(e => console.log('[backup] error copying users: ' + e))
-  //     })
-  //   }
-  // })
 
   let copiedTownsCount = await copyTowns()
   let copiedHeroesCount = await copyHeroes()
   let copiedUsersCount = await copyUsers()
-  let copiedMatchesCount = await copyMatches()
+  //dont really need to copy matches
+  //let copiedMatchesCount = await copyMatches()
 
   res.send({
     'success': true,  
@@ -368,14 +343,14 @@ exports.rebuildItemsCollection = async (req, res) => {
       }
     })
   
-  itemsList.forEach(item => {
+  itemsList.forEach(async item => {
     let itemID = item.id.toString()
-    let res = itemsRef.doc(itemID).set(item)
+    let res = await itemsRef.doc(itemID).set(item)
     .then(ref => {
       console.log('[rebuildItems] itemID: ' + item.id + ' added')
     })
     .catch(e => console.log('[rebuildItems] error adding item: ' + e))
-    console.log(res)
+    console.log('response after adding item #', item.id, ': ', res)
   })  
 
   //EDIT TOWNS SHOPS WITH REBUILT ITEMS COLLECTION

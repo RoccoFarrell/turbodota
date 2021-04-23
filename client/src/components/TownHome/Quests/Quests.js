@@ -23,10 +23,9 @@ import questIcon from '../../../assets/questIcon.png';
 import goldIcon from '../../../assets/gold.png';
 
 function Quest(props) {
-  const {selectedUser, setSelectedUser, userID, setUserID, steamUser} = useContext(TurbodotaContext);
+  const {selectedUser, setSelectedUser, userID, setUserID, authorizedUser} = useContext(TurbodotaContext);
   const [loading, setLoading] = useState(false)
   const [user, setUser] = useState(selectedUser)
-  const [authorizedUser, setAuthorizedUser] = useState(false)
   const [checkedQuests, setCheckedQuests] = useState({})
   const [obsQuests, setObsQuests] = useState({})
 
@@ -36,27 +35,9 @@ function Quest(props) {
   let questGroup = props.questGroup
   let devEnv = props.devEnv
 
-  useEffect(() => {
-    console.log(selectedUser)
-    setUser(selectedUser)
-    checkAuthorizedUser(selectedUser, steamUser)
-  }, [selectedUser])
-
-  // useEffect(() => {
-  //   handleCheckedQuestsChange(checkedQuests)
-  // }, [checkedQuests])
-
   const checkDevEnv = () => {
     if(process.env.NODE_ENV === "development" && devEnv) return true
     else return false
-  }
-
-  const checkAuthorizedUser = (selectedUser, steamUser) => {
-    if(!!selectedUser.userStats && !!selectedUser.userStats.profile.steamid && !!steamUser.id) {
-      if(selectedUser.userStats.profile.steamid == steamUser.id) setAuthorizedUser(true)
-      else setAuthorizedUser(false)
-    }
-    else setAuthorizedUser(false)
   }
 
   const processDate = (date) => {
@@ -337,7 +318,7 @@ function Quest(props) {
                       <Grid columns={3}>
                         <Grid.Column textAlign='center'>
                           <Button 
-                              disabled = { quest.completed === false } 
+                              disabled = { quest.completed === false || !authorizedUser } 
                               onClick={() => {completeQuest(quest)}}
                               circular
                               size='massive'
@@ -362,7 +343,7 @@ function Quest(props) {
                                 color='yellow' 
                                 icon='eye' 
                                 className='actionButton'
-                                disabled = { (quest.completed === false || (!inventoryContainsItem('Observer Ward') && !questContainsObs(quest)))}
+                                disabled = { (quest.completed === false || !authorizedUser || (!inventoryContainsItem('Observer Ward') && !questContainsObs(quest)))}
                                 onClick={() => {applyObsToQuest(quest)}} 
                               />
                             }
@@ -388,7 +369,7 @@ function Quest(props) {
                               color='red' 
                               icon='shuffle' 
                               className='actionButton'
-                              disabled = { quest.completed === true }
+                              disabled = { quest.completed === true || !authorizedUser }
                             />}
                             header='Confirmation'
                             content='Are you sure you want to skip?'
