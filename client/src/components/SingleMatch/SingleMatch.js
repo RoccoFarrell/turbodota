@@ -84,9 +84,9 @@ function SingleMatch(props) {
 
     const heroIcon = (hero_id) => {
         let heroString = 'd2mh hero-' + hero_id
-        let returnVal
-        hero_id == 123 ? returnVal = <Image src={squirrel} size="mini" className='inline' /> : returnVal = <i className={heroString}/>
-        return returnVal
+        //let returnVal
+        //hero_id == 123 ? returnVal = <Image src={squirrel} size="mini" className='inline' /> : returnVal = <i className={heroString}/>
+        return <i className={heroString}/>
     } 
 
     const heroName = (hero_id) => {

@@ -74,33 +74,39 @@ exports.fetchHeroes = async function (req, res) {
 
   heroesRef.get()
   .then(snapshot => {
-    if(snapshot.empty){
-      console.log('no results in heroes')
-      let heroesList = fetch('https://api.opendota.com/api/heroes', {
-        method: 'get',
-        headers: { 'Content-Type': 'application/json' },
-      })
-      .then(data => data.json())
-      .then((json) => {
-        // console.log('search results: ', json[0])
-        let storeObj = {
-          'herolist': json,
-          'lastUpdated': (Date.now() / 1000).toFixed(0)
-        }
+    try{
+      let returnJson = {}
+      if(snapshot.empty){
+        console.log('no results in heroes')
+        let heroesList = fetch('https://api.opendota.com/api/heroes', {
+          method: 'get',
+          headers: { 'Content-Type': 'application/json' },
+        })
+        .then(data => data.json())
+        .then((json) => {
+          // console.log('search results: ', json[0])
+          let storeObj = {
+            'herolist': json,
+            'lastUpdated': (Date.now() / 1000).toFixed(0)
+          }
 
-        heroesRef.add(storeObj).then(ref => {
-          console.log('Added document with ID: ', ref.id);
+          heroesRef.add(storeObj).then(ref => {
+            console.log('Added document with ID: ', ref.id);
+          });
+          returnJson = json
         });
-        res.send(json)
-      });
-    } else {
-      console.log('[/heroes] Pulling cached heroes')
-      snapshot.forEach(doc => {
-        console.log('[/heroes] found cached heroes doc', doc.id)
-        let returnData = doc.data()
-        res.json(returnData['herolist'])
-      })
+      } else {
+        console.log('[/heroes] Pulling cached heroes')
+        snapshot.forEach(doc => {
+          console.log('[/heroes] found cached heroes doc', doc.id)
+          let returnData = doc.data()
+          returnJson = returnData['herolist']
+        })
+      }
+
+    res.send(returnJson)
     }
+    catch(e){ console.error(e)}
   })
 }
 

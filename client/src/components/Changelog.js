@@ -7,6 +7,7 @@ import {
 import './Changelog.css';
 
 const changeLogArray = [
+  { 'version': 'V1.21 ', 'date': '04/27/2021', 'description': 'We are real devs, our pull request was accepted by Bontscho. Updated icons for Hoodwink and Dawnbreaker'},
   { 'version': 'V1.20 ', 'date': '04/21/2021', 'description': 'Major release, new quest UI and Obs Wards from the shop'},
   { 'version': 'V1.12 ', 'date': '04/07/2021', 'description': 'Town redesign, XP and Leveling system live.... Robbie Low Levels'},
   { 'version': 'V1.11 ', 'date': '04/02/2021', 'description': 'Trying to fix townController again, some things never change'},
