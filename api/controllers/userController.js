@@ -46,3 +46,43 @@ exports.getAllUsers = function (req, res) {
       console.log('Error getting users', err);
     });
 }
+
+exports.getUserBySteamID = async function (req, res) {
+  let usersRef = db.collection('users')
+  let userID = req.params.steamID
+  let userStats = {}
+
+  let userExists = await usersRef.where('profile.steamid','==', parseInt(userID)).get()
+  .then(snapshot => {
+    if(snapshot.empty){
+      return false
+    } else {
+      // console.log('[gusfod] found userID: ' + userID)
+      snapshot.forEach(doc => {
+        let returnData = doc.data()
+        // console.log(doc.id, returnData)
+        userStats = returnData
+      })
+      return true
+    }
+  })
+
+  //05-05-21
+  //below needs to be rewritten to search steamID on OD and return dotaID
+  console.log('[gusfod] user with id ' + userID + ' exists: ' + userExists)
+  // if(userExists === false) {
+  //   console.log('[gusfod] pulling new user data from OD')
+  //   userStats = await fetchUserData(userID)
+  //   userStats.lastUpdated = Date.now()
+  //   usersRef.doc(userID).set(userStats).then(ref => {
+  //     console.log('[gusfod] Added userID ' + userID);
+  //   });
+  // }
+
+  let matchStats = await match.fetchMatches(req.params.steamID)
+
+  let calcObj =  await processPlayerInfo(matchStats)
+  let returnObj = {"userStats": userStats, "matchStats": matchStats, "averages": calcObj.averages, "totals": calcObj.totals, "calculations": calcObj}
+
+  res.send(returnObj)
+}

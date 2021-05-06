@@ -144,6 +144,7 @@ function FixedMenuLayout() {
                     <Route exact path="/users/:id" component={UserData} />
                     <Route path="/users/:id/town" component={TownHome} />
                     <Route path="/leaderboard" component={Leaderboard} />
+                    {/* <Route path="/turboidle" component={Leaderboard} /> */}
                     <Route path="/">
                         <Search />
                     </Route>

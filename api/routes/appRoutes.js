@@ -22,41 +22,47 @@ module.exports = function (app) {
   }
 
   //routes
+  //user endpoints
   app.route('/api/auth/:uid')
     .get(auth.userCheck)
 
   app.route('/api/user/:uid')
     .post(user.updateUser)
 
-  app.route('/api/search')
-    .get(od.searchUser)
-
   app.route('/api/users/')
     .get(user.getAllUsers)
+
+  app.route('/api/users/bySteamID/:steamID')
+    .get(user.getUserBySteamID)
 
   app.route('/api/steamUser')
     .get((req, res) => {
       res.send(req.user)
     })
       
-  app.route('/api/heroes')
-    .get(od.fetchHeroes)
-
-  app.route('/api/players/:steamID/matches')
+  app.route('/api/players/:dotaID/matches')
     .get(match.fetchMatchesForUser)
 
-  app.route('/api/players/:steamID')
+  //gets users stats by Dota ID 
+  app.route('/api/players/:dotaID')
     .get(od.getUserStatsfromOD)
 
+  //match endpoints
   app.route('/api/matches/:matchID')
     .get(match.fetchMatchByID)
 
-  app.route('/api/queryFirebase')
-    .get(od.queryFirebase)
-
   app.route('/api/request/:matchID')
     .post(match.parseMatchRequest)
+  
+  //general endpoints
+  app.route('/api/search')
+    .get(od.searchUser)
 
+  app.route('/api/heroes')
+    .get(od.fetchHeroes)
+
+  //---------------------------
+  //town endpoints
   app.route('/api/towns/:steamID')
     .post(town.modifyQuest)
     .get(town.getTownForUser)
@@ -67,6 +73,8 @@ module.exports = function (app) {
   app.route('/api/towns/:steamID/purchaseItem/:itemID')
     .post(town.purchaseItemFromShop)
 
+  //---------------------------
+  //auth endpoints
   app.get('/account', ensureAuthenticated, function(req, res){
     res.render('account', { user: req.user });
   });
@@ -100,7 +108,7 @@ module.exports = function (app) {
     passport.authenticate('steam', { failureRedirect: '/' }),
     function(req, res) {
       //console.log(`req.session.passport: ${JSON.stringify(req.session.passport)}`)
-      //console.log(`req.user: ${JSON.stringify(req.user)}`)
+      console.log(`req.user: ${JSON.stringify(req.user)}`)
       res.redirect('/');
     });
   
@@ -132,5 +140,8 @@ module.exports = function (app) {
 
     app.route('/api/debug/items/rebuildItems')
       .post(debug.rebuildItemsCollection)
+    
+    app.route('/api/queryFirebase')
+      .get(od.queryFirebase)
   }
 }

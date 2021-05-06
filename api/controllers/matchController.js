@@ -95,6 +95,7 @@ async function updateMatchOnParse (jobID_obj, matchID){
 }
 
 async function fetchMatches(userID, startDate) {
+
   console.log('[matches] fetching matches for user ', userID)
   
   let url = ''
@@ -133,7 +134,7 @@ exports.fetchMatches = fetchMatches
 
 exports.fetchMatchesForUser = async function (req, res) {
   console.log('fetch matches for user')
-  let userID = req.params.steamID
+  let userID = req.params.dotaID
   let matches = await fetchMatches(userID, req.query.date)
   res.send(matches)
 }

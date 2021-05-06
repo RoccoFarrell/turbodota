@@ -162,7 +162,7 @@ exports.queryFirebase = async function (req, res) {
 
 exports.getUserStatsfromOD = async function (req, res) {
   let usersRef = db.collection('users')
-  let userID = req.params.steamID
+  let userID = req.params.dotaID
   let userStats = {}
 
   let userExists = await usersRef.where('profile.account_id','==', parseInt(userID)).get()
@@ -190,7 +190,7 @@ exports.getUserStatsfromOD = async function (req, res) {
     });
   }
 
-  let matchStats = await match.fetchMatches(req.params.steamID)
+  let matchStats = await match.fetchMatches(req.params.dotaID)
 
   let calcObj =  await processPlayerInfo(matchStats)
   let returnObj = {"userStats": userStats, "matchStats": matchStats, "averages": calcObj.averages, "totals": calcObj.totals, "calculations": calcObj}
