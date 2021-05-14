@@ -32,8 +32,11 @@ module.exports = function (app) {
   app.route('/api/users/')
     .get(user.getAllUsers)
 
-  app.route('/api/users/bySteamID/:steamID')
-    .get(user.getUserBySteamID)
+  // app.route('/api/users/bySteamID/:steamID')
+  //   .get(user.getUserBySteamID)
+
+  app.route('/api/users/:steamID/link')
+    .get(user.linkBySteamID)
 
   app.route('/api/steamUser')
     .get((req, res) => {
