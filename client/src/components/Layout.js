@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import {
   Container,
   Divider,
@@ -29,9 +29,11 @@ import UserData from './UserData'
 import TownHome from './TownHome/TownHome'
 import Leaderboard from './Leaderboard/Leaderboard'
 import TurbodotaContext from './TurbodotaContext'
+import LinkAccounts from './LinkAccounts/LinkAccounts'
 
 import logo from '../assets/squareLogo.png';
 import steam_logo from '../assets/steam_logo.png'
+import town_logo from '../assets/turbotown.png'
 
 import './Layout.css';
 
@@ -45,19 +47,16 @@ function FixedMenuLayout() {
     
     let history = useHistory()
 
+    useEffect(() => {
+        console.log('steamUser: ', steamUser, !!steamUser)
+        // console.log('townData: ', townData)
+      }, [steamUser])
+
     const pushRoute = (route) => {
         if(route === ''){
             setSelectedUser({})
         }
         history.push("/" + route )
-    }
-
-    let TestComponent = () => {
-        return (
-            <Container fluid style={{ padding: '10em', margin: '10em'}}>
-                testing
-            </Container>
-        )
     }
 
     const handleClose = () => {
@@ -80,37 +79,18 @@ function FixedMenuLayout() {
                 {/* <Menu.Item as='a' onClick={() => {pushRoute('search')}}>
                 Search
                 </Menu.Item> */}
-                <Menu.Item as='a' onClick={() => {pushRoute('leaderboard')}}>
-                    Leaderboard
-                </Menu.Item>
-                <Menu.Item as='a' onClick={() => {pushRoute('changelog')}}>
-                    Changelog
-                </Menu.Item>
 
-                <Dropdown item simple text='Dropdown'>
-                <Dropdown.Menu>
-                    <Dropdown.Item>
-                        <Link to="/fixedMenu/test">
-                            Test
-                        </Link>
-                    </Dropdown.Item>
-                    <Dropdown.Item>List Item</Dropdown.Item>
-                    <Dropdown.Divider />
-                    <Dropdown.Header>Header Item</Dropdown.Header>
-                    <Dropdown.Item>
-                    <i className='dropdown icon' />
-                    <span className='text'>Submenu</span>
-                    <Dropdown.Menu>
-                        <Dropdown.Item>List Item</Dropdown.Item>
-                        <Dropdown.Item>List Item</Dropdown.Item>
-                    </Dropdown.Menu>
-                    </Dropdown.Item>
-                    <Dropdown.Item>List Item</Dropdown.Item>
-                </Dropdown.Menu>
-                </Dropdown>
-                
-                { !!steamUser.id ? (              
-                    <Menu.Item position='right' fitted="vertically">
+                {/* Right Element 1 */}
+                { !!steamUser.id ? (        
+                    <Menu.Item as='a' fitted="vertically" onClick={() => pushRoute('users/' + steamUser.dotaID + '/town')}>
+                        <Image style={{ height: '50px' }} src={town_logo} />
+                    </Menu.Item>
+                )
+                : '' }
+
+                {/* Right Element 2 */}
+                { !!steamUser.id ? (        
+                    <Menu.Item as='a' position='right' fitted="vertically" onClick={() => pushRoute('users/' + steamUser.dotaID + '/town')}>
                             <Image size='mini' src={steamUser._json.avatar} style={{ marginRight: '1.5em' }} />
                             <div>{steamUser.displayName.toString() }</div>  
                     </Menu.Item>
@@ -124,6 +104,27 @@ function FixedMenuLayout() {
                     </Menu.Item>
                     )
                 }
+                { !!steamUser ? (
+                    <Dropdown item text='Settings'>
+                        <Dropdown.Menu>
+                            <Dropdown.Item>
+                                <Icon name='linkify' size='small' />
+                                <Link to={'/users/'+ steamUser.id +'/linkAccounts'}>
+                                    Link Dota ID to Steam ID
+                                </Link>
+                            </Dropdown.Item>
+                            <Dropdown.Divider />
+                            <Dropdown.Header>Explore</Dropdown.Header>
+                            <Dropdown.Item as='a' onClick={() => {pushRoute('leaderboard')}}>
+                                Leaderboard
+                            </Dropdown.Item>
+                            <Dropdown.Item as='a' onClick={() => {pushRoute('changelog')}}>
+                                Changelog
+                            </Dropdown.Item>
+                        </Dropdown.Menu>
+                    </Dropdown>
+                ) : ''}
+
                 { !!steamUser.id ? ( 
                 <Menu.Item  as='a' onClick={() => window.location = "/auth/logout"}>
                     Logout
@@ -144,6 +145,8 @@ function FixedMenuLayout() {
                     <Route exact path="/users/:id" component={UserData} />
                     <Route path="/users/:id/town" component={TownHome} />
                     <Route path="/leaderboard" component={Leaderboard} />
+                    <Route path="/users/:id/linkAccounts" component={LinkAccounts} />
+                    {/* <Route path="/turboidle" component={Leaderboard} /> */}
                     <Route path="/">
                         <Search />
                     </Route>

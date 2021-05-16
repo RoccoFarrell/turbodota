@@ -1,4 +1,5 @@
 'use strict'
+const fetch = require('node-fetch');
 const db = require('../db')
 var usersRef = db.collection('users')
 var OD = require('./openDotaController')
@@ -45,4 +46,118 @@ exports.getAllUsers = function (req, res) {
     .catch(err => {
       console.log('Error getting users', err);
     });
+}
+
+exports.returnSteamUser = async function(req, res) {
+  let user = req.user
+
+  if(!!user){
+    let result = await searchDBBySteamID(user.id)
+    console.log('search by steam ID in returnSteamUser: ', result)
+    user.dotaID = result 
+  }
+  
+  res.send(user)
+}
+
+async function searchDBBySteamID(steamID) {
+  let userStats = {}
+  let userExists = false
+
+  userExists = await usersRef.where('profile.steamid','==', steamID.toString()).get()
+  .then(snapshot => {
+    if(snapshot.empty){
+      return false
+    } else {
+      console.log('[getUserBySteamID] found steamID: ' + steamID)
+      snapshot.forEach(doc => {
+        let returnData = doc.data()
+        // console.log(doc.id, returnData)
+        userStats = returnData
+      })
+      return userStats.profile.account_id
+    }
+  })
+
+  return userExists
+}
+
+exports.searchBySteamID = async function (steamID) {
+  return await searchDBBySteamID(steamID)
+}
+
+exports.getUserBySteamID = async function (req, res) {
+  let usersRef = db.collection('users')
+  let steamID = req.params.steamID
+  let userStats = {}
+
+  let userExists = await usersRef.where('profile.steamid','==', steamID.toString()).get()
+  .then(snapshot => {
+    if(snapshot.empty){
+      return false
+    } else {
+      console.log('[getUserBySteamID] found steamID: ' + steamID)
+      snapshot.forEach(doc => {
+        let returnData = doc.data()
+        // console.log(doc.id, returnData)
+        userStats = returnData
+      })
+      return true
+    }
+  })
+
+  if(userExists){
+    res.send(userStats)
+  } else res.send({'message':'no DB user found for id ' + steamID})
+}
+
+exports.linkBySteamID = async function (req, res) {
+  let usersRef = db.collection('users')
+  let steamID = req.params.steamID
+  let userStats = {}
+
+  console.log('[user] - SQL query for steamID ' + steamID)
+  userStats = await fetch('https://api.opendota.com/api/explorer?sql=SELECT+%2A+FROM+players+WHERE+steamid+like+%27%25'+ steamID + '%25%27+LIMIT+1', {
+    method: 'get',
+    headers: { 'Content-Type': 'application/json' },
+  })
+  .then(data => data.json())
+  .then((json) => {
+    // console.log('search results: ', json)
+    res.send(json)
+  });
+
+  // let userExists = await usersRef.where('profile.steamid','==', parseInt(userID)).get()
+  // .then(snapshot => {
+  //   if(snapshot.empty){
+  //     return false
+  //   } else {
+  //     // console.log('[gusfod] found userID: ' + userID)
+  //     snapshot.forEach(doc => {
+  //       let returnData = doc.data()
+  //       // console.log(doc.id, returnData)
+  //       userStats = returnData
+  //     })
+  //     return true
+  //   }
+  // })
+
+  // //05-05-21
+  // //below needs to be rewritten to search steamID on OD and return dotaID
+  // console.log('[gusfod] user with id ' + userID + ' exists: ' + userExists)
+  // // if(userExists === false) {
+  // //   console.log('[gusfod] pulling new user data from OD')
+  // //   userStats = await fetchUserData(userID)
+  // //   userStats.lastUpdated = Date.now()
+  // //   usersRef.doc(userID).set(userStats).then(ref => {
+  // //     console.log('[gusfod] Added userID ' + userID);
+  // //   });
+  // // }
+
+  // let matchStats = await match.fetchMatches(req.params.steamID)
+
+  // let calcObj =  await processPlayerInfo(matchStats)
+  // let returnObj = {"userStats": userStats, "matchStats": matchStats, "averages": calcObj.averages, "totals": calcObj.totals, "calculations": calcObj}
+
+  // res.send(returnObj)
 }
