@@ -58,14 +58,6 @@ function FixedMenuLayout() {
         history.push("/" + route )
     }
 
-    let TestComponent = () => {
-        return (
-            <Container fluid style={{ padding: '10em', margin: '10em'}}>
-                testing
-            </Container>
-        )
-    }
-
     const handleClose = () => {
         console.log('closing')
         setOpen(false)

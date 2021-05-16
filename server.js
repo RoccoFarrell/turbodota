@@ -26,7 +26,14 @@ console.log('Running in env ' + environment)
 app.use(bodyParser.urlencoded({ extended: true }))
 // app.use(require('connect-history-api-fallback')())
 app.use(bodyParser.json())
-app.use(cors())
+
+//new cors config
+const corsOptions = {
+  credentials: true,
+};
+app.use(cors(corsOptions));
+//old
+//app.use(cors())
 
 //only in dev env
 console.log('Env: ' + environment)
@@ -49,10 +56,12 @@ if(environment === 'development'){
 //   have a database of user records, the complete Steam profile is serialized
 //   and deserialized.
 passport.serializeUser(function(user, done) {
+  //console.log('serialize: ', user)
   done(null, user);
 });
 
 passport.deserializeUser(function(obj, done) {
+  //console.log('deserialize: ', obj)
   done(null, obj);
 });
 
@@ -60,9 +69,14 @@ app.use(session({
   secret: 'amazing turbo secret invoker',
   name: 'turbodotaSessionID',
   user: {},
+  cookie: {
+    expires: new Date(Date.now() + (1000 * 60 * 60 * 12))
+  },
   store: new FileStore(),
   genid: (req) => {
+
     console.log('Inside the session middleware')
+    console.log('req.url: ', req.url)
     console.log('req.sessionID inside genid:', req.sessionID)
     return uuid() // use UUIDs for session IDs
   },
@@ -93,6 +107,7 @@ passport.use(new SteamStrategy({
     });
 }));
 
+//LOGGING FOR SERVER
 // app.use((req, res, next) => {
 //   console.log('req: ', req.session)
 //   next()

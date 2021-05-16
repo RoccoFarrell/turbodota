@@ -32,8 +32,8 @@ module.exports = function (app) {
   app.route('/api/users/')
     .get(user.getAllUsers)
 
-  // app.route('/api/users/bySteamID/:steamID')
-  //   .get(user.getUserBySteamID)
+  app.route('/api/users/bySteamID/:steamID')
+    .get(user.getUserBySteamID)
 
   app.route('/api/users/:steamID/link')
     .get(user.linkBySteamID)
@@ -109,10 +109,15 @@ module.exports = function (app) {
         next();
     }, 
     passport.authenticate('steam', { failureRedirect: '/' }),
-    function(req, res) {
+    async function(req, res) {
       //console.log(`req.session.passport: ${JSON.stringify(req.session.passport)}`)
       console.log(`req.user: ${JSON.stringify(req.user)}`)
-      res.redirect('/');
+      let account_id = await user.searchBySteamID(req.user.id)
+      if(account_id) {
+        res.redirect('/users/' + account_id + '/town');
+      } else {
+        res.redirect('/');
+      }
     });
   
   if(environment === 'development'){

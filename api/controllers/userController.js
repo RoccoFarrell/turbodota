@@ -48,6 +48,53 @@ exports.getAllUsers = function (req, res) {
     });
 }
 
+exports.searchBySteamID = async function (steamID) {
+  let userStats = {}
+  let userExists = false
+
+  userExists = await usersRef.where('profile.steamid','==', steamID.toString()).get()
+  .then(snapshot => {
+    if(snapshot.empty){
+      return false
+    } else {
+      console.log('[getUserBySteamID] found steamID: ' + steamID)
+      snapshot.forEach(doc => {
+        let returnData = doc.data()
+        // console.log(doc.id, returnData)
+        userStats = returnData
+      })
+      return userStats.profile.account_id
+    }
+  })
+
+  return userExists
+}
+
+exports.getUserBySteamID = async function (req, res) {
+  let usersRef = db.collection('users')
+  let steamID = req.params.steamID
+  let userStats = {}
+
+  let userExists = await usersRef.where('profile.steamid','==', steamID.toString()).get()
+  .then(snapshot => {
+    if(snapshot.empty){
+      return false
+    } else {
+      console.log('[getUserBySteamID] found steamID: ' + steamID)
+      snapshot.forEach(doc => {
+        let returnData = doc.data()
+        // console.log(doc.id, returnData)
+        userStats = returnData
+      })
+      return true
+    }
+  })
+
+  if(userExists){
+    res.send(userStats)
+  } else res.send({'message':'no DB user found for id ' + steamID})
+}
+
 exports.linkBySteamID = async function (req, res) {
   let usersRef = db.collection('users')
   let steamID = req.params.steamID
