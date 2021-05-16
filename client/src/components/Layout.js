@@ -33,6 +33,7 @@ import LinkAccounts from './LinkAccounts/LinkAccounts'
 
 import logo from '../assets/squareLogo.png';
 import steam_logo from '../assets/steam_logo.png'
+import town_logo from '../assets/turbotown.png'
 
 import './Layout.css';
 
@@ -78,17 +79,18 @@ function FixedMenuLayout() {
                 {/* <Menu.Item as='a' onClick={() => {pushRoute('search')}}>
                 Search
                 </Menu.Item> */}
-                <Menu.Item as='a' onClick={() => {pushRoute('leaderboard')}}>
-                    Leaderboard
-                </Menu.Item>
-                <Menu.Item as='a' onClick={() => {pushRoute('changelog')}}>
-                    Changelog
-                </Menu.Item>
 
+                {/* Right Element 1 */}
+                { !!steamUser.id ? (        
+                    <Menu.Item as='a' fitted="vertically" onClick={() => pushRoute('users/' + steamUser.dotaID + '/town')}>
+                        <Image style={{ height: '50px' }} src={town_logo} />
+                    </Menu.Item>
+                )
+                : '' }
 
-                
-                { !!steamUser.id ? (              
-                    <Menu.Item position='right' fitted="vertically">
+                {/* Right Element 2 */}
+                { !!steamUser.id ? (        
+                    <Menu.Item as='a' position='right' fitted="vertically" onClick={() => pushRoute('users/' + steamUser.dotaID + '/town')}>
                             <Image size='mini' src={steamUser._json.avatar} style={{ marginRight: '1.5em' }} />
                             <div>{steamUser.displayName.toString() }</div>  
                     </Menu.Item>
@@ -112,16 +114,13 @@ function FixedMenuLayout() {
                                 </Link>
                             </Dropdown.Item>
                             <Dropdown.Divider />
-                            <Dropdown.Header>Header Item</Dropdown.Header>
-                            <Dropdown.Item>
-                            <i className='dropdown icon' />
-                            <span className='text'>Submenu</span>
-                            <Dropdown.Menu>
-                                <Dropdown.Item>List Item</Dropdown.Item>
-                                <Dropdown.Item>Logout</Dropdown.Item>
-                            </Dropdown.Menu>
+                            <Dropdown.Header>Explore</Dropdown.Header>
+                            <Dropdown.Item as='a' onClick={() => {pushRoute('leaderboard')}}>
+                                Leaderboard
                             </Dropdown.Item>
-                            <Dropdown.Item>List Item</Dropdown.Item>
+                            <Dropdown.Item as='a' onClick={() => {pushRoute('changelog')}}>
+                                Changelog
+                            </Dropdown.Item>
                         </Dropdown.Menu>
                     </Dropdown>
                 ) : ''}

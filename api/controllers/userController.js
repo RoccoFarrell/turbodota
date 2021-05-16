@@ -48,7 +48,19 @@ exports.getAllUsers = function (req, res) {
     });
 }
 
-exports.searchBySteamID = async function (steamID) {
+exports.returnSteamUser = async function(req, res) {
+  let user = req.user
+
+  if(!!user){
+    let result = await searchDBBySteamID(user.id)
+    console.log('search by steam ID in returnSteamUser: ', result)
+    user.dotaID = result 
+  }
+  
+  res.send(user)
+}
+
+async function searchDBBySteamID(steamID) {
   let userStats = {}
   let userExists = false
 
@@ -68,6 +80,10 @@ exports.searchBySteamID = async function (steamID) {
   })
 
   return userExists
+}
+
+exports.searchBySteamID = async function (steamID) {
+  return await searchDBBySteamID(steamID)
 }
 
 exports.getUserBySteamID = async function (req, res) {

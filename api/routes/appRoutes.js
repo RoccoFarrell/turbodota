@@ -39,9 +39,7 @@ module.exports = function (app) {
     .get(user.linkBySteamID)
 
   app.route('/api/steamUser')
-    .get((req, res) => {
-      res.send(req.user)
-    })
+  .get(user.returnSteamUser)
       
   app.route('/api/players/:dotaID/matches')
     .get(match.fetchMatchesForUser)
