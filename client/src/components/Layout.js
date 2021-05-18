@@ -30,6 +30,7 @@ import TownHome from './TownHome/TownHome'
 import Leaderboard from './Leaderboard/Leaderboard'
 import TurbodotaContext from './TurbodotaContext'
 import LinkAccounts from './LinkAccounts/LinkAccounts'
+import Idle from './Idle/Idle'
 
 import logo from '../assets/squareLogo.png';
 import steam_logo from '../assets/steam_logo.png'
@@ -82,7 +83,7 @@ function FixedMenuLayout() {
 
                 {/* Right Element 1 */}
                 { !!steamUser.id ? (        
-                    <Menu.Item as='a' fitted="vertically" onClick={() => pushRoute('users/' + steamUser.dotaID + '/town')}>
+                    <Menu.Item as='a' fitted="vertically" onClick={() => pushRoute('users/' + steamUser.dotaID + '/town/home')}>
                         <Image style={{ height: '50px' }} src={town_logo} />
                     </Menu.Item>
                 )
@@ -90,7 +91,7 @@ function FixedMenuLayout() {
 
                 {/* Right Element 2 */}
                 { !!steamUser.id ? (        
-                    <Menu.Item as='a' position='right' fitted="vertically" onClick={() => pushRoute('users/' + steamUser.dotaID + '/town')}>
+                    <Menu.Item as='a' position='right' fitted="vertically" onClick={() => pushRoute('users/' + steamUser.dotaID + '/town/home')}>
                             <Image size='mini' src={steamUser._json.avatar} style={{ marginRight: '1.5em' }} />
                             <div>{steamUser.displayName.toString() }</div>  
                     </Menu.Item>
@@ -139,17 +140,12 @@ function FixedMenuLayout() {
                 renders the first one that matches the current URL. */}
             <Container fluid style={{ paddingTop: '4.25em', flex: 1}}>
                 <Switch>
-                    <Route path="/changelog">
-                        <Changelog />
-                    </Route>
+                    <Route path="/changelog" component={Changelog} />
                     <Route exact path="/users/:id" component={UserData} />
                     <Route path="/users/:id/town" component={TownHome} />
                     <Route path="/leaderboard" component={Leaderboard} />
                     <Route path="/users/:id/linkAccounts" component={LinkAccounts} />
-                    {/* <Route path="/turboidle" component={Leaderboard} /> */}
-                    <Route path="/">
-                        <Search />
-                    </Route>
+                    <Route path="/" component={Search} />
                     <Redirect to="/" />
                 </Switch>
             </Container>

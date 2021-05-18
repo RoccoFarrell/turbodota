@@ -12,7 +12,7 @@
   align-items: center;
 }
 
-#townContainer {
+.contentContainer {
   margin-top: 2em;
   padding-left: 100px;
 }

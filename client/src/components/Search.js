@@ -22,7 +22,7 @@ function Home() {
   const handleUserSelect = (player) => {
     setUserID('')
     console.log(player)
-    history.push("/users/" + player.account_id + "/town")
+    history.push("/users/" + player.account_id + "/town/home")
   }
 
   const dummyResults = [

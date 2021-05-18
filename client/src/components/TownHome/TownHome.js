@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useLocation, useHistory } from "react-router-dom";
+import { useLocation, useHistory, useRouteMatch, Switch, Route } from "react-router-dom";
 import TurbodotaContext from '../TurbodotaContext'
 import axios from 'axios'
 import {
@@ -36,6 +36,10 @@ function TownHome() {
   const [enableReset, setEnableReset] = useState(false)
   const [townData, setTownData] = useState({})
   const [checkedQuests, setCheckedQuests] = useState({})
+
+  let { path, url } = useRouteMatch();
+
+  console.log('path: ', path, 'url: ', url)
 
   const userData = selectedUser
   // console.log(userData)
@@ -254,10 +258,9 @@ function TownHome() {
     } catch(e) {console.error(e)}
   }
 
-  
   return (
 
-      <Grid columns={1}>
+      <Grid columns={1} style={{ height: '100%'}}>
         <Grid.Column>
           <Sidebar.Pushable as={Segment}>
             <Sidebar
@@ -276,134 +279,147 @@ function TownHome() {
               <Menu.Item>
                   Turbo Town Menu
               </Menu.Item>
-              <Menu.Item as='a'>
-                <Icon name='gamepad' color='red' onClick={ () => {handleRouteChange()} }/>
+              <Menu.Item as='a' onClick={ () => {handleRouteChange()} }>
+                <Icon name='gamepad' color='red' />
                 User Stats
               </Menu.Item>
               {ShopOpenCloseModal()}
+              <Menu.Item as='a' onClick={ () => {handleRouteChange('town/idle')} }>
+                <Icon name='stopwatch' color='red' />
+                Idle
+              </Menu.Item>
             </Sidebar>
 
             <Sidebar.Pusher>
-              <Container id="townContainer">
-                <Container id="topUserInfo">
-                  { checkDevEnv() ? 
-                    <Container>
-                      <h3>Debug Actions:</h3>
-                      <Button color='red' onClick={ () => {addQuestToTown()} }> Add Random Quest </Button>
-                      <Button color='red' onClick={ () => {completeListOfQuests()} }> Complete Checked Quests </Button>
-                    </Container>            
-                  : '' }
-                  <Container id="turboTownContainer">
-                    <h3 style={{ marginRight: '.5em' }}>ONLY THE BEST CAN BECOME <strong style={{ fontStyle: 'bold' }}>MAYOR OF </strong></h3>
-                    <Image size='small' src={turboTownIcon}/>
-                  </Container>
+              <Switch>
+                <Route path="/users/:id/town/home">
+                  <Container className={'contentContainer'}>
+                    <Container id="topUserInfo">
+                      { checkDevEnv() ? 
+                        <Container>
+                          <h3>Debug Actions:</h3>
+                          <Button color='red' onClick={ () => {addQuestToTown()} }> Add Random Quest </Button>
+                          <Button color='red' onClick={ () => {completeListOfQuests()} }> Complete Checked Quests </Button>
+                        </Container>            
+                      : '' }
+                      <Container id="turboTownContainer">
+                        <h3 style={{ marginRight: '.5em' }}>ONLY THE BEST CAN BECOME <strong style={{ fontStyle: 'bold' }}>MAYOR OF </strong></h3>
+                        <Image size='small' src={turboTownIcon}/>
+                      </Container>
 
-                  <Card fluid color='blue' id="topUserRow">
-                    <div id="nameRow">
-                      {profilePicture()}
-                      <div style={{ alignSelf: "center", paddingLeft: "1em" }}>
-                        { !!selectedUser.userStats && !!townData.level? (
-                          <div>
-                            <h2><strong style={{ fontStyle: 'bold', color: '#2185d0'}}> { selectedUser.userStats.profile.personaname }</strong> </h2>
-                            <h3>Level {townData.level.value}</h3>
-                            <a href={"https://www.dotabuff.com/players/" + selectedUser.userStats.profile.account_id }>Dotabuff</a>
+                      <Card fluid color='blue' id="topUserRow">
+                        <div id="nameRow">
+                          {profilePicture()}
+                          <div style={{ alignSelf: "center", paddingLeft: "1em" }}>
+                            { !!selectedUser.userStats && !!townData.level? (
+                              <div>
+                                <h2><strong style={{ fontStyle: 'bold', color: '#2185d0'}}> { selectedUser.userStats.profile.personaname }</strong> </h2>
+                                <h3>Level {townData.level.value}</h3>
+                                <a href={"https://www.dotabuff.com/players/" + selectedUser.userStats.profile.account_id }>Dotabuff</a>
+                              </div>
+                            ) : ''}
+                            
                           </div>
-                        ) : ''}
-                        
-                      </div>
-                    </div>
-                    <div style={{ flex: 1 }}>
-                    </div>
-                    { !!townData.active ?
-                    <div className="flexRowTownHome" style={{ flex: "0 1 30%"}}>
-                        <div>
-                          <Statistic.Group size="mini" widths='one'>
-                            <Statistic horizontal>
-                              <Statistic.Value>
-                                { townData.townStats.totalTownGames }
-                              </Statistic.Value>
-                              <Statistic.Label className="tinyText">Town Games</Statistic.Label>
-                            </Statistic>
-                            <Statistic horizontal>
-                              <Statistic.Value>
-                                { townData.townStats.nonTownGames }
-                              </Statistic.Value>
-                              <Statistic.Label className="tinyText">Non-quest Games</Statistic.Label>
-                            </Statistic>
-                            <Statistic horizontal>
-                              <Statistic.Value>
-                                { townData.townStats.totalAttemptGames }
-                              </Statistic.Value>
-                              <Statistic.Label className="tinyText">Quest Attempts</Statistic.Label>
-                            </Statistic>
-                          </Statistic.Group>
                         </div>
-                      <div>
-                        <Statistic.Group widths='one' size="tiny">
-                          <Statistic size="mini">
-                            <Statistic.Value>
-                              <Image src={goldIcon} width="20px" className='circular inline' />
-                              { townData.gold }
-                            </Statistic.Value>
-                            <Statistic.Label>Gold</Statistic.Label>
-                          </Statistic>
-                          <Statistic size="mini">
-                            <Statistic.Value>
-                              <Image src={xpIcon} width="20px" className='circular inline' />
-                              { townData.xp }
-                            </Statistic.Value>
-                            <Statistic.Label>XP</Statistic.Label>
-                          </Statistic>
-                        </Statistic.Group>
-                      </div>
-
-                    </div>
-                    : '' }
-                  </Card>
-
-                </Container>
-                
-                { enableReset ? (
-                  <div>
-                    <h3>OH HO YOU FOUND ME</h3>
-                    <Button>Reset Town</Button>
-                  </div>
-                ) : ''}
-                { !!townData.level ?
-                <Container id="progressContainer">
-                  <Progress percent={ (( (townData.xp-townData.level.xpThisLevel) / (townData.level.xpNextLevel-townData.level.xpThisLevel))*100).toFixed(0) } progress color='blue' active>
-                    XP to Next Level: { townData.level.xpNextLevel - townData.xp }
-                  </Progress>
-                </Container>
-                : '' }
-                {/* OLD MODAL BUTTON 
-                <Container className='flexRowTownHome' style={{ marginTop: '2em' }}>
-                  {ShopOpenCloseModal()}
-                </Container> */}
-                <Container id="questContainer">
-                  <h2>Inventory</h2>
-                    {/* Inventory */}
-                    { !!townData.inventory && townData.inventory.length != 0 ?
-                      <div id='inventoryContainer'>
-                        {townData.inventory.map((item, index) => (
-                          <div key={index}>
-                            <Statistic>
-                              <Statistic.Value>
-                                {item.quantity}
-                              </Statistic.Value>
-                              <Statistic.Label>{item.name} </Statistic.Label>
-                            </Statistic>
+                        <div style={{ flex: 1 }}>
+                        </div>
+                        { !!townData.active ?
+                        <div className="flexRowTownHome" style={{ flex: "0 1 30%"}}>
+                            <div>
+                              <Statistic.Group size="mini" widths='one'>
+                                <Statistic horizontal>
+                                  <Statistic.Value>
+                                    { townData.townStats.totalTownGames }
+                                  </Statistic.Value>
+                                  <Statistic.Label className="tinyText">Town Games</Statistic.Label>
+                                </Statistic>
+                                <Statistic horizontal>
+                                  <Statistic.Value>
+                                    { townData.townStats.nonTownGames }
+                                  </Statistic.Value>
+                                  <Statistic.Label className="tinyText">Non-quest Games</Statistic.Label>
+                                </Statistic>
+                                <Statistic horizontal>
+                                  <Statistic.Value>
+                                    { townData.townStats.totalAttemptGames }
+                                  </Statistic.Value>
+                                  <Statistic.Label className="tinyText">Quest Attempts</Statistic.Label>
+                                </Statistic>
+                              </Statistic.Group>
+                            </div>
+                          <div>
+                            <Statistic.Group widths='one' size="tiny">
+                              <Statistic size="mini">
+                                <Statistic.Value>
+                                  <Image src={goldIcon} width="20px" className='circular inline' />
+                                  { townData.gold }
+                                </Statistic.Value>
+                                <Statistic.Label>Gold</Statistic.Label>
+                              </Statistic>
+                              <Statistic size="mini">
+                                <Statistic.Value>
+                                  <Image src={xpIcon} width="20px" className='circular inline' />
+                                  { townData.xp }
+                                </Statistic.Value>
+                                <Statistic.Label>XP</Statistic.Label>
+                              </Statistic>
+                            </Statistic.Group>
                           </div>
-                        ))}
+
+                        </div>
+                        : '' }
+                      </Card>
+
+                    </Container>
+                    
+                    { enableReset ? (
+                      <div>
+                        <h3>OH HO YOU FOUND ME</h3>
+                        <Button>Reset Town</Button>
                       </div>
-                    : 'Empty Inventory' }
-                </Container>
-                {/* Quests Container*/}
-                <Container id="questContainer">
-                  <h2>Quests</h2>
-                  <Tab menu={{ secondary: true }} panes={panes} />
-                </Container>
-              </Container>
+                    ) : ''}
+                    { !!townData.level ?
+                    <Container id="progressContainer">
+                      <Progress percent={ (( (townData.xp-townData.level.xpThisLevel) / (townData.level.xpNextLevel-townData.level.xpThisLevel))*100).toFixed(0) } progress color='blue' active>
+                        XP to Next Level: { townData.level.xpNextLevel - townData.xp }
+                      </Progress>
+                    </Container>
+                    : '' }
+                    {/* OLD MODAL BUTTON 
+                    <Container className='flexRowTownHome' style={{ marginTop: '2em' }}>
+                      {ShopOpenCloseModal()}
+                    </Container> */}
+                    <Container id="questContainer">
+                      <h2>Inventory</h2>
+                        {/* Inventory */}
+                        { !!townData.inventory && townData.inventory.length != 0 ?
+                          <div id='inventoryContainer'>
+                            {townData.inventory.map((item, index) => (
+                              <div key={index}>
+                                <Statistic>
+                                  <Statistic.Value>
+                                    {item.quantity}
+                                  </Statistic.Value>
+                                  <Statistic.Label>{item.name} </Statistic.Label>
+                                </Statistic>
+                              </div>
+                            ))}
+                          </div>
+                        : 'Empty Inventory' }
+                    </Container>
+                    {/* Quests Container*/}
+                    <Container id="questContainer">
+                      <h2>Quests</h2>
+                      <Tab menu={{ secondary: true }} panes={panes} />
+                    </Container>
+                  </Container>
+                </Route>
+                <Route path="/users/:id/town/idle">
+                  <Container className={'contentContainer'}>
+                    IDle time
+                  </Container>
+                </Route>
+              </Switch>
             </Sidebar.Pusher>
           </Sidebar.Pushable>
         </Grid.Column>
