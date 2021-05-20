@@ -13,7 +13,8 @@ import {
   Portal,
   Form,
   Checkbox,
-  Icon
+  Icon,
+  Modal
 } from 'semantic-ui-react'
 import {
     BrowserRouter as Router,
@@ -45,6 +46,7 @@ function FixedMenuLayout() {
 
     const [likeCounter, setLikeCounter] = useState(0)
     const [open, setOpen] = useState(false)
+    const [contactModalOpen, setContactModalOpen] = React.useState(false)
     
     let history = useHistory()
 
@@ -211,66 +213,99 @@ function FixedMenuLayout() {
                 </Button.Group>
 
                 <Container textAlign='center'>
-                {/* <Grid divided inverted stackable>
-                    <Grid.Column width={3}>
-                        <Header inverted as='h4' content='Group 1' />
-                        <List link inverted>
-                        <List.Item as='a'>Link One</List.Item>
-                        <List.Item as='a'>Link Two</List.Item>
-                        <List.Item as='a'>Link Three</List.Item>
-                        <List.Item as='a'>Link Four</List.Item>
-                        </List>
+                    {/* <Grid divided inverted stackable>
+                        <Grid.Column width={3}>
+                            <Header inverted as='h4' content='Group 1' />
+                            <List link inverted>
+                            <List.Item as='a'>Link One</List.Item>
+                            <List.Item as='a'>Link Two</List.Item>
+                            <List.Item as='a'>Link Three</List.Item>
+                            <List.Item as='a'>Link Four</List.Item>
+                            </List>
+                        </Grid.Column>
+                        <Grid.Column width={3}>
+                            <Header inverted as='h4' content='Group 2' />
+                            <List link inverted>
+                            <List.Item as='a'>Link One</List.Item>
+                            <List.Item as='a'>Link Two</List.Item>
+                            <List.Item as='a'>Link Three</List.Item>
+                            <List.Item as='a'>Link Four</List.Item>
+                            </List>
+                        </Grid.Column>
+                        <Grid.Column width={3}>
+                            <Header inverted as='h4' content='Group 3' />
+                            <List link inverted>
+                            <List.Item as='a'>Link One</List.Item>
+                            <List.Item as='a'>Link Two</List.Item>
+                            <List.Item as='a'>Link Three</List.Item>
+                            <List.Item as='a'>Link Four</List.Item>
+                            </List>
+                        </Grid.Column>
+                        <Grid.Column width={7}>
+                        <Header inverted as='h4' content='Special thanks to:' />
+                        <p>
+                        <br/>
+                        Dotabuff
+                        <br/>
+                        OpenDota
+                        <br/>
+                        FlatIcon
+                        <br/>
+                        Our fantastic product team
+                        </p>
                     </Grid.Column>
-                    <Grid.Column width={3}>
-                        <Header inverted as='h4' content='Group 2' />
-                        <List link inverted>
-                        <List.Item as='a'>Link One</List.Item>
-                        <List.Item as='a'>Link Two</List.Item>
-                        <List.Item as='a'>Link Three</List.Item>
-                        <List.Item as='a'>Link Four</List.Item>
-                        </List>
-                    </Grid.Column>
-                    <Grid.Column width={3}>
-                        <Header inverted as='h4' content='Group 3' />
-                        <List link inverted>
-                        <List.Item as='a'>Link One</List.Item>
-                        <List.Item as='a'>Link Two</List.Item>
-                        <List.Item as='a'>Link Three</List.Item>
-                        <List.Item as='a'>Link Four</List.Item>
-                        </List>
-                    </Grid.Column>
-                    <Grid.Column width={7}>
-                    <Header inverted as='h4' content='Special thanks to:' />
-                    <p>
-                    <br/>
-                    Dotabuff
-                    <br/>
-                    OpenDota
-                    <br/>
-                    FlatIcon
-                    <br/>
-                    Our fantastic product team
-                    </p>
-                </Grid.Column>
-                </Grid> */}
+                    </Grid> */}
 
-                <Divider inverted section />
-                <Image centered size='mini' src={logo} />
-                <List horizontal inverted divided link size='small'>
-                <List.Item as='a' href='#'>
-                    Site Map
-                </List.Item>
-                <List.Item as='a' href='#'>
-                    Contact Us
-                </List.Item>
-                <List.Item as='a' href='#'>
-                    Terms and Conditions
-                </List.Item>
-                <List.Item as='a' href='#'>
-                    Privacy Policy
-                </List.Item>
-                </List>
-            </Container>
+                    {/* ---------------------
+                    Footer
+                    --------------------- */}
+                    <Divider inverted section />
+                    <Image centered size='mini' src={logo} />
+                        <List horizontal inverted divided link size='small'>
+                        <List.Item as='a' onClick={() => setContactModalOpen(true)}>
+                            Contact Us
+                        </List.Item>
+                        <List.Item as='a' onClick={() => setContactModalOpen(true)}>
+                            Terms and Conditions
+                        </List.Item>
+                        <List.Item as='a' onClick={() => setContactModalOpen(true)}>
+                            Privacy Policy
+                        </List.Item>
+                    </List>
+                    {/* ---------------------
+                    End Footer
+                    --------------------- */}
+                    <Modal
+                    onClose={() => setContactModalOpen(false)}
+                    onOpen={() => setContactModalOpen(true)}
+                    open={contactModalOpen}
+                    //trigger={<Button>Show Modal</Button>}
+                    >
+                        <Modal.Header>Contact Us</Modal.Header>
+                        <Modal.Content image>
+                            {/* <Image size='medium' src='https://react.semantic-ui.com/images/avatar/large/rachel.png' wrapped /> */}
+                            <Image size='small' src={logo} wrapped />
+                            <Modal.Description style={{ paddingTop: '2em' }} wrapped>
+                            <Header>No Salt Studios ©2021</Header>
+                            <p>
+                                Contact us at <h3>nosaltstudios@gmail.com</h3>
+                            </p>
+                            </Modal.Description>
+                        </Modal.Content>
+                        <Modal.Actions>
+                            <Button color='black' onClick={() => setContactModalOpen(false)}>
+                            Nope
+                            </Button>
+                            <Button
+                            content="Yes"
+                            labelPosition='right'
+                            icon='checkmark'
+                            onClick={() => setContactModalOpen(false)}
+                            positive
+                            />
+                        </Modal.Actions>
+                    </Modal>
+                </Container>
             </Segment>
         </div>
     )
