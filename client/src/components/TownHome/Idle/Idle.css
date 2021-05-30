@@ -1,0 +1,18 @@
+.skillCard {
+  width: 100%;
+}
+
+
+.progress-div {
+  background-color: rgb(233, 233, 233);
+  border-radius: .5rem;
+  margin: 1em;
+  max-width: 100%;
+}
+
+.progress {
+  background-color: rgb(62, 122, 235);
+  height: 10px;
+  border-radius: 1rem;
+  max-width: 100%;
+}

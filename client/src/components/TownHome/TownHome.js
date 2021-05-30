@@ -1,16 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useLocation, useHistory, useRouteMatch, Switch, Route } from "react-router-dom";
-import TurbodotaContext from '../TurbodotaContext'
 import axios from 'axios'
 import {
-    Checkbox,
     Grid,
     Modal,
     Container,
     Card,
     Icon,
     Image,
-    Header,
     Statistic,
     Tab,
     Button,
@@ -18,18 +15,26 @@ import {
     Menu,
     Sidebar,
     Segment,
-    Dropdown
+    Dimmer,
+    Loader
 } from 'semantic-ui-react'
+
+import TurbodotaContext from '../TurbodotaContext'
+import api from '../../services/api'
+
 import './TownHome.css';
 
 import Quests from './Quests/Quests'
 import Shop from './Shop/Shop'
+import Idle from './Idle/Idle'
+import UserNotFound from '../UserNotFound/UserNotFound'
 
 import goldIcon from '../../assets/gold.png';
 import xpIcon from '../../assets/xp.png';
 import turboTownIcon from '../../assets/turbotown.png';
 
 function TownHome() {
+  const [loading, setLoading] = useState(false)
   const [devEnv, setDevEnv] = useState(false)
   const [visible, setVisible] = useState(false)
   const {selectedUser, setSelectedUser, userID, setUserID, authorizedUser} = useContext(TurbodotaContext);
@@ -39,52 +44,37 @@ function TownHome() {
 
   let { path, url } = useRouteMatch();
 
-  console.log('path: ', path, 'url: ', url)
+  //console.log('path: ', path, 'url: ', url)
+  // useEffect(() => {
+  //   console.log('selectedUser: ', selectedUser)
+  //   console.log('townData: ', townData)
+  // }, [selectedUser])
 
   const userData = selectedUser
-  // console.log(userData)
   let location = useLocation()
   let history = useHistory()
+
+  async function getTownData(ID){
+    console.log('loading before: ', loading)
+    setLoading(true)
+    let results = await api.getTown(ID)
+    console.log(results)
+    if(results) setTownData(results)
+    setLoading(false)
+  }
+
+  useEffect(() => {
+    if(userID !== undefined && userID !== '') getTownData(userID)
+  }, [userID])
 
   useEffect(() => {
     if (userID === undefined || userID === ''){
         let parsedUserID = location.pathname.split('/users/')[1].split('/')[0]
-        console.log(parsedUserID)
         setUserID(parsedUserID)
     } else {
         console.log('userID: ', userID, 'userData: ', userData, 'selectedUser: ', selectedUser)
     }
   }, [])
-
-  useEffect(() => {
-    console.log('selectedUser: ', selectedUser)
-    console.log('townData: ', townData)
-  }, [selectedUser])
-
-  //get town data function
-  async function getTownData(){
-    try {
-        axios.get(`/api/towns/${userID}`)
-        .then(res => {
-            let content = res.data;
-            console.log('townData: ', content)
-            // let returnDmg = calculateHeroDamage(matchOverview, content)
-            setTownData(content)
-        })
-    } catch(e) {console.error(e)}
-  }
-
-  useEffect(() => {
-    if(userID !== undefined && userID !== '') getTownData()
-  }, [userID])
-
-  useEffect(() => {
-    console.log(checkedQuests)
-  }, [checkedQuests])
-
-  const profilePicture = () => {
-    return userData.userStats ? <Image style={{ marginRight: '1em' }} src={userData.userStats.profile.avatarfull} rounded /> : <div></div>
-  }
 
   const handleTownDataChange = (townData) => {
     setTownData(townData)
@@ -167,14 +157,15 @@ function TownHome() {
         throw new Error()
     }
   }
+
+  const [state, dispatch] = React.useReducer(modalReducer, {
+    open: false,
+    dimmer: undefined,
+  })
+
+  const { open, dimmer } = state
   
-  function ShopOpenCloseModal() {
-    const [state, dispatch] = React.useReducer(modalReducer, {
-      open: false,
-      dimmer: undefined,
-    })
-    const { open, dimmer } = state
-  
+  function ShopOpenCloseModal() {  
     return (
       <Modal
         open={open}
@@ -222,6 +213,11 @@ function TownHome() {
       })
     } catch(e) {console.error(e)}
   }
+  
+  const profilePicture = (profile) => {
+    // console.log('profile:', profile)
+    return <Image style={{ marginRight: '1em' }} src={profile.avatarfull} rounded />
+  }
 
   //debug functions
   //--------------------------------------------
@@ -259,172 +255,175 @@ function TownHome() {
   }
 
   return (
-
       <Grid columns={1} style={{ height: '100%'}}>
         <Grid.Column>
-          <Sidebar.Pushable as={Segment}>
-            <Sidebar
-              as={Menu}
-              animation='overlay'
-              icon='labeled'
-              onHide={() => setVisible(false)}
-              vertical
-              visible
-              width='thin'
-            >
-              {/* <Menu.Item as='a'>
-                <Icon name='home' color='red' onClick={ () => {history.push("/")}}/>
-                Home
-              </Menu.Item> */}
-              <Menu.Item>
-                  Turbo Town Menu
-              </Menu.Item>
-              <Menu.Item as='a' onClick={ () => {handleRouteChange()} }>
-                <Icon name='gamepad' color='red' />
-                User Stats
-              </Menu.Item>
-              {ShopOpenCloseModal()}
-              <Menu.Item as='a' onClick={ () => {handleRouteChange('town/idle')} }>
-                <Icon name='stopwatch' color='red' />
-                Idle
-              </Menu.Item>
-            </Sidebar>
+          <Dimmer active={loading} inverted>
+            <Loader/>
+          </Dimmer>
+          { !!userData.userStats && !!userData.userStats.profile ? (
+            <Sidebar.Pushable as={Segment}>
+              <Sidebar
+                as={Menu}
+                animation='overlay'
+                icon='labeled'
+                onHide={() => setVisible(false)}
+                vertical
+                visible
+                width='thin'
+              >
+                {/* <Menu.Item as='a'>
+                  <Icon name='home' color='red' onClick={ () => {history.push("/")}}/>
+                  Home
+                </Menu.Item> */}
+                <Menu.Item>
+                    Turbo Town Menu
+                </Menu.Item>
+                <Menu.Item as='a' onClick={ () => {handleRouteChange()} }>
+                  <Icon name='gamepad' color='red' />
+                  User Stats
+                </Menu.Item>
+                {ShopOpenCloseModal()}
+                {/* Commented out for push to prod */}
+                {/* <Menu.Item as='a' onClick={ () => {handleRouteChange('town/idle')} }>
+                  <Icon name='stopwatch' color='red' />
+                  Idle
+                </Menu.Item> */}
+              </Sidebar>
 
-            <Sidebar.Pusher>
-              <Switch>
-                <Route path="/users/:id/town/home">
-                  <Container className={'contentContainer'}>
-                    <Container id="topUserInfo">
-                      { checkDevEnv() ? 
-                        <Container>
-                          <h3>Debug Actions:</h3>
-                          <Button color='red' onClick={ () => {addQuestToTown()} }> Add Random Quest </Button>
-                          <Button color='red' onClick={ () => {completeListOfQuests()} }> Complete Checked Quests </Button>
-                        </Container>            
-                      : '' }
-                      <Container id="turboTownContainer">
-                        <h3 style={{ marginRight: '.5em' }}>ONLY THE BEST CAN BECOME <strong style={{ fontStyle: 'bold' }}>MAYOR OF </strong></h3>
-                        <Image size='small' src={turboTownIcon}/>
-                      </Container>
+              <Sidebar.Pusher>
+                <Switch>
+                  <Route path="/users/:id/town/home">
+                    
+                    <Container className={'contentContainer'}>
+                      <Container id="topUserInfo">
+                        { checkDevEnv() ? 
+                          <Container>
+                            <h3>Debug Actions:</h3>
+                            <Button color='red' onClick={ () => {addQuestToTown()} }> Add Random Quest </Button>
+                            <Button color='red' onClick={ () => {completeListOfQuests()} }> Complete Checked Quests </Button>
+                          </Container>            
+                        : '' }
+                        <Container id="turboTownContainer">
+                          <h3 style={{ marginRight: '.5em' }}>ONLY THE BEST CAN BECOME <strong style={{ fontStyle: 'bold' }}>MAYOR OF </strong></h3>
+                          <Image size='small' src={turboTownIcon}/>
+                        </Container>
 
-                      <Card fluid color='blue' id="topUserRow">
-                        <div id="nameRow">
-                          {profilePicture()}
-                          <div style={{ alignSelf: "center", paddingLeft: "1em" }}>
-                            { !!selectedUser.userStats && !!townData.level? (
-                              <div>
-                                <h2><strong style={{ fontStyle: 'bold', color: '#2185d0'}}> { selectedUser.userStats.profile.personaname }</strong> </h2>
-                                <h3>Level {townData.level.value}</h3>
-                                <a href={"https://www.dotabuff.com/players/" + selectedUser.userStats.profile.account_id }>Dotabuff</a>
-                              </div>
-                            ) : ''}
-                            
+                        <Card fluid color='blue' id="topUserRow">
+                          <div id="nameRow">
+                            {profilePicture(userData.userStats.profile)}
+                            <div style={{ alignSelf: "center", paddingLeft: "1em" }}>
+                              { !!selectedUser.userStats && !!townData.level? (
+                                <div>
+                                  <h2><strong style={{ fontStyle: 'bold', color: '#2185d0'}}> { selectedUser.userStats.profile.personaname }</strong> </h2>
+                                  <h3>Level {townData.level.value}</h3>
+                                  <a href={"https://www.dotabuff.com/players/" + selectedUser.userStats.profile.account_id }>Dotabuff</a>
+                                </div>
+                              ) : ''}
+                              
+                            </div>
                           </div>
-                        </div>
-                        <div style={{ flex: 1 }}>
-                        </div>
-                        { !!townData.active ?
-                        <div className="flexRowTownHome" style={{ flex: "0 1 30%"}}>
+                          <div style={{ flex: 1 }}>
+                          </div>
+                          { !!townData.active ?
+                          <div className="flexRowTownHome" style={{ flex: "0 1 30%"}}>
+                              <div>
+                                <Statistic.Group size="mini" widths='one'>
+                                  <Statistic horizontal>
+                                    <Statistic.Value>
+                                      { townData.townStats.totalTownGames }
+                                    </Statistic.Value>
+                                    <Statistic.Label className="tinyText">Town Games</Statistic.Label>
+                                  </Statistic>
+                                  <Statistic horizontal>
+                                    <Statistic.Value>
+                                      { townData.townStats.nonTownGames }
+                                    </Statistic.Value>
+                                    <Statistic.Label className="tinyText">Non-quest Games</Statistic.Label>
+                                  </Statistic>
+                                  <Statistic horizontal>
+                                    <Statistic.Value>
+                                      { townData.townStats.totalAttemptGames }
+                                    </Statistic.Value>
+                                    <Statistic.Label className="tinyText">Quest Attempts</Statistic.Label>
+                                  </Statistic>
+                                </Statistic.Group>
+                              </div>
                             <div>
-                              <Statistic.Group size="mini" widths='one'>
-                                <Statistic horizontal>
+                              <Statistic.Group widths='one' size="tiny">
+                                <Statistic size="mini">
                                   <Statistic.Value>
-                                    { townData.townStats.totalTownGames }
+                                    <Image src={goldIcon} width="20px" className='circular inline' />
+                                    { townData.gold }
                                   </Statistic.Value>
-                                  <Statistic.Label className="tinyText">Town Games</Statistic.Label>
+                                  <Statistic.Label>Gold</Statistic.Label>
                                 </Statistic>
-                                <Statistic horizontal>
+                                <Statistic size="mini">
                                   <Statistic.Value>
-                                    { townData.townStats.nonTownGames }
+                                    <Image src={xpIcon} width="20px" className='circular inline' />
+                                    { townData.xp }
                                   </Statistic.Value>
-                                  <Statistic.Label className="tinyText">Non-quest Games</Statistic.Label>
-                                </Statistic>
-                                <Statistic horizontal>
-                                  <Statistic.Value>
-                                    { townData.townStats.totalAttemptGames }
-                                  </Statistic.Value>
-                                  <Statistic.Label className="tinyText">Quest Attempts</Statistic.Label>
+                                  <Statistic.Label>XP</Statistic.Label>
                                 </Statistic>
                               </Statistic.Group>
                             </div>
-                          <div>
-                            <Statistic.Group widths='one' size="tiny">
-                              <Statistic size="mini">
-                                <Statistic.Value>
-                                  <Image src={goldIcon} width="20px" className='circular inline' />
-                                  { townData.gold }
-                                </Statistic.Value>
-                                <Statistic.Label>Gold</Statistic.Label>
-                              </Statistic>
-                              <Statistic size="mini">
-                                <Statistic.Value>
-                                  <Image src={xpIcon} width="20px" className='circular inline' />
-                                  { townData.xp }
-                                </Statistic.Value>
-                                <Statistic.Label>XP</Statistic.Label>
-                              </Statistic>
-                            </Statistic.Group>
+
                           </div>
+                          : '' }
+                        </Card>
 
+                      </Container>
+                      
+                      { enableReset ? (
+                        <div>
+                          <h3>OH HO YOU FOUND ME</h3>
+                          <Button>Reset Town</Button>
                         </div>
-                        : '' }
-                      </Card>
-
+                      ) : ''}
+                      { !!townData.level ?
+                      <Container id="progressContainer">
+                        <Progress percent={ (( (townData.xp-townData.level.xpThisLevel) / (townData.level.xpNextLevel-townData.level.xpThisLevel))*100).toFixed(0) } progress color='blue' active>
+                          XP to Next Level: { townData.level.xpNextLevel - townData.xp }
+                        </Progress>
+                      </Container>
+                      : '' }
+                      <Container id="questContainer">
+                        <h2>Inventory</h2>
+                          {/* Inventory */}
+                          { !!townData.inventory && townData.inventory.length != 0 ?
+                            <div id='inventoryContainer'>
+                              {townData.inventory.map((item, index) => (
+                                <div key={index}>
+                                  <Statistic>
+                                    <Statistic.Value>
+                                      {item.quantity}
+                                    </Statistic.Value>
+                                    <Statistic.Label>{item.name} </Statistic.Label>
+                                  </Statistic>
+                                </div>
+                              ))}
+                            </div>
+                          : 'Empty Inventory' }
+                      </Container>
+                      {/* Quests Container*/}
+                      <Container id="questContainer">
+                        <h2>Quests</h2>
+                        <Tab menu={{ secondary: true }} panes={panes} />
+                      </Container>
                     </Container>
                     
-                    { enableReset ? (
-                      <div>
-                        <h3>OH HO YOU FOUND ME</h3>
-                        <Button>Reset Town</Button>
-                      </div>
-                    ) : ''}
-                    { !!townData.level ?
-                    <Container id="progressContainer">
-                      <Progress percent={ (( (townData.xp-townData.level.xpThisLevel) / (townData.level.xpNextLevel-townData.level.xpThisLevel))*100).toFixed(0) } progress color='blue' active>
-                        XP to Next Level: { townData.level.xpNextLevel - townData.xp }
-                      </Progress>
+                  </Route>
+                  <Route path="/users/:id/town/idle">
+                    <Container className={'contentContainer'}>
+                      <Idle/>
                     </Container>
-                    : '' }
-                    {/* OLD MODAL BUTTON 
-                    <Container className='flexRowTownHome' style={{ marginTop: '2em' }}>
-                      {ShopOpenCloseModal()}
-                    </Container> */}
-                    <Container id="questContainer">
-                      <h2>Inventory</h2>
-                        {/* Inventory */}
-                        { !!townData.inventory && townData.inventory.length != 0 ?
-                          <div id='inventoryContainer'>
-                            {townData.inventory.map((item, index) => (
-                              <div key={index}>
-                                <Statistic>
-                                  <Statistic.Value>
-                                    {item.quantity}
-                                  </Statistic.Value>
-                                  <Statistic.Label>{item.name} </Statistic.Label>
-                                </Statistic>
-                              </div>
-                            ))}
-                          </div>
-                        : 'Empty Inventory' }
-                    </Container>
-                    {/* Quests Container*/}
-                    <Container id="questContainer">
-                      <h2>Quests</h2>
-                      <Tab menu={{ secondary: true }} panes={panes} />
-                    </Container>
-                  </Container>
-                </Route>
-                <Route path="/users/:id/town/idle">
-                  <Container className={'contentContainer'}>
-                    IDle time
-                  </Container>
-                </Route>
-              </Switch>
-            </Sidebar.Pusher>
-          </Sidebar.Pushable>
+                  </Route>
+                </Switch>
+              </Sidebar.Pusher>
+            </Sidebar.Pushable>
+          ) : '' }
+          { !loading && !!userData.userStats && userData.userStats.profile === undefined ? <UserNotFound userID={userID}/> : '' }
         </Grid.Column>
       </Grid>
-
   )
 }
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
+import axios from 'axios'
 import { useLocation, useHistory } from "react-router-dom";
 import TurbodotaContext from './TurbodotaContext'
 import SingleMatch from './SingleMatch/SingleMatch'
@@ -15,9 +16,11 @@ import {
 } from 'semantic-ui-react'
 import './UserData.css';
 import UserMatchHistory from './UserMatchHistory/UserMatchHistory';
+import UserNotFound from './UserNotFound/UserNotFound';
+
 import underConstruction from '../assets/construction.png';
 import turboTownIcon from '../assets/turbotown.png';
-import axios from 'axios'
+import knight from '../assets/knight.png';
 
 function UserData() {
     const {selectedUser, setSelectedUser, userID, setUserID} = useContext(TurbodotaContext);
@@ -28,6 +31,7 @@ function UserData() {
     let history = useHistory()
 
     useEffect(() => {
+        console.log('userID on mount: ')
         if (userID === undefined || userID === ''){
             setUserID(location.pathname.split('/users/')[1])
         } else {
@@ -145,7 +149,7 @@ function UserData() {
 
     return (
         <Container id="container">
-            { !!userData.userStats ? (
+            { !!userData.userStats && !!userData.userStats.profile? (
                 <Container id="results">
                     <div
                         style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}
@@ -282,7 +286,7 @@ function UserData() {
                 </Container>
             )
             :
-                ''
+                <UserNotFound userID={userID}/>
             }
             
         </Container>

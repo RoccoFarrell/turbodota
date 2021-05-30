@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useContext } from 'react';
-import '../App.css';
-import axios from 'axios'
+import { useHistory } from "react-router-dom";
 import { Container, Image, Input, Header } from 'semantic-ui-react'
+
+import '../App.css';
 import './Search.css';
 
 import logo from '../assets/turbologo.png';
-import { useHistory } from "react-router-dom";
+
 import TurbodotaContext from './TurbodotaContext'
 import SearchResults from './SearchResults'
+import api from '../services/api'
 
 function Home() {
   const [searchText, setSearchText] = useState('')
@@ -79,24 +81,13 @@ function Home() {
       personaname: "Bobby Backshots",
       avatarfull: "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/19/1907b6ce5fbfae8ba0d9952ef190276ac6b57f0f_full.jpg",
       last_match_time: "Test"
-    }
-
-    
+    }    
   ]
 
   useEffect(() => {
     async function searchUser(){
-      try {
-        axios.get(`/api/search?searchString=${searchText}`)
-        .then(res => {
-          let content = res.data;
-          setSearchResults(content)
-        })
-        .catch(e => {
-          console.log(e)
-        })
-        
-      } catch(e) {console.error(e)}
+      let results = await api.searchByString(searchText)
+      if(results) setSearchResults(results)
     }
 
     if(searchText !== ''){

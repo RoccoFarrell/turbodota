@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useLocation, useHistory } from "react-router-dom";
-import TurbodotaContext from '../TurbodotaContext'
+import TurbodotaContext from '../../TurbodotaContext'
 import axios from 'axios'
 import {
     Checkbox,
@@ -20,11 +20,13 @@ import {
     Segment,
     Dropdown
 } from 'semantic-ui-react'
-//import './Idle.css';
+import './Idle.css';
 
-import goldIcon from '../../assets/gold.png';
-import xpIcon from '../../assets/xp.png';
-import turboTownIcon from '../../assets/turbotown.png';
+import goldIcon from '../../../assets/gold.png';
+import xpIcon from '../../../assets/xp.png';
+import turboTownIcon from '../../../assets/turbotown.png';
+
+import IdleBox from './IdleBox/IdleBox'
 
 function Idle() {
   const [devEnv, setDevEnv] = useState(false)
@@ -34,25 +36,33 @@ function Idle() {
   const [townData, setTownData] = useState({})
   const [checkedQuests, setCheckedQuests] = useState({})
 
+  const [idleData, setIdleData] = useState({
+    skills: {
+      'strength': {
+        'xp': 0,
+        'level': 0
+      },
+      'agility': {
+        'xp': 0,
+        'level': 0
+      },
+      'intelligence': {
+        'xp': 0,
+        'level': 0
+      },
+    }
+  })
+
+  const [strengthBar, setStrengthBar] = useState(0)
+
   const userData = selectedUser
   // console.log(userData)
   let location = useLocation()
   let history = useHistory()
 
-  // useEffect(() => {
-  //   if (userID === undefined || userID === ''){
-  //       let parsedUserID = location.pathname.split('/users/')[1].split('/')[0]
-  //       console.log(parsedUserID)
-  //       setUserID(parsedUserID)
-  //   } else {
-  //       console.log('userID: ', userID, 'userData: ', userData, 'selectedUser: ', selectedUser)
-  //   }
-  // }, [])
-
-  // useEffect(() => {
-  //   console.log('selectedUser: ', selectedUser)
-  //   console.log('townData: ', townData)
-  // }, [selectedUser])
+  useEffect(() => {
+    //console.log('strengthBar: ' + strengthBar)
+  }, [strengthBar])
 
   // //get town data function
   // async function getTownData(){
@@ -251,12 +261,32 @@ function Idle() {
   //   } catch(e) {console.error(e)}
   // }
 
-  
-  return (
+  const capitalize = (s) => {
+    if (typeof s !== 'string') return ''
+    return s.charAt(0).toUpperCase() + s.slice(1)
+  }
 
+  const skillColor = (s) => {
+    let returnColor = 'grey'
+    if(s.toString() === 'strength') returnColor = 'red'
+    if(s.toString() === 'agility') returnColor = 'green'
+    if(s.toString() === 'intelligence') returnColor = 'blue'
+    return returnColor
+  }
+
+  return (
       <Grid columns={1}>
         <Grid.Column>
-        <div>IDLE time</div>
+          { !!idleData.skills ? (
+            <div>
+              { Object.entries(idleData.skills).map((skill, key) => {
+                return (
+                  <IdleBox key={key} skill={skill}/>
+                )
+              })}
+
+            </div>
+          ) : ''}
         </Grid.Column>
       </Grid>
 

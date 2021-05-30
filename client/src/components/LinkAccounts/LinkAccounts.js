@@ -50,27 +50,7 @@ function Home() {
       } catch(e) {console.error(e)}
     }
   }
-
-  // async function getUserByID(id) {
-  //   if(id.length > 3 && (id !== '' || id !== undefined) ){
-  //     try {
-  //       axios.get(`/api/players/${id}`)
-  //       .then(res => {
-  //         let content = res.data;
-  //         // console.log(content.matchStats)
-  //         setSelectedUser(content)
-  //       })
-  //       .catch(e => {
-  //         console.log(e)
-  //       })
-  //     } catch(e) {console.error(e)}
-  //   }
-  // }
-
-  // useEffect(() => {
-  //   getUserByID(userID)
-  // }, [steamUser])
-
+  
   return (
     <Container id="container" style={{ height: 'max-content'}}>
       <Container id="textContainer">

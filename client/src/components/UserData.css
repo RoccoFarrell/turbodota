@@ -32,6 +32,13 @@
     flex-direction: column;
 }
 
+.flexCenter {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
 #constructionImg {
     filter: grayscale(50%);
 }

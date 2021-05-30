@@ -14,7 +14,9 @@ import {
   Form,
   Checkbox,
   Icon,
-  Modal
+  Modal,
+  Dimmer,
+  Loader
 } from 'semantic-ui-react'
 import {
     BrowserRouter as Router,
@@ -31,7 +33,7 @@ import TownHome from './TownHome/TownHome'
 import Leaderboard from './Leaderboard/Leaderboard'
 import TurbodotaContext from './TurbodotaContext'
 import LinkAccounts from './LinkAccounts/LinkAccounts'
-import Idle from './Idle/Idle'
+import Idle from './TownHome/Idle/Idle'
 
 import logo from '../assets/squareLogo.png';
 import steam_logo from '../assets/steam_logo.png'
@@ -41,7 +43,7 @@ import './Layout.css';
 
 function FixedMenuLayout() {
     
-    const {selectedUser, setSelectedUser}= useContext(TurbodotaContext);
+    const {selectedUser, setSelectedUser, loading} = useContext(TurbodotaContext);
     const {steamUser, setSteamUser}= useContext(TurbodotaContext);
 
     const [likeCounter, setLikeCounter] = useState(0)
@@ -51,7 +53,7 @@ function FixedMenuLayout() {
     let history = useHistory()
 
     useEffect(() => {
-        console.log('steamUser: ', steamUser, !!steamUser)
+        //console.log('steamUser: ', steamUser, !!steamUser)
         // console.log('townData: ', townData)
       }, [steamUser])
 
@@ -138,8 +140,13 @@ function FixedMenuLayout() {
 
             {/* MAIN CONTENT AREA */}
 
+            {/* Experimental Dimmer, need to implement new API structure first */}
+            <Dimmer active={loading} inverted>
+                <Loader/>
+            </Dimmer>
             {/* A <Switch> looks through its children <Route>s and
                 renders the first one that matches the current URL. */}
+                
             <Container fluid style={{ paddingTop: '4.25em', flex: 1}}>
                 <Switch>
                     <Route path="/changelog" component={Changelog} />

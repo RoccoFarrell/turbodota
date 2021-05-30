@@ -124,7 +124,7 @@ exports.searchUser = async function (req, res) {
 }
 
 async function fetchUserData (userID) {
-  console.log('[fud] fetching user data for ', userID)
+  console.log('[EXTERNAL] fetching user data for ', userID)
   return await fetch('https://api.opendota.com/api/players/' + userID, {
     method: 'get',
     headers: { 'Content-Type': 'application/json' },
