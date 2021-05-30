@@ -13,7 +13,10 @@ import {
   Portal,
   Form,
   Checkbox,
-  Icon
+  Icon,
+  Modal,
+  Dimmer,
+  Loader
 } from 'semantic-ui-react'
 import {
     BrowserRouter as Router,
@@ -30,6 +33,7 @@ import TownHome from './TownHome/TownHome'
 import Leaderboard from './Leaderboard/Leaderboard'
 import TurbodotaContext from './TurbodotaContext'
 import LinkAccounts from './LinkAccounts/LinkAccounts'
+import Idle from './TownHome/Idle/Idle'
 
 import logo from '../assets/squareLogo.png';
 import steam_logo from '../assets/steam_logo.png'
@@ -39,16 +43,17 @@ import './Layout.css';
 
 function FixedMenuLayout() {
     
-    const {selectedUser, setSelectedUser}= useContext(TurbodotaContext);
+    const {selectedUser, setSelectedUser, loading} = useContext(TurbodotaContext);
     const {steamUser, setSteamUser}= useContext(TurbodotaContext);
 
     const [likeCounter, setLikeCounter] = useState(0)
     const [open, setOpen] = useState(false)
+    const [contactModalOpen, setContactModalOpen] = React.useState(false)
     
     let history = useHistory()
 
     useEffect(() => {
-        console.log('steamUser: ', steamUser, !!steamUser)
+        //console.log('steamUser: ', steamUser, !!steamUser)
         // console.log('townData: ', townData)
       }, [steamUser])
 
@@ -82,7 +87,7 @@ function FixedMenuLayout() {
 
                 {/* Right Element 1 */}
                 { !!steamUser.id ? (        
-                    <Menu.Item as='a' fitted="vertically" onClick={() => pushRoute('users/' + steamUser.dotaID + '/town')}>
+                    <Menu.Item as='a' fitted="vertically" onClick={() => pushRoute('users/' + steamUser.dotaID + '/town/home')}>
                         <Image style={{ height: '50px' }} src={town_logo} />
                     </Menu.Item>
                 )
@@ -90,7 +95,7 @@ function FixedMenuLayout() {
 
                 {/* Right Element 2 */}
                 { !!steamUser.id ? (        
-                    <Menu.Item as='a' position='right' fitted="vertically" onClick={() => pushRoute('users/' + steamUser.dotaID + '/town')}>
+                    <Menu.Item as='a' position='right' fitted="vertically" onClick={() => pushRoute('users/' + steamUser.dotaID + '/town/home')}>
                             <Image size='mini' src={steamUser._json.avatar} style={{ marginRight: '1.5em' }} />
                             <div>{steamUser.displayName.toString() }</div>  
                     </Menu.Item>
@@ -135,21 +140,21 @@ function FixedMenuLayout() {
 
             {/* MAIN CONTENT AREA */}
 
+            {/* Experimental Dimmer, need to implement new API structure first */}
+            <Dimmer active={loading} inverted>
+                <Loader/>
+            </Dimmer>
             {/* A <Switch> looks through its children <Route>s and
                 renders the first one that matches the current URL. */}
+                
             <Container fluid style={{ paddingTop: '4.25em', flex: 1}}>
                 <Switch>
-                    <Route path="/changelog">
-                        <Changelog />
-                    </Route>
+                    <Route path="/changelog" component={Changelog} />
                     <Route exact path="/users/:id" component={UserData} />
                     <Route path="/users/:id/town" component={TownHome} />
                     <Route path="/leaderboard" component={Leaderboard} />
                     <Route path="/users/:id/linkAccounts" component={LinkAccounts} />
-                    {/* <Route path="/turboidle" component={Leaderboard} /> */}
-                    <Route path="/">
-                        <Search />
-                    </Route>
+                    <Route path="/" component={Search} />
                     <Redirect to="/" />
                 </Switch>
             </Container>
@@ -215,66 +220,99 @@ function FixedMenuLayout() {
                 </Button.Group>
 
                 <Container textAlign='center'>
-                {/* <Grid divided inverted stackable>
-                    <Grid.Column width={3}>
-                        <Header inverted as='h4' content='Group 1' />
-                        <List link inverted>
-                        <List.Item as='a'>Link One</List.Item>
-                        <List.Item as='a'>Link Two</List.Item>
-                        <List.Item as='a'>Link Three</List.Item>
-                        <List.Item as='a'>Link Four</List.Item>
-                        </List>
+                    {/* <Grid divided inverted stackable>
+                        <Grid.Column width={3}>
+                            <Header inverted as='h4' content='Group 1' />
+                            <List link inverted>
+                            <List.Item as='a'>Link One</List.Item>
+                            <List.Item as='a'>Link Two</List.Item>
+                            <List.Item as='a'>Link Three</List.Item>
+                            <List.Item as='a'>Link Four</List.Item>
+                            </List>
+                        </Grid.Column>
+                        <Grid.Column width={3}>
+                            <Header inverted as='h4' content='Group 2' />
+                            <List link inverted>
+                            <List.Item as='a'>Link One</List.Item>
+                            <List.Item as='a'>Link Two</List.Item>
+                            <List.Item as='a'>Link Three</List.Item>
+                            <List.Item as='a'>Link Four</List.Item>
+                            </List>
+                        </Grid.Column>
+                        <Grid.Column width={3}>
+                            <Header inverted as='h4' content='Group 3' />
+                            <List link inverted>
+                            <List.Item as='a'>Link One</List.Item>
+                            <List.Item as='a'>Link Two</List.Item>
+                            <List.Item as='a'>Link Three</List.Item>
+                            <List.Item as='a'>Link Four</List.Item>
+                            </List>
+                        </Grid.Column>
+                        <Grid.Column width={7}>
+                        <Header inverted as='h4' content='Special thanks to:' />
+                        <p>
+                        <br/>
+                        Dotabuff
+                        <br/>
+                        OpenDota
+                        <br/>
+                        FlatIcon
+                        <br/>
+                        Our fantastic product team
+                        </p>
                     </Grid.Column>
-                    <Grid.Column width={3}>
-                        <Header inverted as='h4' content='Group 2' />
-                        <List link inverted>
-                        <List.Item as='a'>Link One</List.Item>
-                        <List.Item as='a'>Link Two</List.Item>
-                        <List.Item as='a'>Link Three</List.Item>
-                        <List.Item as='a'>Link Four</List.Item>
-                        </List>
-                    </Grid.Column>
-                    <Grid.Column width={3}>
-                        <Header inverted as='h4' content='Group 3' />
-                        <List link inverted>
-                        <List.Item as='a'>Link One</List.Item>
-                        <List.Item as='a'>Link Two</List.Item>
-                        <List.Item as='a'>Link Three</List.Item>
-                        <List.Item as='a'>Link Four</List.Item>
-                        </List>
-                    </Grid.Column>
-                    <Grid.Column width={7}>
-                    <Header inverted as='h4' content='Special thanks to:' />
-                    <p>
-                    <br/>
-                    Dotabuff
-                    <br/>
-                    OpenDota
-                    <br/>
-                    FlatIcon
-                    <br/>
-                    Our fantastic product team
-                    </p>
-                </Grid.Column>
-                </Grid> */}
+                    </Grid> */}
 
-                <Divider inverted section />
-                <Image centered size='mini' src={logo} />
-                <List horizontal inverted divided link size='small'>
-                <List.Item as='a' href='#'>
-                    Site Map
-                </List.Item>
-                <List.Item as='a' href='#'>
-                    Contact Us
-                </List.Item>
-                <List.Item as='a' href='#'>
-                    Terms and Conditions
-                </List.Item>
-                <List.Item as='a' href='#'>
-                    Privacy Policy
-                </List.Item>
-                </List>
-            </Container>
+                    {/* ---------------------
+                    Footer
+                    --------------------- */}
+                    <Divider inverted section />
+                    <Image centered size='mini' src={logo} />
+                        <List horizontal inverted divided link size='small'>
+                        <List.Item as='a' onClick={() => setContactModalOpen(true)}>
+                            Contact Us
+                        </List.Item>
+                        <List.Item as='a' onClick={() => setContactModalOpen(true)}>
+                            Terms and Conditions
+                        </List.Item>
+                        <List.Item as='a' onClick={() => setContactModalOpen(true)}>
+                            Privacy Policy
+                        </List.Item>
+                    </List>
+                    {/* ---------------------
+                    End Footer
+                    --------------------- */}
+                    <Modal
+                    onClose={() => setContactModalOpen(false)}
+                    onOpen={() => setContactModalOpen(true)}
+                    open={contactModalOpen}
+                    //trigger={<Button>Show Modal</Button>}
+                    >
+                        <Modal.Header>Contact Us</Modal.Header>
+                        <Modal.Content image>
+                            {/* <Image size='medium' src='https://react.semantic-ui.com/images/avatar/large/rachel.png' wrapped /> */}
+                            <Image size='small' src={logo} wrapped />
+                            <Modal.Description style={{ paddingTop: '2em' }} wrapped>
+                            <Header>No Salt Studios ©2021</Header>
+                            <p>
+                                Contact us at <h3>nosaltstudios@gmail.com</h3>
+                            </p>
+                            </Modal.Description>
+                        </Modal.Content>
+                        <Modal.Actions>
+                            <Button color='black' onClick={() => setContactModalOpen(false)}>
+                            Nope
+                            </Button>
+                            <Button
+                            content="Yes"
+                            labelPosition='right'
+                            icon='checkmark'
+                            onClick={() => setContactModalOpen(false)}
+                            positive
+                            />
+                        </Modal.Actions>
+                    </Modal>
+                </Container>
             </Segment>
         </div>
     )

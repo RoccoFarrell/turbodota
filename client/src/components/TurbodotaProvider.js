@@ -2,26 +2,22 @@ import React, { useEffect, useState} from 'react'
 import TurbodotaContext from './TurbodotaContext'
 import axios from 'axios'
 
+import api from '../services/api'
+
 export default function Page({children}){
   const [selectedUser, setSelectedUser] = useState({});
   const [userID, setUserID] = useState('')
   const [heroesList, setHeroesList] = useState([])
   const [steamUser, setSteamUser] = useState({})
   const [authorizedUser, setAuthorizedUser] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     async function getHeroes(){
-      try {
-        axios.get(`/api/heroes`)
-        .then(res => {
-          let content = res.data;
-          setHeroesList(content)
-        })
-        .catch(e => {
-          console.log(e)
-        })
-        
-      } catch(e) {console.error(e)}
+      setLoading(true)
+      let results = await api.getHeroes()
+      if(results) setHeroesList(results)
+      setLoading(false)
     }
     getHeroes()
   }, [])
@@ -47,17 +43,10 @@ export default function Page({children}){
   useEffect(() => {
     async function getUserByID(id) {
       if(id.length > 3 && (id !== '' || id !== undefined) ){
-        try {
-          axios.get(`/api/players/${id}`)
-          .then(res => {
-            let content = res.data;
-            // console.log(content.matchStats)
-            setSelectedUser(content)
-          })
-          .catch(e => {
-            console.log(e)
-          })
-        } catch(e) {console.error(e)}
+        setLoading(true)
+        let results = await api.getUserByDotaID(id)
+        if(results) setSelectedUser(results)
+        setLoading(false)
       }
     }
     getUserByID(userID)
@@ -69,7 +58,7 @@ export default function Page({children}){
 
   //check authorized user
   const checkAuthorizedUser = (selectedUser, steamUser) => {
-    if(!!selectedUser.userStats && !!selectedUser.userStats.profile.steamid && !!steamUser.id) {
+    if(!!selectedUser.userStats && !!selectedUser.userStats.profile && !!selectedUser.userStats.profile.steamid && !!steamUser.id) {
       if(selectedUser.userStats.profile.steamid == steamUser.id) setAuthorizedUser(true)
       else setAuthorizedUser(false)
     }
@@ -83,7 +72,7 @@ export default function Page({children}){
     checkAuthorizedUser(selectedUser, steamUser)
   }, [selectedUser])
   
-  const value={selectedUser, setSelectedUser, userID, setUserID, heroesList, steamUser, authorizedUser}
+  const value={selectedUser, setSelectedUser, userID, setUserID, heroesList, steamUser, authorizedUser, loading, setLoading}
 
   return (
     <TurbodotaContext.Provider

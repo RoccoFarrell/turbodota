@@ -112,7 +112,7 @@ module.exports = function (app) {
       console.log(`req.user: ${JSON.stringify(req.user)}`)
       let account_id = await user.searchBySteamID(req.user.id)
       if(account_id) {
-        res.redirect('/users/' + account_id + '/town');
+        res.redirect('/users/' + account_id + '/town/home');
       } else {
         res.redirect('/');
       }

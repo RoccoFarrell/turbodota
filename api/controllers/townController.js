@@ -26,7 +26,7 @@ async function getItemsFromDB(){
     console.log('[items] Pulling all items from db')
     snapshot.forEach(doc => {
       totalItemsCount++
-      console.log('[items] Found item #', totalItemsCount, ': ', doc.id)
+      //console.log('[items] Found item #', totalItemsCount, ': ', doc.id)
       returnData.push(doc.data())
     })
     return returnData
@@ -114,6 +114,7 @@ const recalculateExistingTown = async (townData) => {
   })
 
   //order matches by start time
+  console.log('--- fetching matches 1', townData.playerID)
   let checkMatches = await match.fetchMatches(townData.playerID, oldestQuestTime)
   checkMatches = checkMatches.sort((a, b) => {
     if(a.start_time < b.start_time) return -1
@@ -231,11 +232,11 @@ const recalculateExistingTown = async (townData) => {
   //calculate total attempts
   let questAttemptMatchIDs = []
   townData.active.forEach(quest => quest.attempts.forEach(attempt => questAttemptMatchIDs.push(attempt)))
-  console.log('attempts after active: ' + questAttemptMatchIDs.length)
+  //console.log('attempts after active: ' + questAttemptMatchIDs.length)
   townData.completed.forEach(quest => quest.attempts.forEach(attempt => questAttemptMatchIDs.push(attempt)))
-  console.log('attempts after completed: ' + questAttemptMatchIDs.length)
+  //console.log('attempts after completed: ' + questAttemptMatchIDs.length)
   townData.skipped.forEach(quest => quest.attempts.forEach(attempt => questAttemptMatchIDs.push(attempt)))
-  console.log('attempts after skipped: ' + questAttemptMatchIDs.length)
+  //console.log('attempts after skipped: ' + questAttemptMatchIDs.length)
 
   //dedupes
   let uniqueMatchIDs = [...new Set(questAttemptMatchIDs)];
