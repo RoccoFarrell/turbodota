@@ -191,7 +191,7 @@ function UserData() {
                                                     </Statistic>
                                                 </div>
                                             
-                                            <Button color='orange' style={{ marginTop: '1em' }} onClick={ () => {handleRouteChange('town')} }> View Your Turbo Town </Button>
+                                            <Button color='orange' style={{ marginTop: '1em' }} onClick={ () => {handleRouteChange('town/home')} }> View Your Turbo Town </Button>
                                         </div>
                                     </Card.Description>
                                     
