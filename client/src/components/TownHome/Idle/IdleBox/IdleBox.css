@@ -1,8 +1,10 @@
 .meter { 
-  height: 5px;
+  height: 10px;
   position: relative;
   background: #f3efe6;
   overflow: hidden;
+  margin-bottom: 2em;
+  border-radius: 5px;
 }
 
 .meter span {
@@ -10,13 +12,43 @@
   height: 100%;
 }
 
-.progress2 {
-  background-color: #e4c465;
+.idleProgress1s {
+  border-radius: 5px;
+  background-color: #EF2C1D;
+  animation: progressBar 1s linear;
+  animation-iteration-count: infinite;
+  -webkit-animation: progressBar 1s linear;
+  -webkit-animation-fill-mode:both;
+  -webkit-animation-iteration-count: infinite; 
+  -moz-animation: progressBar 1s linear;
+  -moz-animation-fill-mode:both;
+  -moz-animation-iteration-count: infinite; 
+}
+
+.idleProgress2s {
+  border-radius: 5px;
+  background-color: #EF2C1D;
+  animation: progressBar 2s linear;
+  animation-iteration-count: infinite;
+  -webkit-animation: progressBar 2s linear;
+  -webkit-animation-fill-mode:both;
+  -webkit-animation-iteration-count: infinite; 
+  -moz-animation: progressBar 2s linear;
+  -moz-animation-fill-mode:both;
+  -moz-animation-iteration-count: infinite; 
+}
+
+.idleProgress3s {
+  border-radius: 5px;
+  background-color: #EF2C1D;
   animation: progressBar 3s linear;
+  animation-iteration-count: infinite;
   -webkit-animation: progressBar 3s linear;
-  -webkit-animation-fill-mode:both; 
+  -webkit-animation-fill-mode:both;
+  -webkit-animation-iteration-count: infinite; 
   -moz-animation: progressBar 3s linear;
-  -moz-animation-fill-mode:both; 
+  -moz-animation-fill-mode:both;
+  -moz-animation-iteration-count: infinite; 
 }
 
 @-webkit-keyframes progressBar {
@@ -28,3 +60,8 @@
 0% { width: 0; }
 100% { width: 100%; }
 }
+
+@keyframes progressBar {
+  0% { width: 0; }
+  100% { width: 100%; }
+  }

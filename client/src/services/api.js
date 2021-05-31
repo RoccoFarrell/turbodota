@@ -42,7 +42,6 @@ const getTown = async (userID) => {
     await axios.get(`/api/towns/${userID}`)
     .then(res => {
         let content = res.data;
-        console.log('content: ', content)
         results = content
     })
     return results
@@ -64,12 +63,11 @@ const getUserByDotaID = async (dotaID) => {
   } catch(e) {console.error(e)}
 }
 
+// const getUserBySteamID
+
 export default {
   searchByString: searchByString,
   getHeroes: getHeroes,
   getTown: getTown,
   getUserByDotaID: getUserByDotaID
-  //getItems: params => axios.get('/api/items', { params }),
-  //createItem: item => axios.post('/api/items', item),
-  // etc.
 }

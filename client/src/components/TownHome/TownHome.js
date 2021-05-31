@@ -55,7 +55,6 @@ function TownHome() {
   let history = useHistory()
 
   async function getTownData(ID){
-    console.log('loading before: ', loading)
     setLoading(true)
     let results = await api.getTown(ID)
     console.log(results)
@@ -256,7 +255,7 @@ function TownHome() {
 
   return (
       <Grid columns={1} style={{ height: '100%'}}>
-        <Grid.Column>
+        <Grid.Column style={{ padding: '0px'}}>
           <Dimmer active={loading} inverted>
             <Loader/>
           </Dimmer>
@@ -284,10 +283,10 @@ function TownHome() {
                 </Menu.Item>
                 {ShopOpenCloseModal()}
                 {/* Commented out for push to prod */}
-                {/* <Menu.Item as='a' onClick={ () => {handleRouteChange('town/idle')} }>
+                <Menu.Item as='a' onClick={ () => {handleRouteChange('town/idle')} }>
                   <Icon name='stopwatch' color='red' />
                   Idle
-                </Menu.Item> */}
+                </Menu.Item>
               </Sidebar>
 
               <Sidebar.Pusher>
