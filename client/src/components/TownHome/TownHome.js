@@ -57,7 +57,7 @@ function TownHome() {
   async function getTownData(ID){
     setLoading(true)
     let results = await api.getTown(ID)
-    console.log(results)
+    console.log('full town data for user ', ID, ': ', results)
     if(results) setTownData(results)
     setLoading(false)
   }

@@ -131,7 +131,7 @@ app.get('/sessiontest', (req, res) => {
 
 //express router
 const routes = require('./api/routes/appRoutes')
-const { nextTick } = require('process')
+//const { nextTick } = require('process')
 routes(app)
 
 //Serve non-API requests to static dir

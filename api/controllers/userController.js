@@ -51,6 +51,7 @@ exports.getAllUsers = function (req, res) {
 exports.returnSteamUser = async function(req, res) {
   let user = req.user
 
+  console.log('user in returnSteamUser: ', user, 'bool val: ', !!user)
   if(!!user){
     let result = await searchDBBySteamID(user.id)
     console.log('search by steam ID in returnSteamUser: ', result)
