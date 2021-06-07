@@ -51,6 +51,19 @@
   -moz-animation-iteration-count: infinite; 
 }
 
+.idleProgress5s {
+  border-radius: 5px;
+  background-color: #EF2C1D;
+  animation: progressBar 5s linear;
+  animation-iteration-count: infinite;
+  -webkit-animation: progressBar 5s linear;
+  -webkit-animation-fill-mode:both;
+  -webkit-animation-iteration-count: infinite; 
+  -moz-animation: progressBar 5s linear;
+  -moz-animation-fill-mode:both;
+  -moz-animation-iteration-count: infinite; 
+}
+
 @-webkit-keyframes progressBar {
 0% { width: 0; }
 100% { width: 100%; }

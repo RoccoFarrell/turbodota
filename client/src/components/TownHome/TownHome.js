@@ -270,12 +270,9 @@ function TownHome() {
                 visible
                 width='thin'
               >
-                {/* <Menu.Item as='a'>
-                  <Icon name='home' color='red' onClick={ () => {history.push("/")}}/>
-                  Home
-                </Menu.Item> */}
-                <Menu.Item>
-                    Turbo Town Menu
+                <Menu.Item as='a'>
+                  <Icon name='home' color='red' onClick={ () => {handleRouteChange('town/home')}}/>
+                  Town Home
                 </Menu.Item>
                 <Menu.Item as='a' onClick={ () => {handleRouteChange()} }>
                   <Icon name='gamepad' color='red' />
@@ -289,7 +286,7 @@ function TownHome() {
                 </Menu.Item>
               </Sidebar>
 
-              <Sidebar.Pusher>
+              <Sidebar.Pusher style={{ paddingBottom: '5em' }}>
                 <Switch>
                   <Route path="/users/:id/town/home">
                     

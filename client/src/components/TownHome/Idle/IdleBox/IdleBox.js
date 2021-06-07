@@ -11,6 +11,8 @@ import './IdleBox.css';
 // import turboTownIcon from '../../../assets/turbotown.png';
 
 function IdleBox(props) {
+  const skillKey = props.skillKey.toString()
+
   const [skillName, setSkillName] = useState(props.skill[0])
   const [skillDetails, setSkillDetails] = useState(props.skill[1])
   //console.log(props.skill)
@@ -20,6 +22,7 @@ function IdleBox(props) {
   const [activeMeterClass, setActiveMeterClass] = useState('')
   const [skillCount, setSkillCount] = useState(0)
   const [skillTimeout, setSkillTimeout] = useState(0)
+  const [skillTick, setSkillTick] = useState(false)
 
   const [skillTiming, setSkillTiming] = useState({
     baseTrainInterval: 5
@@ -31,6 +34,7 @@ function IdleBox(props) {
     if(skillDetails.trainingInterval === 1) classes += 'idleProgress1s'
     if(skillDetails.trainingInterval === 2) classes += 'idleProgress2s'
     if(skillDetails.trainingInterval === 3) classes += 'idleProgress3s'
+    if(skillDetails.trainingInterval === 5) classes += 'idleProgress5s'
     setMeterClassName(classes)
 
     //set skill from cache
@@ -40,6 +44,22 @@ function IdleBox(props) {
       setSkillDetails(parsedSkill)
       setSkillCount(parsedSkill.xp)
     }
+
+    //add animation event listener
+    const animated = document.querySelector('#animatedMeter' + skillKey);
+    //console.log('animated: ', animated)
+
+    if(animated){
+      //console.log('trying to add event listener')
+      // animated.addEventListener('animationend', () => {
+      //   console.log('Animation ended at');
+      // });
+
+      animated.addEventListener('animationiteration', () => {
+        //console.log('Animation ended at: ', Date.now() / 1000);
+        setSkillTick(true)
+      });
+    }
   },[])
 
   // useEffect(() => {
@@ -48,12 +68,12 @@ function IdleBox(props) {
 
   const createTimeout = () => {
     setActiveMeterClass(meterClassName)
-    let interval = setTimeout(() => {
-      let count = skillCount + 1
-      setSkillCount(count)
-      setActiveMeterClass('')
-    }, skillDetails.trainingInterval * 1000)
-    setSkillTimeout(interval) 
+    // let interval = setTimeout(() => {
+    //   let count = skillCount + 1
+    //   setSkillCount(count)
+    //   setActiveMeterClass('')
+    // }, skillDetails.trainingInterval * 1000)
+    //setSkillTimeout(interval) 
   }
 
   useEffect(() => {
@@ -62,7 +82,7 @@ function IdleBox(props) {
       createTimeout()
     }
     if(!enableTraining) {
-      clearTimeout(skillTimeout)
+      //clearTimeout(skillTimeout)
       setActiveMeterClass('')
     }
   }, [enableTraining, skillCount])
@@ -78,6 +98,14 @@ function IdleBox(props) {
       window.localStorage.setItem('turbotown-idle-' + skillName, JSON.stringify(skillObj))
     }
   }, [skillCount])
+
+  useEffect(() => {
+    if(skillTick){
+      let count = skillCount + 1
+      setSkillCount(count)
+      setSkillTick(false)
+    }
+  }, [skillTick])
 
   const capitalize = (s) => {
     if (typeof s !== 'string') return ''
@@ -107,7 +135,7 @@ function IdleBox(props) {
         </Card.Description>
         <Card.Description>
           <div className={"meter"}>
-            <span className={activeMeterClass}/>
+            <span id={'animatedMeter' + skillKey} className={activeMeterClass}/>
           </div>
           <Button 
             color={skillColor(skillName)}

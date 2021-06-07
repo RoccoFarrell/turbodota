@@ -28,6 +28,21 @@ function Idle() {
         level: 0,
         trainingInterval: 2
       },
+      pushing: {
+        xp: 0,
+        level: 0,
+        trainingInterval: 5
+      },
+      ganking: {
+        xp: 0,
+        level: 0,
+        trainingInterval: 5
+      },
+      farming: {
+        xp: 0,
+        level: 0,
+        trainingInterval: 5
+      },
     }
   })
 
@@ -38,7 +53,7 @@ function Idle() {
             <div>
               { Object.entries(idleData.skills).map((skill, key) => {
                 return (
-                  <IdleBox key={key} skill={skill}/>
+                  <IdleBox key={key} skillKey={key} skill={skill}/>
                 )
               })}
             </div>
