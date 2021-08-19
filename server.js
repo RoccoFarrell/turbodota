@@ -65,12 +65,14 @@ passport.deserializeUser(function(obj, done) {
   done(null, obj);
 });
 
+app.set('trust proxy', 1)
 app.use(session({
   secret: 'amazing turbo secret invoker',
   name: 'turbodotaSessionID',
   user: {},
   cookie: {
-    expires: new Date(Date.now() + (1000 * 60 * 60 * 12))
+    expires: new Date(Date.now() + (1000 * 60 * 60 * 12)),
+    secure: true
   },
   store: new FileStore(),
   genid: (req) => {
