@@ -71,21 +71,6 @@ async function processPlayerInfo(matchStats) {
     }
   }
   
-  //let perGame = allHeroesGames
-  //for(let i = 2; i < 40; i++) {
-    
-    //heroesList.forEach
-    //if (i = heroesList[i].id)
-    //{
-     //console.log(allHeroesGames[i].kills / allHeroesGames[i].games)
-    //}
-    //allHeroesGames[i].kills / allHeroesGames[i].games
-    // allHeroesGames[i].deaths / allHeroesGames[i].games
-    // allHeroesGames[i].assists / allHeroesGames[i].games
-    
-  //}
-
-
   totals.games =(matchStats.length)
   let avgObj = {'kills': (totals.kills / matchStats.length).toFixed(2), 'deaths': (totals.deaths / matchStats.length).toFixed(2), 'assists': (totals.assists / matchStats.length).toFixed(2)}
 
