@@ -15,9 +15,11 @@ function HeroStats(props) {
     const [allPlayers, setAllPlayers] = useState([])
 
     const [column, setColumn] = useState('')
-    const [direction, setDirection] = useState('descending')
+    const [direction, setDirection] = useState('ascending')
     const [selectedHero, setSelectedHero] = useState(1)
     const [sortablePlayerStats, setSortablePlayerStats] = useState([])
+
+    const [heroOptions, setHeroOptions] = useState([])
 
     const playersWeCareAbout = [
         113003047, //Danny
@@ -35,16 +37,15 @@ function HeroStats(props) {
         return (allPlayers[player_id].profile.personaname )  
       }
 
-    const heroOptions = []
-        heroesList.forEach((hero) => {
-            //console.log(hero)
-            let newHeroAdd = {
-                key: hero.id,
-                text: hero.localized_name,
-                value: hero.id
-            }
-            heroOptions.push(newHeroAdd)
-        })
+    // const heroOptions = []
+    // heroesList.forEach((hero) => {
+    //     let newHeroAdd = {
+    //         key: hero.id,
+    //         text: hero.localized_name,
+    //         value: hero.id
+    //     }
+    //     heroOptions.push(newHeroAdd)
+    // })
 
     useEffect(() => {
         async function getAllPlayers(){
@@ -64,7 +65,39 @@ function HeroStats(props) {
             } catch(e) {console.error(e)}
         }
         getAllPlayers()
+
         }, [])
+
+
+    useEffect(() => {
+        let tempHeroArr = []
+        heroesList.forEach((hero) => {
+            let newHeroAdd = {
+                key: hero.id,
+                text: hero.localized_name,
+                value: hero.id
+            }
+            tempHeroArr.push(newHeroAdd)
+        })
+        
+        console.log("tempheroarr: ", tempHeroArr)
+
+        tempHeroArr.sort(function(a, b) {
+            var nameA = a.text.toUpperCase(); // ignore upper and lowercase
+            var nameB = b.text.toUpperCase(); // ignore upper and lowercase
+            if (nameA < nameB) {
+              return -1
+            }
+            if (nameA > nameB) {
+              return 1
+            }
+          
+            // names must be equal
+            return 0
+          })
+          setHeroOptions(tempHeroArr)
+
+        }, [heroesList])
 
     //SORTING
     useEffect(() => {
@@ -88,8 +121,10 @@ function HeroStats(props) {
                   tempArr.push(pushObj)
             }
         })
+        tempArr.sort((a,b) => b.games - a.games)
         console.log("temparr: ", tempArr)
         setSortablePlayerStats(tempArr)
+        console.log("handling initial sort")
         //handleSort('games')
       }, [allPlayers,selectedHero])
   
@@ -97,46 +132,43 @@ function HeroStats(props) {
           console.log("column: ", column, " clickedColumn: ", clickedColumn)
 
         if (column !== clickedColumn) {
-          console.log('trying to sort by column ' + clickedColumn)
-          setDirection('ascending')
+          setDirection('descending')
           let tempSorted = sortablePlayerStats.sort((a, b) => {
-              console.log("a: ", a)
-              console.log("b: ", b)
-            // if(a[clickedColumn] > 99.9|| b[clickedColumn] > 99.9 ) console.log(a,b)
-            if(a[clickedColumn] < b[clickedColumn]) return -1
-            if(a[clickedColumn] > b[clickedColumn]) return 1
+            if(a[clickedColumn] > b[clickedColumn]) return -1
+            if(a[clickedColumn] < b[clickedColumn]) return 1
             return 0
           })
-          console.log('tempSorted: ', tempSorted)
-          console.log("sorted by: ",clickedColumn)
           setSortablePlayerStats(tempSorted)
           setColumn(clickedColumn)
           return
         }
         
         setSortablePlayerStats(sortablePlayerStats.reverse())
-        console.log("sortableplayerstats: ", sortablePlayerStats)
-        //setDirection(direction === 'ascending' ? 'descending' : 'ascending')
-        setDirection(direction === 'descending' ? 'ascending' : 'descending')
+        setDirection(direction === 'ascending' ? 'descending' : 'ascending')
+        //setDirection(direction === 'descending' ? 'ascending' : 'descending')
       }
     //END SORTING
 
     const handleChange = (e, {value}) => {
         setSelectedHero(value)
         setColumn('')
+        handleSort('games')
     }
   
     return (
        <div>
+           {!!heroOptions.length > 0 ?
             <Dropdown
                 placeholder='Select Hero'
                 defaultValue={selectedHero}
                 fluid
                 selection
+                search
                 options={heroOptions}
                 onChange = {handleChange}
                 center
             />
+           :""}
             <Table compact sortable celled fixed>
             <Table.Header>
             <Table.Row>
@@ -154,16 +186,22 @@ function HeroStats(props) {
                     Wins
                 </Table.HeaderCell>
                 <Table.HeaderCell
+                    sorted={column === 'losses' ? direction : null}
+                    onClick={handleSort('losses')}
+                    >
+                    Losses
+                </Table.HeaderCell>
+                <Table.HeaderCell
                     sorted={column === 'winpercentage' ? direction : null}
                     onClick={handleSort('winpercentage')}
                     >
                     Win %
                 </Table.HeaderCell>
                 <Table.HeaderCell
-                    sorted={column === 'losses' ? direction : null}
-                    onClick={handleSort('losses')}
+                    sorted={column === 'kda' ? direction : null}
+                    onClick={handleSort('kda')}
                     >
-                    Losses
+                    KDA
                 </Table.HeaderCell>
                 <Table.HeaderCell
                     sorted={column === 'kills' ? direction : null}
@@ -201,12 +239,6 @@ function HeroStats(props) {
                     >
                     Assists/Game
                 </Table.HeaderCell>
-                <Table.HeaderCell
-                    sorted={column === 'kda' ? direction : null}
-                    onClick={handleSort('kda')}
-                    >
-                    KDA
-                </Table.HeaderCell>
             </Table.Row>
             </Table.Header>
             <Table.Body>
@@ -218,15 +250,15 @@ function HeroStats(props) {
                             <Table.Cell>{ playerName(player.player_id) }</Table.Cell>
                             <Table.Cell>{player.games}</Table.Cell>
                             <Table.Cell>{player.wins}</Table.Cell>
-                            <Table.Cell>{player.winpercentage.toFixed(1)}</Table.Cell>
                             <Table.Cell>{player.losses}</Table.Cell>
+                            <Table.Cell>{player.winpercentage.toFixed(1)}</Table.Cell>
+                            <Table.Cell>{player.kda.toFixed(1)}</Table.Cell>
                             <Table.Cell>{player.kills}</Table.Cell>
                             <Table.Cell>{player.kills_game.toFixed(1)}</Table.Cell>
                             <Table.Cell>{player.deaths}</Table.Cell>
                             <Table.Cell>{player.deaths_game.toFixed(1)}</Table.Cell>
                             <Table.Cell>{player.assists}</Table.Cell>
                             <Table.Cell>{player.assists_game.toFixed(1)}</Table.Cell>
-                            <Table.Cell>{player.kda.toFixed(1)}</Table.Cell>
                         </Table.Row>
                 ))}
             </Table.Body>
