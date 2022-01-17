@@ -31,6 +31,7 @@ import Changelog from './Changelog'
 import UserData from './UserData'
 import TownHome from './TownHome/TownHome'
 import Leaderboard from './Leaderboard/Leaderboard'
+import HeroStats from './HeroStats/HeroStats'
 import TurbodotaContext from './TurbodotaContext'
 import LinkAccounts from './LinkAccounts/LinkAccounts'
 import Idle from './TownHome/Idle/Idle'
@@ -80,6 +81,9 @@ function FixedMenuLayout() {
                 </Menu.Item>
                 <Menu.Item as='a' onClick={() => {pushRoute('')}}>
                 Home    
+                </Menu.Item>
+                <Menu.Item as='a' onClick={() => {pushRoute('herostats')}}>
+                Heroes    
                 </Menu.Item>
                 {/* <Menu.Item as='a' onClick={() => {pushRoute('search')}}>
                 Search
@@ -153,6 +157,7 @@ function FixedMenuLayout() {
                     <Route exact path="/users/:id" component={UserData} />
                     <Route path="/users/:id/town" component={TownHome} />
                     <Route path="/leaderboard" component={Leaderboard} />
+                    <Route path="/herostats" component={HeroStats} />
                     <Route path="/users/:id/linkAccounts" component={LinkAccounts} />
                     <Route path="/" component={Search} />
                     <Redirect to="/" />

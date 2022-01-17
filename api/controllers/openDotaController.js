@@ -49,11 +49,17 @@ async function processPlayerInfo(matchStats) {
       allHeroesGames[heroID] = {
         games: 0,
         wins: 0,
-        losses: 0
+        losses: 0,
+        kills: 0,
+        deaths: 0,
+        assists: 0
       }
     }
 
     allHeroesGames[heroID].games += 1
+    allHeroesGames[heroID].kills += matchStats[i].kills
+    allHeroesGames[heroID].deaths += matchStats[i].deaths
+    allHeroesGames[heroID].assists += matchStats[i].assists
 
     if(winOrLoss(matchStats[i].player_slot, matchStats[i].radiant_win) === true){
       allHeroesGames[heroID].wins += 1

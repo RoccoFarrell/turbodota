@@ -36,6 +36,21 @@ const getHeroes = async () => {
   } catch(e) {console.error(e)}
 }
 
+const getUsers = async () => {
+  try {
+    let results = []
+    await axios.get(`/api/users`)
+    .then(res => {
+      let content = res.data;
+      results = content
+    })
+    .catch(e => {
+      console.log(e)
+    })
+    return results
+  } catch(e) {console.error(e)}
+}
+
 const getTown = async (userID) => {
   try {
     let results = {}
@@ -69,5 +84,6 @@ export default {
   searchByString: searchByString,
   getHeroes: getHeroes,
   getTown: getTown,
-  getUserByDotaID: getUserByDotaID
+  getUserByDotaID: getUserByDotaID,
+  getUsers: getUsers
 }
