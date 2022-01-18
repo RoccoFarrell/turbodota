@@ -36,6 +36,21 @@ const getHeroes = async () => {
   } catch(e) {console.error(e)}
 }
 
+const getItems = async () => {
+  try {
+    let results = []
+    await axios.get(`https://api.opendota.com/api/constants/items`)
+    .then(res => {
+      let content = res.data;
+      results = content
+    })
+    .catch(e => {
+      console.log(e)
+    })
+    return results
+  } catch(e) {console.error(e)}
+}
+
 const getTown = async (userID) => {
   try {
     let results = {}
@@ -68,6 +83,7 @@ const getUserByDotaID = async (dotaID) => {
 export default {
   searchByString: searchByString,
   getHeroes: getHeroes,
+  getItems: getItems,
   getTown: getTown,
   getUserByDotaID: getUserByDotaID
 }

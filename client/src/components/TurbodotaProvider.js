@@ -8,6 +8,7 @@ export default function Page({children}){
   const [selectedUser, setSelectedUser] = useState({});
   const [userID, setUserID] = useState('')
   const [heroesList, setHeroesList] = useState([])
+  const [gameItemsList, setGameItemsList] = useState([])
   const [steamUser, setSteamUser] = useState({})
   const [authorizedUser, setAuthorizedUser] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -20,6 +21,25 @@ export default function Page({children}){
       setLoading(false)
     }
     getHeroes()
+  }, [])
+
+  useEffect(() => {
+    async function getItems(){
+      var arr = []
+      setLoading(true)
+      let results = await api.getItems()
+      if(results){
+        for (var key in results) {
+          let tempObj = results[key]
+          tempObj.objName = key
+          arr.push(tempObj)
+        }
+        setGameItemsList(arr)
+      }
+      setLoading(false)
+    }
+    getItems()
+    
   }, [])
 
   useEffect(() => {
@@ -72,7 +92,7 @@ export default function Page({children}){
     checkAuthorizedUser(selectedUser, steamUser)
   }, [selectedUser])
   
-  const value={selectedUser, setSelectedUser, userID, setUserID, heroesList, steamUser, authorizedUser, loading, setLoading}
+  const value={selectedUser, setSelectedUser, userID, setUserID, heroesList, gameItemsList, steamUser, authorizedUser, loading, setLoading}
 
   return (
     <TurbodotaContext.Provider
