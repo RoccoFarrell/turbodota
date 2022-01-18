@@ -43,6 +43,9 @@ module.exports = function (app) {
       
   app.route('/api/players/:dotaID/matches')
     .get(match.fetchMatchesForUser)
+  
+  app.route('/api/players/:dotaID/matchesByHero/:heroID')
+    .get(match.fetchMatchesByHeroForUser)
 
   //gets users stats by Dota ID 
   app.route('/api/players/:dotaID')
