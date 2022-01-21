@@ -78,6 +78,21 @@ const getUserByDotaID = async (dotaID) => {
   } catch(e) {console.error(e)}
 }
 
+const getMatchesByHeroForPlayer = async (dotaID, heroID) => {
+  try {
+    let results = {}
+    await axios.get(`/api/players/${dotaID}/matchesByHero/${heroID}`)
+    .then(res => {
+      let content = res.data;
+      results = content
+    })
+    .catch(e => {
+      console.log(e)
+    })
+    return results
+  } catch(e) {console.error(e)}
+}
+
 // const getUserBySteamID
 
 export default {
@@ -85,5 +100,7 @@ export default {
   getHeroes: getHeroes,
   getItems: getItems,
   getTown: getTown,
-  getUserByDotaID: getUserByDotaID
+  getUserByDotaID: getUserByDotaID,
+  getUsers: getUsers,
+  getMatchesByHeroForPlayer: getMatchesByHeroForPlayer
 }

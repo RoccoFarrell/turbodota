@@ -139,14 +139,14 @@ exports.fetchMatchesForUser = async function (req, res) {
   res.send(matches)
 }
 
-exports.fetchMatchByID = async function (req, res) {
-  let matchID = req.params.matchID
+async function fetchMatchByID(matchID) {
   let matchStats = {}
 
-  let matchExists = await matchesRef.where('match_id','==', parseInt(matchID)).get()
+  let matchExists = false
+  await matchesRef.where('match_id','==', parseInt(matchID)).get()
   .then(snapshot => {
     if(snapshot.empty){
-      return false
+      matchExists = false
     } else {
       // console.log('[fmbi] found matchID: ' + matchID)
       snapshot.forEach(async (doc) => {
@@ -159,7 +159,7 @@ exports.fetchMatchByID = async function (req, res) {
         //no add to db since already in db
         matchStats = processedMatchStats
       })
-      return true
+      matchExists = true
     }
   })
   
@@ -167,29 +167,42 @@ exports.fetchMatchByID = async function (req, res) {
 
   if(matchExists === false) {
     console.log('[fmbi] pulling new match data from OD')
-    matchStats = await fetch('https://api.opendota.com/api/matches/' + req.params.matchID, {
+    await fetch('https://api.opendota.com/api/matches/' + matchID, {
       method: 'get',
       headers: { 'Content-Type': 'application/json' },
     })
     .then(data => data.json())
     .then(async (json) => {
-      // console.log(json)
+      if(!!json.error){
+        console.log('error inside fmbi: ', json)
+        matchStats = {
+          match_id: matchID,
+          message: 'Open Dota returned a 500 for this match',
+          error: json.error
+        }
+        // return matchStats
+      } else {
+        //process match stats
+        let processedMatchStats = await processMatch(json)
+        //console.log(processedMatchStats)
+        //console.log("matchid: ", processedMatchStats.match_id)
 
-      //process match stats
-      let processedMatchStats = await processMatch(json)
-      //console.log(processedMatchStats)
-      //console.log("matchid: ", processedMatchStats.match_id)
+        //add to DB
+        matchesRef.doc(processedMatchStats.match_id.toString()).set(processedMatchStats).then(ref => {
+          console.log('[processMatch] Processed and added matchID ' + matchID);
+        });
 
-      //add to DB
-      matchesRef.doc(processedMatchStats.match_id.toString()).set(processedMatchStats).then(ref => {
-        console.log('[processMatch] Processed and added matchID ' + matchID);
-      });
-      
-      return processedMatchStats
+        matchStats = processedMatchStats
+      }
     });
   }
 
-  // calculate ALL the match stats right here bro
+  return matchStats
+}
+
+exports.fetchMatchByID = async function (req, res) {
+  let matchID = req.params.matchID
+  let matchStats = await fetchMatchByID(matchID)
   res.send(matchStats)
 }
 
@@ -206,6 +219,46 @@ exports.parseMatchRequest = async function (req, res) {
 
   res.send(jobID)
   updateMatchOnParse(jobID, req.params.matchID)
+}
+
+exports.fetchMatchesByHeroForUser = async function (req, res) {
+  console.log('fetch matches by hero for user')
+  let userID = req.params.dotaID
+  let heroID = req.params.heroID
+
+  let url = 'https://api.opendota.com/api/players/' + userID + '/matches?significant=0&game_mode=23&hero_id=' + heroID
+  let matches_overview = await fetch(url, {
+    method: 'get',
+    headers: { 'Content-Type': 'application/json' },
+  })
+  .then(data => data.json())
+  .then((json) => {
+    // console.log('matches data complete', json)
+    if(!!json.error) throw new Error(json.error)
+    else return json
+  })
+  .catch(e => {
+    console.error(e)
+  });
+
+  let matches_detail = []
+  if(!!matches_overview && !!matches_overview.length && matches_overview.length > 0){
+    matches_overview.sort((a, b) => b.start_time - a.start_time)
+    matches_overview = matches_overview.slice(0,10)  
+
+    const promises = matches_overview.map(async match => {
+      const matchDetail = await fetchMatchByID(match.match_id)
+      if(matchDetail === null) console.log('null match id from promise:', match.match_id)
+      return matchDetail
+    })
+
+    matches_detail = await Promise.all(promises)
+  } else {
+    matches_detail = []
+  }
+  
+
+  res.send(matches_detail)
 }
 
 

@@ -54,7 +54,56 @@ async function processPlayerInfo(matchStats) {
         kills: 0,
         deaths: 0,
         assists: 0,
-        kda: 0,
+        partysize: {
+          1: {
+            games: 0,
+            wins: 0,
+            losses: 0,
+            kills: 0,
+            deaths: 0,
+            assists: 0
+          }, 
+          2: {
+            games: 0,
+            wins: 0,
+            losses: 0,
+            kills: 0,
+            deaths: 0,
+            assists: 0
+          },
+          3: {
+            games: 0,
+            wins: 0,
+            losses: 0,
+            kills: 0,
+            deaths: 0,
+            assists: 0
+          },
+          4: {
+            games: 0,
+            wins: 0,
+            losses: 0,
+            kills: 0,
+            deaths: 0,
+            assists: 0
+          },
+          5: {
+            games: 0,
+            wins: 0,
+            losses: 0,
+            kills: 0,
+            deaths: 0,
+            assists: 0
+          },
+          99: {
+            games: 0,
+            wins: 0,
+            losses: 0,
+            kills: 0,
+            deaths: 0,
+            assists: 0
+          }
+        }
       }
     }
 
@@ -64,10 +113,20 @@ async function processPlayerInfo(matchStats) {
     allHeroesGames[heroID].assists += matchStats[i].assists
     allHeroesGames[heroID].games += 1
 
+    let tempPartySize = matchStats[i].party_size
+    if(tempPartySize === null) tempPartySize = 99
+    // console.log("temp party size: ", tempPartySize , matchStats[i])
+    allHeroesGames[heroID].partysize[tempPartySize].games += 1
+    allHeroesGames[heroID].partysize[tempPartySize].kills += matchStats[i].kills
+    allHeroesGames[heroID].partysize[tempPartySize].deaths += matchStats[i].deaths
+    allHeroesGames[heroID].partysize[tempPartySize].assists += matchStats[i].assists
+
     if(winOrLoss(matchStats[i].player_slot, matchStats[i].radiant_win) === true){
       allHeroesGames[heroID].wins += 1
+      allHeroesGames[heroID].partysize[tempPartySize].wins += 1
     } else {
       allHeroesGames[heroID].losses += 1
+      allHeroesGames[heroID].partysize[tempPartySize].losses += 1
     }
   }
   
