@@ -16,12 +16,10 @@ import squirrel from '../../assets/squirrel.png';
 
 function SingleMatch(props) {
     const { heroesList }= useContext(TurbodotaContext);
-
+    const { gameItemsList } = useContext(TurbodotaContext);
     const [matchData, setMatchData] = useState({});
     const [heroDamage, setHeroDamage] = useState({})
-
     const [parseLoading, setParseLoading] = useState(false)
-
     const matchOverview = props.matchData
 
     useEffect(() => {
@@ -40,6 +38,27 @@ function SingleMatch(props) {
         }
         getMatchData()
     }, [])
+
+    const getItemImage = (itemID) => {
+        let returnString = '';
+        if (itemID != 0) {
+            returnString =  "https://api.opendota.com" + gameItemsList.filter(item => item.id == itemID)[0].img
+        }
+        return returnString
+    }
+
+    const getItemPurchaseTime = (itemID) => {
+        let returnInt = 0;
+        let tmpArr = matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].purchase_log
+        if (itemID != 0 && matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].purchase_log != null) {
+            let itemName = gameItemsList.filter(item => item.id == itemID)[0].objName
+            if (tmpArr.filter(item => item.key === itemName)[0] != null) {
+                returnInt = (tmpArr.filter(item => item.key === itemName)[0].time / 60).toFixed(0)
+            }
+        }
+        
+        return returnInt
+    }
 
     function calculateHeroDamage (matchOverview, matchData) {
         let playerData = matchData.players.filter(player => player.player_slot === matchOverview.player_slot)
@@ -140,6 +159,7 @@ function SingleMatch(props) {
     }
 
     return (
+        
         <Card id="matchCard">
             <Card.Content id="heroContainer">
                 <Card.Header>{heroIcon(matchOverview.hero_id)}</Card.Header>
@@ -152,8 +172,8 @@ function SingleMatch(props) {
                     </strong>
                 </Card.Description>
             </Card.Content>
-            <Card.Content id="statsContainer">
-                <Container id="statsContainer2">
+            <Card.Content id="statsContainer" >
+                <Container id="statsContainer2" fluid style={{ flex: 1 }} >
                     <Container fluid style={{ flex: 1 }}>
                         <h4>Match Stats</h4>
                         <Grid centered columns={2}>
@@ -202,7 +222,7 @@ function SingleMatch(props) {
                         : baddieText(matchOverview.start_time)}
                     </Container>
 
-                    <Container fluid style={{ flex: 2 }}>
+                    <Container fluid style={{ flex: 1 }}>
                         <h4>Benchmarks</h4>
                         { !!matchData && !!matchData.players ? (
                             <Grid columns={2}>
@@ -222,6 +242,43 @@ function SingleMatch(props) {
                                     <Icon color='red' name='gavel' /> 
                                     Stuns/min: <strong style={{ fontSize: '18px', marginLeft: '1em'}}> {matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].benchmarks.stuns_per_min.raw.toFixed(2)}</strong>
                                 </Grid.Row>
+                            </Grid>
+                        ) : '' }
+
+                    </Container>
+                    <Container fluid style={{ flex: 2 }}>
+                        <h4>Items</h4>
+                        { !!matchData && !!matchData.players ? (
+                            <Grid columns={6}>
+                                    <Grid.Column>
+                                    <Image src={getItemImage(matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].item_0)} />
+                                    {/* <strong style={{ fontSize: '18px', marginLeft: '1em'}}> {getItemPurchaseTime(matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].item_0)}</strong> */}
+                                    </Grid.Column>
+
+                                    <Grid.Column>
+                                    <Image src={getItemImage(matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].item_1)} />
+                                    {/* <strong style={{ fontSize: '18px', marginLeft: '1em'}}> {getItemPurchaseTime(matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].item_1)}</strong> */}
+                                    </Grid.Column>
+
+                                    <Grid.Column>
+                                    <Image src={getItemImage(matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].item_2)} />
+                                    {/* <strong style={{ fontSize: '18px', marginLeft: '1em'}}> {getItemPurchaseTime(matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].item_2)}</strong> */}
+                                    </Grid.Column>
+
+                                    <Grid.Column>
+                                    <Image src={getItemImage(matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].item_3)} />
+                                    {/* <strong style={{ fontSize: '18px', marginLeft: '1em'}}> {getItemPurchaseTime(matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].item_3)}</strong> */}
+                                    </Grid.Column>
+
+                                    <Grid.Column>
+                                    <Image src={getItemImage(matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].item_4)} />
+                                    {/* <strong style={{ fontSize: '18px', marginLeft: '1em'}}> {getItemPurchaseTime(matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].item_4)}</strong> */}
+                                    </Grid.Column>
+
+                                    <Grid.Column>
+                                    <Image src={getItemImage(matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].item_5)} />
+                                    {/* <strong style={{ fontSize: '18px', marginLeft: '1em'}}> {getItemPurchaseTime(matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].item_5)}</strong> */}
+                                    </Grid.Column>
                             </Grid>
                         ) : '' }
 

@@ -4,3 +4,23 @@
   justify-content: flex-start; 
   align-items: center;
 }
+
+th {
+  position: sticky;
+  position: -webkit-sticky;
+  top: -20px;
+}
+
+.toggle-switch{
+  margin-left: 20em;
+}
+
+.toggle-switch input {
+  float: left;
+  margin-top:0.5em;
+}
+
+.toggle-switch label {
+  display: block;
+  margin-left: -20em;  
+}

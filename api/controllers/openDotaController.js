@@ -22,7 +22,7 @@ function winOrLoss (slot, win) {
 }
 
 async function processPlayerInfo(matchStats) {
-  let totals = {'kills': 0, 'deaths': 0, 'assists': 0, 'wins':0, 'losses':0}
+  let totals = {'kills': 0, 'deaths': 0, 'assists': 0, 'wins':0, 'losses':0, 'kda:':0 }
 
   let allHeroesGames = {}
 
@@ -35,6 +35,7 @@ async function processPlayerInfo(matchStats) {
     totals.kills += matchStats[i].kills
     totals.deaths += matchStats[i].deaths
     totals.assists += matchStats[i].assists
+    totals.kda += (totals.kills + totals.assists) / totals.deaths
 
     //sum total wins
     if(winOrLoss(matchStats[i].player_slot, matchStats[i].radiant_win) === true){
@@ -44,7 +45,7 @@ async function processPlayerInfo(matchStats) {
     }
 
     let heroID = matchStats[i].hero_id
-
+    
     if(allHeroesGames[heroID] === undefined){
       allHeroesGames[heroID] = {
         games: 0,
@@ -106,10 +107,11 @@ async function processPlayerInfo(matchStats) {
       }
     }
 
-    allHeroesGames[heroID].games += 1
+    //add KDA stats to allHeroesGames
     allHeroesGames[heroID].kills += matchStats[i].kills
     allHeroesGames[heroID].deaths += matchStats[i].deaths
     allHeroesGames[heroID].assists += matchStats[i].assists
+    allHeroesGames[heroID].games += 1
 
     let tempPartySize = matchStats[i].party_size
     if(tempPartySize === null) tempPartySize = 99
@@ -127,11 +129,11 @@ async function processPlayerInfo(matchStats) {
       allHeroesGames[heroID].partysize[tempPartySize].losses += 1
     }
   }
-
+  
   totals.games =(matchStats.length)
   let avgObj = {'kills': (totals.kills / matchStats.length).toFixed(2), 'deaths': (totals.deaths / matchStats.length).toFixed(2), 'assists': (totals.assists / matchStats.length).toFixed(2)}
 
-  return ({"averages": avgObj, "totals": totals, "allHeroRecord": allHeroesGames})
+  return ({"averages": avgObj, "totals": totals, "allHeroRecord": allHeroesGames })
 }
 
 exports.fetchHeroes = async function (req, res) {
