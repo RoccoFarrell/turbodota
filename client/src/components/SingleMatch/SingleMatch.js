@@ -40,12 +40,24 @@ function SingleMatch(props) {
     }, [])
 
     const getItemImage = (itemID) => {
-        let returnObject = '';
+        let returnString = '';
         if (itemID != 0) {
-            returnObject =  "https://api.opendota.com" + gameItemsList.filter(item => item.id == itemID)[0].img
+            returnString =  "https://api.opendota.com" + gameItemsList.filter(item => item.id == itemID)[0].img
         }
-        console.log(returnObject)
-        return returnObject
+        return returnString
+    }
+
+    const getItemPurchaseTime = (itemID) => {
+        let returnInt = 0;
+        let tmpArr = matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].purchase_log
+        if (itemID != 0 && matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].purchase_log != null) {
+            let itemName = gameItemsList.filter(item => item.id == itemID)[0].objName
+            if (tmpArr.filter(item => item.key === itemName)[0] != null) {
+                returnInt = (tmpArr.filter(item => item.key === itemName)[0].time / 60).toFixed(0)
+            }
+        }
+        
+        return returnInt
     }
 
     function calculateHeroDamage (matchOverview, matchData) {
@@ -98,11 +110,6 @@ function SingleMatch(props) {
 
     const heroName = (hero_id) => {
         return (heroesList.filter(hero => hero.id == hero_id)[0] ? heroesList.filter(hero => hero.id == hero_id)[0].localized_name  : "error: q " )  
-    }
-
-    const itemName = (item_id) => {
-        //console.log(gameItemsList)
-        //return (itemsList.filter(item => item.name == item_id)[0] ? itemsList.filter(item => item.id == item_id)[0]  : "error: q " )
     }
     
     const dateString = (timestamp) => {
@@ -245,32 +252,32 @@ function SingleMatch(props) {
                             <Grid columns={6}>
                                     <Grid.Column>
                                     <Image src={getItemImage(matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].item_0)} />
-                                    {/* <strong style={{ fontSize: '18px', marginLeft: '1em'}}> {matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].item_0}</strong> */}
+                                    {/* <strong style={{ fontSize: '18px', marginLeft: '1em'}}> {getItemPurchaseTime(matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].item_0)}</strong> */}
                                     </Grid.Column>
 
                                     <Grid.Column>
                                     <Image src={getItemImage(matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].item_1)} />
-                                    {/* <strong style={{ fontSize: '18px', marginLeft: '1em'}}> {matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].item_1}</strong> */}
+                                    {/* <strong style={{ fontSize: '18px', marginLeft: '1em'}}> {getItemPurchaseTime(matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].item_1)}</strong> */}
                                     </Grid.Column>
 
                                     <Grid.Column>
                                     <Image src={getItemImage(matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].item_2)} />
-                                    {/* <strong style={{ fontSize: '18px', marginLeft: '1em'}}> {matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].item_2}</strong> */}
+                                    {/* <strong style={{ fontSize: '18px', marginLeft: '1em'}}> {getItemPurchaseTime(matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].item_2)}</strong> */}
                                     </Grid.Column>
 
                                     <Grid.Column>
                                     <Image src={getItemImage(matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].item_3)} />
-                                    {/* <strong style={{ fontSize: '18px', marginLeft: '1em'}}> {matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].item_3}</strong> */}
+                                    {/* <strong style={{ fontSize: '18px', marginLeft: '1em'}}> {getItemPurchaseTime(matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].item_3)}</strong> */}
                                     </Grid.Column>
 
                                     <Grid.Column>
                                     <Image src={getItemImage(matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].item_4)} />
-                                    {/* <strong style={{ fontSize: '18px', marginLeft: '1em'}}> {matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].item_4}</strong> */}
+                                    {/* <strong style={{ fontSize: '18px', marginLeft: '1em'}}> {getItemPurchaseTime(matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].item_4)}</strong> */}
                                     </Grid.Column>
 
                                     <Grid.Column>
                                     <Image src={getItemImage(matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].item_5)} />
-                                    {/* <strong style={{ fontSize: '18px', marginLeft: '1em'}}> {matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].item_5}</strong> */}
+                                    {/* <strong style={{ fontSize: '18px', marginLeft: '1em'}}> {getItemPurchaseTime(matchData.players.filter(player => player.player_slot === matchOverview.player_slot)[0].item_5)}</strong> */}
                                     </Grid.Column>
                             </Grid>
                         ) : '' }
