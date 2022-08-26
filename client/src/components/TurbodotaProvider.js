@@ -8,6 +8,7 @@ export default function Page({children}){
   const [selectedUser, setSelectedUser] = useState({});
   const [userID, setUserID] = useState('')
   const [heroesList, setHeroesList] = useState([])
+  const [heroesListNew, setHeroesListNew] = useState([])
   const [gameItemsList, setGameItemsList] = useState([])
   const [steamUser, setSteamUser] = useState({})
   const [authorizedUser, setAuthorizedUser] = useState(false)
@@ -21,6 +22,14 @@ export default function Page({children}){
       setLoading(false)
     }
     getHeroes()
+
+    async function getHeroesNew(){
+      setLoading(true)
+      let results = await api.getHeroesNew()
+      if(results) setHeroesListNew(results)
+      setLoading(false)
+    }
+    getHeroesNew()
   }, [])
 
   useEffect(() => {

@@ -114,8 +114,10 @@ async function processPlayerInfo(matchStats) {
     allHeroesGames[heroID].games += 1
 
     let tempPartySize = matchStats[i].party_size
-    if(tempPartySize === null) tempPartySize = 99
-    // console.log("temp party size: ", tempPartySize , matchStats[i])
+    if(tempPartySize === null || tempPartySize === 0) tempPartySize = 99
+    //console.log('error')
+    //console.log("temp party size: ", tempPartySize , matchStats[i])
+    //console.log(allHeroesGames[heroID])
     allHeroesGames[heroID].partysize[tempPartySize].games += 1
     allHeroesGames[heroID].partysize[tempPartySize].kills += matchStats[i].kills
     allHeroesGames[heroID].partysize[tempPartySize].deaths += matchStats[i].deaths

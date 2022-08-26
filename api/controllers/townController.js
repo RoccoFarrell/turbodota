@@ -151,6 +151,7 @@ const recalculateExistingTown = async (townData) => {
       if(match.start_time > quest.startTime._seconds && quest.hero.id == match.hero_id){
         if(!quest.completed){
           townAttempt = true
+          if(match.match_id = 5320344512) console.log(match, quest, quest.hero.id, match.hero_id, quest.hero.id == match.hero_id)
           if(matchResult == true){
             quest.completed = true
             //add half hour to match start time to get end time... ?

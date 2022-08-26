@@ -10,6 +10,8 @@ import TurbodotaContext from '../TurbodotaContext'
 import squirrel from '../../assets/squirrel.png';
 import UserMatchHistory from '../UserMatchHistory/UserMatchHistory';
 
+import helperFunctions from '../../services/helperFunctions'
+
 function UserHeroTable(props) {
   
     const { heroesList } = useContext(TurbodotaContext);
@@ -19,7 +21,7 @@ function UserHeroTable(props) {
     const [sortableHeroStats, setSortableHeroStats] = useState([])
     const heroStats = props.heroStats
 
-    const [checked, setChecked] = React.useState(false);
+    const [checked, setChecked] = useState(false);
     const perGame = false
 
     useEffect(() => {
@@ -71,14 +73,6 @@ function UserHeroTable(props) {
       setDirection(direction === 'ascending' ? 'descending' : 'ascending')
     }
 
-    const heroIcon = (hero_id) => {
-      let heroString = 'd2mh hero-' + hero_id
-      //let returnVal
-      //hero_id == 123 ? returnVal = <Image src={squirrel} size="mini" className='inline' /> : returnVal = <i className={heroString}/>
-      return <i className={heroString}/>
-    } 
-
-  
     const heroName = (hero_id) => {
       // console.log('hero_id: ' + hero_id)
       // return heroesList.filter(hero => hero.id == hero_id)[0].localized_name
@@ -94,146 +88,154 @@ function UserHeroTable(props) {
     };
     
     return (     
-      <Table compact sortable celled fixed>
-        <Table.Header>
-        <Checkbox toggle className = "toggle-switch" value={checked} label = "Toggle Per Game" onChange={ handleChange }></Checkbox>
-          <Table.Row>
-            <Table.HeaderCell
-              sorted={column === 'id' ? direction : null}
-              onClick={handleSort('id')}
-            >
-              Hero ID
-            </Table.HeaderCell>
-            <Table.HeaderCell
-              sorted={column === 'heroname' ? direction : null}
-              onClick={handleSort('heroname')}
+      <div>
+        <Checkbox 
+          toggle 
+          className = "toggle-switch" 
+          checked={checked} 
+          label = "Toggle Per Game" 
+          onChange={ handleChange }
+        />
+        <Table compact sortable celled fixed>
+          <Table.Header>
+            <Table.Row>
+              <Table.HeaderCell
+                sorted={column === 'id' ? direction : null}
+                onClick={handleSort('id')}
+              >
+                Hero ID
+              </Table.HeaderCell>
+              <Table.HeaderCell
+                sorted={column === 'heroname' ? direction : null}
+                onClick={handleSort('heroname')}
+                
+              >
+                Hero
+              </Table.HeaderCell>
+              <Table.HeaderCell
+                sorted={column === 'games' ? direction : null}
+                onClick={handleSort('games')}
+              >
+                Games
+              </Table.HeaderCell>
+              <Table.HeaderCell
+                sorted={column === 'winpercentage' ? direction : null}
+                onClick={handleSort('winpercentage')}
+              >
+                Win %
+              </Table.HeaderCell>
+              <Table.HeaderCell
+                sorted={column === 'wins' ? direction : null}
+                onClick={handleSort('wins')}
+              >
+                Wins
+              </Table.HeaderCell>
+              <Table.HeaderCell
+                sorted={column === 'losses' ? direction : null}
+                onClick={handleSort('losses')}
+              >
+                Losses
+              </Table.HeaderCell>
+
+              { !checked ? (
+                <Table.HeaderCell
+                sorted={column === 'kills' ? direction : null}
+                onClick={handleSort('kills')}
+              >
+                Kills
+              </Table.HeaderCell>
+              ) : (
+                <Table.HeaderCell
+                sorted={column === 'kills' ? direction : null}
+                onClick={handleSort('kills')}
+              >
+                Kills/Game
+              </Table.HeaderCell>
+              )}
               
-            >
-              Hero
-            </Table.HeaderCell>
-            <Table.HeaderCell
-              sorted={column === 'games' ? direction : null}
-              onClick={handleSort('games')}
-            >
-              Games
-            </Table.HeaderCell>
-            <Table.HeaderCell
-              sorted={column === 'winpercentage' ? direction : null}
-              onClick={handleSort('winpercentage')}
-            >
-              Win %
-            </Table.HeaderCell>
-            <Table.HeaderCell
-              sorted={column === 'wins' ? direction : null}
-              onClick={handleSort('wins')}
-            >
-              Wins
-            </Table.HeaderCell>
-            <Table.HeaderCell
-              sorted={column === 'losses' ? direction : null}
-              onClick={handleSort('losses')}
-            >
-              Losses
-            </Table.HeaderCell>
+              { !checked ? (
+                <Table.HeaderCell
+                sorted={column === 'deaths' ? direction : null}
+                onClick={handleSort('deaths')}
+              >
+                Deaths
+              </Table.HeaderCell>
+              ) : (
+                <Table.HeaderCell
+                sorted={column === 'deaths' ? direction : null}
+                onClick={handleSort('deaths')}
+              >
+                Deaths/Game
+              </Table.HeaderCell>
+              )}
 
-            { !checked ? (
-              <Table.HeaderCell
-              sorted={column === 'kills' ? direction : null}
-              onClick={handleSort('kills')}
-            >
-              Kills
-            </Table.HeaderCell>
-            ) : (
-              <Table.HeaderCell
-              sorted={column === 'kills' ? direction : null}
-              onClick={handleSort('kills')}
-            >
-              Kills/Game
-            </Table.HeaderCell>
-            )}
-            
-            { !checked ? (
-              <Table.HeaderCell
-              sorted={column === 'deaths' ? direction : null}
-              onClick={handleSort('deaths')}
-            >
-              Deaths
-            </Table.HeaderCell>
-            ) : (
-              <Table.HeaderCell
-              sorted={column === 'deaths' ? direction : null}
-              onClick={handleSort('deaths')}
-            >
-              Deaths/Game
-            </Table.HeaderCell>
-            )}
+              { !checked ? (
+                <Table.HeaderCell
+                sorted={column === 'assists' ? direction : null}
+                onClick={handleSort('assists')}
+              >
+                Assists
+              </Table.HeaderCell>
+              ) : (
+                <Table.HeaderCell
+                sorted={column === 'assists' ? direction : null}
+                onClick={handleSort('assists')}
+              >
+                Assists/Game
+              </Table.HeaderCell>
+              )}
 
-            { !checked ? (
               <Table.HeaderCell
-              sorted={column === 'assists' ? direction : null}
-              onClick={handleSort('assists')}
+                sorted={column === 'kda' ? direction : null}
+                onClick={handleSort('kda')}
+              >
+                KDA
+              </Table.HeaderCell>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+          {sortableHeroStats.map((hero) => (
+            <Table.Row 
+              positive = { hero.winpercentage > 55 }
+              negative = { hero.winpercentage < 45 }
+              key={hero.hero_id}
             >
-              Assists
-            </Table.HeaderCell>
-            ) : (
-              <Table.HeaderCell
-              sorted={column === 'assists' ? direction : null}
-              onClick={handleSort('assists')}
-            >
-              Assists/Game
-            </Table.HeaderCell>
-            )}
-
-            <Table.HeaderCell
-              sorted={column === 'kda' ? direction : null}
-              onClick={handleSort('kda')}
-            >
-              KDA
-            </Table.HeaderCell>
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-        {sortableHeroStats.map((hero) => (
-          <Table.Row 
-            positive = { hero.winpercentage > 55 }
-            negative = { hero.winpercentage < 45 }
-            key={hero.hero_id}
-          >
-            <Table.Cell>{hero.hero_id}</Table.Cell>
-            <Table.Cell>
-              <div className='customFlexRow'>
-                <div style={{ marginRight: '1em', overflow: 'auto', whiteSpace: 'nowrap'}}>
-                  { heroIcon(hero.hero_id) }
+              <Table.Cell>{hero.hero_id}</Table.Cell>
+              <Table.Cell>
+                <div className='customFlexRow'>
+                  <div style={{ marginRight: '1em'}}>
+                    { helperFunctions.heroIcon(hero.hero_id) }
+                  </div>
+                  <div>
+                    { heroName(hero.hero_id) }
+                  </div>
                 </div>
-                <div>
-                  { heroName(hero.hero_id) }
-                </div>
-              </div>
-            </Table.Cell>
-            <Table.Cell>{hero.games}</Table.Cell>
-            <Table.Cell>{ hero.winpercentage.toFixed(1) }</Table.Cell>
-            <Table.Cell>{hero.wins}</Table.Cell>
-            <Table.Cell>{hero.losses}</Table.Cell>
-            { !checked ? (
-              <Table.Cell>{hero.kills}</Table.Cell>
-            ) : (
-              <Table.Cell>{hero.killsPerGame.toFixed(1)}</Table.Cell>
-            )}
-            { !checked ? (
-              <Table.Cell>{hero.deaths}</Table.Cell>
-            ) : (
-              <Table.Cell>{hero.deathsPerGame.toFixed(1)}</Table.Cell>
-            )}
-            { !checked ? (
-              <Table.Cell>{hero.assists}</Table.Cell>
-            ) : (
-              <Table.Cell>{hero.assistsPerGame.toFixed(1)}</Table.Cell>
-            )}   
-            <Table.Cell>{ hero.kda.toFixed(1) }</Table.Cell>
-          </Table.Row>
-        ))}
-        </Table.Body>
-      </Table>
+              </Table.Cell>
+              <Table.Cell>{hero.games}</Table.Cell>
+              <Table.Cell>{ hero.winpercentage.toFixed(1) }</Table.Cell>
+              <Table.Cell>{hero.wins}</Table.Cell>
+              <Table.Cell>{hero.losses}</Table.Cell>
+              { !checked ? (
+                <Table.Cell>{hero.kills}</Table.Cell>
+              ) : (
+                <Table.Cell>{hero.killsPerGame.toFixed(1)}</Table.Cell>
+              )}
+              { !checked ? (
+                <Table.Cell>{hero.deaths}</Table.Cell>
+              ) : (
+                <Table.Cell>{hero.deathsPerGame.toFixed(1)}</Table.Cell>
+              )}
+              { !checked ? (
+                <Table.Cell>{hero.assists}</Table.Cell>
+              ) : (
+                <Table.Cell>{hero.assistsPerGame.toFixed(1)}</Table.Cell>
+              )}   
+              <Table.Cell>{ hero.kda.toFixed(1) }</Table.Cell>
+            </Table.Row>
+          ))}
+          </Table.Body>
+        </Table>
+      </div>
     )
 }
 
