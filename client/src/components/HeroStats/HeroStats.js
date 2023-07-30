@@ -135,7 +135,8 @@ function HeroStats(props) {
         65110965, //Rocco
         67762413, //Walker
         68024789, //Ben
-        80636612  //Martin
+        80636612,  //Martin
+        214308966  //Andy
     ]
 
     const playerName = (player_id) => {
